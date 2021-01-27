@@ -3,8 +3,9 @@ Clear-Host
     
 #Functions
 Function remove_bloatware {
-    Write-host "`n`n INITIALIZING BLOAT REMOVER" -f green;
-    Write-host "    - Removing bloat apps and games:" -f green;
+    Write-host "`n`n INITIALIZING BLOAT REMOVER" -f green
+    Write-host "    - Removing bloat apps and games:" -f green
+    start-sleep 5 
     $ProgressPreference = "SilentlyContinue" #hide progressbar
 
     $Bloatware = @(		
@@ -34,11 +35,11 @@ Function remove_bloatware {
         "Microsoft.XboxGameCallableUI"
         "Microsoft.XboxSpeechToTextOverlay"
         "Microsoft.XboxGameOverlay"
-        "Microsoft.Xbox.TCUI"
         "Microsoft.XboxIdentityProvider"
         "Microsoft.XboxGameCallableUI"
         "Microsoft.XboxGamingOverlay"
         "Microsoft.XboxApp"
+        "Microsoft.Xbox.TCUI"
                                             
         ## Bing Bloat ##
         "Microsoft.BingTravel"
@@ -78,17 +79,23 @@ Function remove_bloatware {
         Get-AppxPackage -Name $Bloat | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null
         Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Out-Null
     }
-    Write-host "        - Bloat app removal complete. " -f yellow;
-    $ProgressPreference = "Continue" #unhide progressbar
-    
-    Write-Output "    - Disabling scheduled tasks" -f green
-        Get-ScheduledTask  XblGameSaveTaskLogon | Disable-ScheduledTask | Out-Null
-        Get-ScheduledTask  XblGameSaveTask | Disable-ScheduledTask | Out-Null
-        Get-ScheduledTask  Consolidator | Disable-ScheduledTask | Out-Null
-        Get-ScheduledTask  UsbCeip | Disable-ScheduledTask | Out-Null
-        Get-ScheduledTask  DmClient | Disable-ScheduledTask | Out-Null
-        Get-ScheduledTask  DmClientOnScenarioDownload | Disable-ScheduledTask | Out-Null
-
+    Write-host "        - Bloat app removal complete. " -f yellow; $ProgressPreference = "Continue" #unhide progressbar
+    Write-host "    - Removing bloat schedules:" -f green
+    start-sleep 5    
+        $Bloatschedules = @(
+            "XblGameSaveTaskLogon"
+            "XblGameSaveTask"
+            "Consolidator"
+            "UsbCeip"
+            "DmClient"
+            "DmClientOnScenarioDownload"
+            )
+        foreach ($BloatSchedule in $BloatSchedules) {
+        $name = Get-ScheduledTask | where TaskName -eq $BloatSchedule | Select -ExpandProperty TaskName
+        Get-ScheduledTask | where TaskName -eq $BloatSchedule | Disable-ScheduledTask | Out-Null
+        }
+        Write-host "        - Bloat schedule removal complete. " -f yellow;
+        
     
     
     #Unpin start menu
@@ -107,15 +114,16 @@ Function remove_bloatware {
 
     $layoutFile = "C:\Windows\StartMenuLayout.xml"
             
-    Write-host "    - Cleaning Start Menu from pinned bloat:" -f Green;
+    Write-host "    - Cleaning Start Menu from pinned bloat:" -f Green
+    start-sleep 5
     #Delete layout file if it already exists
-    Write-Host "        - Removing current Start Menu..." -f Green
+    Write-Host "        - Removing current Start Menu..." -f Yellow
     If (Test-Path $layoutFile) {
         Remove-Item $layoutFile
     }
 
     #Creates the blank layout file
-    Write-host "        - Creates and applying a new blank start menu..." -f Green
+    Write-host "        - Creates and applying a new blank start menu..." -f Yellow
     $START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
     $regAliases = @("HKLM", "HKCU")
 
@@ -131,7 +139,7 @@ Function remove_bloatware {
     }
 
     #Restart Explorer, open the start menu (necessary to load the new layout), and give it a few seconds to process
-    Write-host "        - Restarting explorer..." -f Green
+    Write-host "        - Restarting explorer..." -f yellow
     Stop-Process -name explorer -Force
     Start-Sleep -s 5
 
@@ -142,23 +150,29 @@ Function remove_bloatware {
         Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 0
     }
     Stop-Process -name explorer
-    write-host "        - Save changes to all users.." -f Green
+    write-host "        - Save changes to all users.." -f yellow
     Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
     Remove-Item $layoutFile
-    write-host "        - Start menu bloat removal complete." -f Green
+    write-host "        - Start menu bloat removal complete." -f yellow
         
     #Clean Taskbar
-    Write-host "    - Cleaning Taskbar:" -f Green;
-    write-host "        - Changing keys.." -f Green
-    New-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesChanges -Value 3 -Type Dword -Force | Out-Null
-    New-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesRemovedChanges -Value 32 -Type Dword -Force | Out-Null
-    New-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesVersion -Value 3 -Type Dword -Force | Out-Null
-    New-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name Favorites -Value ([byte[]](0xFF)) -Force | Out-Null
-    write-host "        - Removing shortcuts.." -f Green
+    Write-host "    - Cleaning Taskbar:" -f Green
+    start-sleep 5
+    write-host "        - Changing keys.." -f yellow
+    Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesChanges -Value 3 -Type Dword -Force | Out-Null
+    Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesRemovedChanges -Value 32 -Type Dword -Force | Out-Null
+    Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesVersion -Value 3 -Type Dword -Force | Out-Null
+    Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name Favorites -Value ([byte[]](0xFF)) -Force | Out-Null
+    Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowCortanaButton -Type DWord -Value 0 | Out-Null
+    Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Search -Name SearchboxTaskbarMode -Value 0 -Type Dword | Out-Null
+    set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowTaskViewButton -Type DWord -Value 0 | Out-Null
+
+    write-host "        - Removing shortcuts.." -f yellow
     Remove-Item -Path "$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*" -Recurse -Force | Out-Null
     Stop-Process -name explorer
     start-sleep 5
-    write-host "        - Taskbar is now clean." -f Green
+    #Start-Process explorer
+    write-host "        - Taskbar is now clean." -f yellow
             
 }
 Function settings_privacy {
