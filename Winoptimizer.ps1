@@ -3,102 +3,106 @@ Clear-Host
     
 #Functions
 Function remove_bloatware {
-    Write-host "`n`n INITIALIZING BLOAT REMOVER" -f green
-    Write-host "    - Removing bloat apps and games:" -f green
-    start-sleep 5 
-    $ProgressPreference = "SilentlyContinue" #hide progressbar
+    Write-host "  REMOVING MICROSOFT BLOAT" -f green
+    #Cleaning Apps and Features
+        Write-host "      CLEANING - Apps and Features" -f green
+        start-sleep 5 
+        $ProgressPreference = "SilentlyContinue" #hide progressbar
 
-    $Bloatware = @(		
-        # Microsoft Bloat ##
-        "Microsoft.ZuneMusic"
-        "Microsoft.MicrosoftSolitaireCollection"
-        "Microsoft.MicrosoftOfficeHub"
-        "Microsoft.Microsoft3DViewer"
-        "Microsoft.MicrosoftStickyNotes"
-        "Microsoft.Getstarted"
-        "Microsoft.Office.OneNote"
-        "Microsoft.People"
-        "Microsoft.3DBuilder"
-        "*officehub*"
-        "*feedback*"
-        "Microsoft.Music.Preview"
-        "Microsoft.WindowsMaps"
-        "*windowscommunicationsapps*"
-        "*autodesksketch*"
-        "*plex*"
-        "*print3d*"
-        "*Paint3D*"
-        "*Mixed*"
-        "*oneconnect*"
-                                            
-        ## Xbox Bloat ##
-        "Microsoft.XboxGameCallableUI"
-        "Microsoft.XboxSpeechToTextOverlay"
-        "Microsoft.XboxGameOverlay"
-        "Microsoft.XboxIdentityProvider"
-        "Microsoft.XboxGameCallableUI"
-        "Microsoft.XboxGamingOverlay"
-        "Microsoft.XboxApp"
-        "Microsoft.Xbox.TCUI"
-                                            
-        ## Bing Bloat ##
-        "Microsoft.BingTravel"
-        "Microsoft.BingHealthAndFitness"
-        "Microsoft.BingFoodAndDrink"
-        "Microsoft.BingWeather"
-        "Microsoft.BingNews"
-        "Microsoft.BingFinance"
-        "Microsoft.BingSports"
-        "Microsoft.Bing*"
-        "*Bing*"
+        Write-host "        - Removing bloated Microsoft apps, games, tools etc.." -f yellow
+        start-sleep 3
+        $Bloatware = @(		
+            # Microsoft Bloat ##
+            "Microsoft.ZuneMusic"
+            "Microsoft.MicrosoftSolitaireCollection"
+            "Microsoft.MicrosoftOfficeHub"
+            "Microsoft.Microsoft3DViewer"
+            "Microsoft.MicrosoftStickyNotes"
+            "Microsoft.Getstarted"
+            "Microsoft.Office.OneNote"
+            "Microsoft.People"
+            "Microsoft.3DBuilder"
+            "*officehub*"
+            "*feedback*"
+            "Microsoft.Music.Preview"
+            "Microsoft.WindowsMaps"
+            "*windowscommunicationsapps*"
+            "*autodesksketch*"
+            "*plex*"
+            "*print3d*"
+            "*Paint3D*"
+            "*Mixed*"
+            "*oneconnect*"
+                                                
+            ## Xbox Bloat ##
+            "Microsoft.XboxGameCallableUI"
+            "Microsoft.XboxSpeechToTextOverlay"
+            "Microsoft.XboxGameOverlay"
+            "Microsoft.XboxIdentityProvider"
+            "Microsoft.XboxGameCallableUI"
+            "Microsoft.XboxGamingOverlay"
+            "Microsoft.XboxApp"
+            "Microsoft.Xbox.TCUI"
+                                                
+            ## Bing Bloat ##
+            "Microsoft.BingTravel"
+            "Microsoft.BingHealthAndFitness"
+            "Microsoft.BingFoodAndDrink"
+            "Microsoft.BingWeather"
+            "Microsoft.BingNews"
+            "Microsoft.BingFinance"
+            "Microsoft.BingSports"
+            "Microsoft.Bing*"
+            "*Bing*"
 
-        ## Games ##
-        "*disney*"
-        "*candycrush*"
-        "*minecraft*"
-        "*bubblewitch*"
-        "*empires*"
-        "*Royal Revolt*"
-                            
-        ## Other crap ##
-        "*Skype*"
-        "*Facebook*"
-        "*Twitter*"
-        "*Spotify*"
-        "*EclipseManager*"
-        "*ActiproSoftwareLLC*"
-        "*AdobeSystemsIncorporated.AdobePhotoshopExpress*"
-        "*Duolingo-LearnLanguagesforFree*"
-        "*PandoraMediaInc*"
-        "*Wunderlist*"
-        "*Flipboard*"
-    )
-    foreach ($Bloat in $Bloatware) {
-        $bloat_output = Get-AppxPackage | Where-Object Name -Like $Bloat | Select -Property Name; #Write-Host "        - Removing: $bloat_output"
-        if ($bloat_output -ne $null) { Write-host "        - Removing: " -f yellow -nonewline; write-host "$bloat_output".Split(".")[1].Split("}")[0] -f yellow }
-        Get-AppxPackage -Name $Bloat | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null
-        Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Out-Null
-    }
-    Write-host "        - Bloat app removal complete. " -f yellow; $ProgressPreference = "Continue" #unhide progressbar
-    Write-host "    - Removing bloat schedules:" -f green
-    start-sleep 5    
-        $Bloatschedules = @(
-            "XblGameSaveTaskLogon"
-            "XblGameSaveTask"
-            "Consolidator"
-            "UsbCeip"
-            "DmClient"
-            "DmClientOnScenarioDownload"
-            )
-        foreach ($BloatSchedule in $BloatSchedules) {
-        $name = Get-ScheduledTask | where TaskName -eq $BloatSchedule | Select -ExpandProperty TaskName
-        Get-ScheduledTask | where TaskName -eq $BloatSchedule | Disable-ScheduledTask | Out-Null
+            ## Games ##
+            "*disney*"
+            "*candycrush*"
+            "*minecraft*"
+            "*bubblewitch*"
+            "*empires*"
+            "*Royal Revolt*"
+                                
+            ## Other crap ##
+            "*Skype*"
+            "*Facebook*"
+            "*Twitter*"
+            "*Spotify*"
+            "*EclipseManager*"
+            "*ActiproSoftwareLLC*"
+            "*AdobeSystemsIncorporated.AdobePhotoshopExpress*"
+            "*Duolingo-LearnLanguagesforFree*"
+            "*PandoraMediaInc*"
+            "*Wunderlist*"
+            "*Flipboard*"
+        )
+        foreach ($Bloat in $Bloatware) {
+            $bloat_output = Get-AppxPackage | Where-Object Name -Like $Bloat | Select -Property Name; #Write-Host "        - Removing: $bloat_output"
+            if ($bloat_output -ne $null) { Write-host "        - Bloat app found! Removing: " -f yellow -nonewline; write-host "$bloat_output".Split(".")[1].Split("}")[0] -f yellow }
+            Get-AppxPackage -Name $Bloat | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null
+            Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Out-Null
         }
-        Write-host "        - Bloat schedule removal complete. " -f yellow;
+        Write-host "        - CLEANED - Apps and Features" -f yellow; $ProgressPreference = "Continue" #unhide progressbar
+        start-sleep 5    
+        Write-host "      CLEANING - Task Scheduler" -f green
+        $Bloatschedules = @(
+                "XblGameSaveTaskLogon"
+                "XblGameSaveTask"
+                "Consolidator"
+                "UsbCeip"
+                "DmClient"
+                "DmClientOnScenarioDownload"
+                )
+            foreach ($BloatSchedule in $BloatSchedules) {
+            if ((Get-ScheduledTask | where state -ne Disabled | where TaskName -like $BloatSchedule)){
+            Write-host "        - Bloat found in Task Scheduler! Disabling: $BloatSchedule" -f yellow
+            Get-ScheduledTask | where Taskname -eq $BloatSchedule | Disable-ScheduledTask | Out-Null}}
+            Write-host "        - CLEANED - Task Scheduler" -f yellow;
+            
         
-    
-    
+        
     #Unpin start menu
+        Write-host "      CLEANING - Start Menu" -f Green
 
     $START_MENU_LAYOUT = @"
 <LayoutModificationTemplate xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" Version="1" xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification">
@@ -112,249 +116,240 @@ Function remove_bloatware {
 "@
     
 
-    $layoutFile = "C:\Windows\StartMenuLayout.xml"
-            
-    Write-host "    - Cleaning Start Menu from pinned bloat:" -f Green
-    start-sleep 5
-    #Delete layout file if it already exists
-    Write-Host "        - Removing current Start Menu..." -f Yellow
-    If (Test-Path $layoutFile) {
-        Remove-Item $layoutFile
-    }
-
-    #Creates the blank layout file
-    Write-host "        - Creates and applying a new blank start menu..." -f Yellow
-    $START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
-    $regAliases = @("HKLM", "HKCU")
-
-    #Assign the start layout and force it to apply with "LockedStartLayout" at both the machine and user level
-    foreach ($regAlias in $regAliases) {
-        $basePath = $regAlias + ":\Software\Policies\Microsoft\Windows"
-        $keyPath = $basePath + "\Explorer" 
-        IF (!(Test-Path -Path $keyPath)) { 
-            New-Item -Path $basePath -Name "Explorer" | Out-Null
+        $layoutFile = "C:\Windows\StartMenuLayout.xml"
+                
+        start-sleep 5
+        #Delete layout file if it already exists
+        Write-Host "        - Removing current Start Menu..." -f Yellow
+        If (Test-Path $layoutFile) {
+            Remove-Item $layoutFile
         }
-        Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 1
-        Set-ItemProperty -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile
-    }
 
-    #Restart Explorer, open the start menu (necessary to load the new layout), and give it a few seconds to process
-    Write-host "        - Restarting explorer..." -f yellow
-    Stop-Process -name explorer -Force
-    Start-Sleep -s 5
+        #Creates the blank layout file
+        Write-host "        - Creates and applying a new blank start menu..." -f Yellow
+        $START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
+        $regAliases = @("HKLM", "HKCU")
 
-    #Enable the ability to pin items again by disabling "LockedStartLayout"
-    foreach ($regAlias in $regAliases) {
-        $basePath = $regAlias + ":\Software\Policies\Microsoft\Windows"
-        $keyPath = $basePath + "\Explorer" 
-        Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 0
-    }
-    Stop-Process -name explorer
-    write-host "        - Save changes to all users.." -f yellow
-    Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
-    Remove-Item $layoutFile
-    write-host "        - Start menu bloat removal complete." -f yellow
+        #Assign the start layout and force it to apply with "LockedStartLayout" at both the machine and user level
+        foreach ($regAlias in $regAliases) {
+            $basePath = $regAlias + ":\Software\Policies\Microsoft\Windows"
+            $keyPath = $basePath + "\Explorer" 
+            IF (!(Test-Path -Path $keyPath)) { 
+                New-Item -Path $basePath -Name "Explorer" | Out-Null
+            }
+            Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 1
+            Set-ItemProperty -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile
+        }
+
+        #Restart Explorer, open the start menu (necessary to load the new layout), and give it a few seconds to process
+        Write-host "        - Restarting explorer..." -f yellow
+        Stop-Process -name explorer -Force
+        Start-Sleep -s 5
+
+        #Enable the ability to pin items again by disabling "LockedStartLayout"
+        foreach ($regAlias in $regAliases) {
+            $basePath = $regAlias + ":\Software\Policies\Microsoft\Windows"
+            $keyPath = $basePath + "\Explorer" 
+            Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 0
+        }
+        Stop-Process -name explorer
+        write-host "        - Save changes to all users.." -f yellow
+        Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
+        Remove-Item $layoutFile
+        write-host "        - CLEANED - Start Menu" -f yellow
         
     #Clean Taskbar
-    Write-host "    - Cleaning Taskbar:" -f Green
-    start-sleep 5
-    write-host "        - Changing keys.." -f yellow
-    Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesChanges -Value 3 -Type Dword -Force | Out-Null
-    Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesRemovedChanges -Value 32 -Type Dword -Force | Out-Null
-    Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesVersion -Value 3 -Type Dword -Force | Out-Null
-    Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name Favorites -Value ([byte[]](0xFF)) -Force | Out-Null
-    Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowCortanaButton -Type DWord -Value 0 | Out-Null
-    Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Search -Name SearchboxTaskbarMode -Value 0 -Type Dword | Out-Null
-    set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowTaskViewButton -Type DWord -Value 0 | Out-Null
+        Write-host "      CLEANING - Taskbar" -f Green
+        start-sleep -s 5
+        write-host "        - Changing keys.." -f yellow
+        Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesChanges -Value 3 -Type Dword -Force | Out-Null
+        Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesRemovedChanges -Value 32 -Type Dword -Force | Out-Null
+        Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesVersion -Value 3 -Type Dword -Force | Out-Null
+        Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name Favorites -Value ([byte[]](0xFF)) -Force | Out-Null
+        Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowCortanaButton -Type DWord -Value 0 | Out-Null
+        Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Search -Name SearchboxTaskbarMode -Value 0 -Type Dword | Out-Null
+        set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowTaskViewButton -Type DWord -Value 0 | Out-Null
 
-    write-host "        - Removing shortcuts.." -f yellow
-    Remove-Item -Path "$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*" -Recurse -Force | Out-Null
-    Stop-Process -name explorer
-    start-sleep 5
-    #Start-Process explorer
-    write-host "        - Taskbar is now clean." -f yellow
-            
+        write-host "        - Removing shortcuts.." -f yellow
+        Remove-Item -Path "$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*" -Recurse -Force | Out-Null
+        Stop-Process -name explorer
+        start-sleep -s 5
+        #Start-Process explorer
+        write-host "        - CLEANED - Taskbar" -f yellow
+
+    #END
+        write-host "      COMPLETE - BLOAT REMOVAL" -f Green
+        start-sleep 10
+                
 }
 Function settings_privacy {
       
-    Write-host "    Changing settings to protect your privacy:" -f Green
+    Write-host "  ENHANCE WINDOWS PRIVACY" -f green
+    #Cleaning Apps and Features
+    Write-host "      BLOCKING - Microsoft Data Collection" -f green
           
     # Disable Advertising ID
-    Write-host "    - Disabling advertising ID." -f Green
-    If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo")) {
-        New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Force | Out-Null
-    }
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Type DWord -Value 0
-    Start-Sleep -s 2
+        Write-host "        - Disabling advertising ID." -f yellow
+        If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo")) {
+            New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Force | Out-Null
+        }
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Type DWord -Value 0
+        Start-Sleep -s 2
       
     # Disable let websites provide locally relevant content by accessing language list
-    Write-host "    - Disabling location tracking." -f Green
-    If (!(Test-Path "HKCU:\Control Panel\International\User Profile")) {
-        New-Item -Path "HKCU:\Control Panel\International\User Profile" -Force | Out-Null
-    }
-    Set-ItemProperty -Path  "HKCU:\Control Panel\International\User Profile" -Name "HttpAcceptLanguageOptOut"  -Value 1
-    Start-Sleep -s 2
+        Write-host "        - Disabling location tracking." -f yellow
+        If (!(Test-Path "HKCU:\Control Panel\International\User Profile")) {
+            New-Item -Path "HKCU:\Control Panel\International\User Profile" -Force | Out-Null
+        }
+        Set-ItemProperty -Path  "HKCU:\Control Panel\International\User Profile" -Name "HttpAcceptLanguageOptOut"  -Value 1
+        Start-Sleep -s 2
       
     # Disable Show me suggested content in the Settings app
-    Write-host "    - Disabling personalized content suggestions." -f Green
-    If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager")) {
-        New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Force | Out-Null
-    }
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338393Enabled" -Type DWord -Value 0
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353694Enabled" -Type DWord -Value 0
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353696Enabled" -Type DWord -Value 0
-    Start-Sleep -s 2
+        Write-host "        - Disabling personalized content suggestions." -f Yellow
+        If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager")) {
+            New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Force | Out-Null
+        }
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338393Enabled" -Type DWord -Value 0
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353694Enabled" -Type DWord -Value 0
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353696Enabled" -Type DWord -Value 0
+        Start-Sleep -s 2
       
     # Remove Cortana
-    Write-host "    - Disabling Cortana." -f Green
-    Get-AppxPackage -name *Microsoft.549981C3F5F10* | Remove-AppxPackage
-    If (!(Test-Path "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
-        New-Item -Path "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null
-    }
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Type DWord -Value 0
-    Stop-Process -name explorer
-    Start-Sleep -s 2
+        Write-host "        - Disabling Cortana." -f yellow
+        $ProgressPreference = "SilentlyContinue"
+        Get-AppxPackage -name *Microsoft.549981C3F5F10* | Remove-AppxPackage
+        If (!(Test-Path "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
+            New-Item -Path "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null
+        }
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Type DWord -Value 0
+        $ProgressPreference = "Continue"
+        Stop-Process -name explorer
+        Start-Sleep -s 5
 
     # Disable Online Speech Recognition
-    Write-host "    - Disabling Online Speech Recognition." -f Green
-    If (!(Test-Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy")) {
-        New-Item -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Force | Out-Null
-    }
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "HasAccepted" -Type DWord -Value 0
-    Start-Sleep -s 2
+        Write-host "        - Disabling Online Speech Recognition." -f yellow
+        If (!(Test-Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy")) {
+            New-Item -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Force | Out-Null
+        }
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "HasAccepted" -Type DWord -Value 0
+        Start-Sleep -s 2
     
     # Hiding personal information from lock screen
-    Write-host "    - Hiding email and domain information from sign-in screen." -f Green
-    If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\System")) {
-        New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Force | Out-Null
-    }
-    Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "DontDisplayLockedUserID" -Type DWord -Value 0
-    Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "DontDisplayLastUsername" -Type DWord -Value 0
-    Start-Sleep -s 2
+        Write-host "        - Hiding email and domain information from sign-in screen." -f yellow
+        If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\System")) {
+            New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Force | Out-Null
+        }
+        Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "DontDisplayLockedUserID" -Type DWord -Value 0
+        Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "DontDisplayLastUsername" -Type DWord -Value 0
+        Start-Sleep -s 2
        
     # Disable diagnostic data collection
-    Write-host "    - Disabling diagnostic data collection" -f Green
-    If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection")) {
-        New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Force | Out-Null
-    }
-    Set-ItemProperty -Path  "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry"  -Value 0
-    Start-Sleep -s 2
+        Write-host "        - Disabling diagnostic data collection" -f Yellow
+        If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection")) {
+            New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Force | Out-Null
+        }
+        Set-ItemProperty -Path  "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry"  -Value 0
+        Start-Sleep -s 2
     
     # Disable App Launch Tracking
-    Write-host "    - Disabling App Launch Tracking." -f Green
-    If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
-        New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null
-    }
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "Start_TrackProgs" -Type DWord -Value 0
-    Start-Sleep -s 2
+        Write-host "        - Disabling App Launch Tracking." -f Yellow
+        If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
+            New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null
+        }
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "Start_TrackProgs" -Type DWord -Value 0
+        Start-Sleep -s 2
 
     # Disable "tailored expirence"
-    Write-host "    - Disable tailored expirience." -f Green        
-    If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy")) {   
-        New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Force | Out-Null
-    }
-    Set-ItemProperty -Path  "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Name "TailoredExperiencesWithDiagnosticDataEnabled"  -Value 0
-    Start-Sleep -s 2
+        Write-host "        - Disable tailored expirience." -f Yellow        
+        If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy")) {   
+            New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Force | Out-Null
+        }
+        Set-ItemProperty -Path  "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Name "TailoredExperiencesWithDiagnosticDataEnabled"  -Value 0
+        Start-Sleep -s 2
 
     # Disabling services
-    Write-host "    - Disabling tracking services to startup with windows." -f Green
+        Write-host "      BLOCKING - Startup services (tracking)" -f green
         $trackingservices = @(
-            "diagnosticshub.standardcollector.service" # Microsoft (R) Diagnostics Hub Standard Collector Service
-            "DiagTrack"                                # Diagnostics Tracking Service
-            "dmwappushservice"                         # WAP Push Message Routing Service (see known issues)
-            "lfsvc"                                    # Geolocation Service
-            "TrkWks"                                   # Distributed Link Tracking Client
-            "XblAuthManager"                           # Xbox Live Auth Manager
-            "XblGameSave"                              # Xbox Live Game Save Service
-            "XboxNetApiSvc"                            # Xbox Live Networking Service
-                            )
+        "diagnosticshub.standardcollector.service" # Microsoft (R) Diagnostics Hub Standard Collector Service
+        "DiagTrack"                                # Diagnostics Tracking Service
+        "dmwappushservice"                         # WAP Push Message Routing Service (see known issues)
+        "lfsvc"                                    # Geolocation Service
+        "TrkWks"                                   # Distributed Link Tracking Client
+        "XblAuthManager"                           # Xbox Live Auth Manager
+        "XblGameSave"                              # Xbox Live Game Save Service
+        "XboxNetApiSvc"                            # Xbox Live Networking Service
+                             )
 
-        foreach ($trackingservice in $trackingservices) {
-            Get-Service -Name $trackingservice | Stop-Service | Set-Service -StartupType Disabled
-        }   
-
+         foreach ($trackingservice in $trackingservices) {
+         if((Get-Service -Name $trackingservice | where Starttype -ne Disabled)){
+         write-host "        - Tracking Service found! $trackingservice - disabling service.." -f yellow
+         Get-Service | where name -eq $trackingservice | Set-Service -StartupType Disabled}}
+         write-host "        - Service scan complete" -f yellow
 
     # Adding entries to hosts file
-    Write-host "    - Blocking Microsoft tracking domains. " -f Green
+        Write-host "      BLOCKING - Tracking domains (This may take a while).." -f green
+        start-sleep -s 5
+         Write-Host "        - Backing up your hostsfile.." -f Yellow
         #Taking backup of current hosts file first
         $hostsfile = "C:\Windows\System32\drivers\etc\hosts"
         $Takebackup = "C:\Windows\System32\drivers\etc\hosts_backup"
         Copy-Item $hostsfile $Takebackup
-    
-    Write-Host "        - Getting an updated list of microsoft tracking domains..(This step may take a while).." -f Green
-    $domain = Invoke-WebRequest -Uri https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt  -UseBasicParsing
-    $domain = $domain.Content | Foreach-object { $_ -replace "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", "" } | Foreach-object { $_ -replace " ", "" }
-    $domain = $domain.Split("`n"); 
-    Write-Host "        - Taking backup of original hostsfile before adding entries." -f Green
-
-    #Adding entries to hostsfile C:\Windows\System32\drivers\etc\hosts
-    #spynet2.microsoft can't by added this way without Microsoft Defender kills the script. will be added later.
-    Write-Host "        - Adding shady domains to your blocking list..." -f Green
-    Add-Content -Encoding UTF8  $hostsfile ("`n" + "`n" + "# Blocking Microsoft tracking" + "`n")           
-    $counter = 0
-    foreach ($domain_entry in $domain) {
-        if ($domain_entry -notlike "#*" -and $domain_entry -match "\w" -and $domain_entry -notmatch "spynet2.microsoft.com" ) {
-            $counter++
-
-            Write-Progress -Activity 'Adding entries to host file..' -CurrentOperation $domain_entry -PercentComplete (($counter / $domain.count) * 100)
-            Add-Content -Encoding UTF8  $hostsfile ("`t" + "0.0.0.0" + "`t`t" + "$domain_entry") -ErrorAction SilentlyContinue
-            Start-Sleep -Milliseconds 200
+        
+        Write-Host "        - Getting an updated list of microsoft tracking domains" -f Yellow
+        $domain = Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt'  -UseBasicParsing
+        $domain = $domain.Content | Foreach-object { $_ -replace "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", "" } | Foreach-object { $_ -replace " ", "" }
+        $domain = $domain.Split("`n") -notlike "#*" -notmatch "spynet2.microsoft.com" -match "\w"
+        
+        Write-Host "        - Blocking domains from tracking-list" -f Yellow
+        foreach ($domain_entry in $domain) {
+        $counter++
+                Write-Progress -Activity 'Adding entries to host file..' -CurrentOperation $domain_entry -PercentComplete (($counter /$domain.count) * 100)
+                Add-Content -Encoding UTF8  $hostsfile ("`t" + "0.0.0.0" + "`t`t" + "$domain_entry") -ErrorAction SilentlyContinue
+                Start-Sleep -Milliseconds 200
         }
-    }
-    $ProgressPreference = "SilentlyContinue"
-    #adding the missing piece manually in hostsfile
-    Start-Process Notepad -Verb RunAs "C:\Windows\System32\drivers\etc\hosts"
-    $app = New-Object -ComObject Shell.Application
-    $key = New-Object -com Wscript.Shell
-    $key.AppActivate("hosts - notepad")
-    Start-Sleep -s 1
-    $key.SendKeys("^{END}")
-    $key.SendKeys("{TAB}")
-    Start-Sleep -s 1
-    $key.SendKeys("0.0.0.0")
-    Start-Sleep -s 1
-    $key.SendKeys("{TAB}")
-    $key.SendKeys("{TAB}")
-    Start-Sleep -s 1
-    $key.SendKeys("spynet2.microsoft.com")
-    Start-Sleep -s 1
-    $key.SendKeys("^s")
-    Stop-Process -Name Notepad
+        Write-Progress -Completed -Activity "make progress bar dissapear"
+        #flush DNS cache
+        Write-host "        - Flushing local DNS cache" -f Yellow
+        ipconfig /flushdns | Out-Null; start-Sleep 2; nbtstat -R | Out-Null; start-Sleep -s 2;
+        Stop-Process -name explorer; Start-Sleep -s 5
 
     # Blocking Microsoft Tracking IP's in the firewall
-    Write-host "    - Blocking Microsoft tracking IP's." -f Green 
-    Write-Host "        - Getting updated lists of Microsoft's trackin IP's" -f Green
-    $blockip = Invoke-WebRequest -Uri https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/firewall/spy.txt  -UseBasicParsing
-    $blockip = $blockip.Content | Foreach-object { $_ -replace "0.0.0.0 ", "" } | Out-String
-    $blockip = $blockip.Split("`n");
-    Write-Host "        - Configuring blocking rules in your firewall.." -f Green
-    foreach ($ip_entry in $blockip) {   
-        if ($ip_entry -notlike "#*" -and $ip_entry -match "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}") {
-            netsh advfirewall firewall add rule name="Block Microsoft Tracking IP: $ip_entry" dir=out action=block remoteip=$ip_entry enable=yes | Out-Null
-        }
-    }
-    Start-Sleep -s 2
+        Write-host "      BLOCKING - Tracking IP's" -f green
+        Write-Host "        - Getting updated lists of Microsoft's trackin IP's" -f Yellow
+        $blockip = Invoke-WebRequest -Uri https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/firewall/spy.txt  -UseBasicParsing
+        $blockip = $blockip.Content | Foreach-object { $_ -replace "0.0.0.0 ", "" } | Out-String
+        $blockip = $blockip.Split("`n") -notlike "#*" -match "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
+        Clear-Variable -Name counter
+        Write-Host "        - Configuring blocking rules in your firewall.." -f Yellow
+        foreach ($ip_entry in $blockip) {
+        $counter++
+        Write-Progress -Activity 'Configuring firewall rules..' -CurrentOperation $ip_entry -PercentComplete (($counter /$blockip.count) * 100)
+        netsh advfirewall firewall add rule name="Block Microsoft Tracking IP: $ip_entry" dir=out action=block remoteip=$ip_entry enable=yes | Out-Null}
+        Write-Progress -Completed -Activity "make progress bar dissapear"
+        Write-Host "        - Firewall configuration complete." -f Yellow
+        start-sleep 5
 
     # Send Microsoft a request to delete collected data about you.
-    Write-host "    - Submitting a request to Microsoft to delete data about you." -f Green
-    Start-Sleep -s 2
-    $app = New-Object -ComObject Shell.Application
-    $key = New-Object -com Wscript.Shell
+        Write-host "      SUBMIT - request to Microsoft to delete data about you." -f green
+        Start-Sleep -s 2
+        $app = New-Object -ComObject Shell.Application
+        $key = New-Object -com Wscript.Shell
 
-    $app.open("ms-settings:privacy-feedback")
-    $key.AppActivate("Settings")
-    Start-Sleep -s 2
-    $key.SendKeys("{TAB}")
-    $key.SendKeys("{TAB}")
-    $key.SendKeys("{TAB}")
-    $key.SendKeys("{TAB}")
-    $key.SendKeys("{TAB}")
-    Start-Sleep -s 2
-    $key.SendKeys("{ENTER}")
-    Start-Sleep -s 3
-    $key.SendKeys("%{F4}")
+        $app.open("ms-settings:privacy-feedback")
+        $key.AppActivate("Settings")
+        Start-Sleep -s 2
+        $key.SendKeys("{TAB}")
+        $key.SendKeys("{TAB}")
+        $key.SendKeys("{TAB}")
+        $key.SendKeys("{TAB}")
+        $key.SendKeys("{TAB}")
+        Start-Sleep -s 2
+        $key.SendKeys("{ENTER}")
+        Start-Sleep -s 3
+        $key.SendKeys("%{F4}")
     
-    #Add-Content -Encoding UTF8  $hostsfile "`t0.0.0.0`t`tspynet2.microsoft.com"
+        write-host "      COMPLETE - PRIVACY OPTIMIZATION" -f Green
+        start-sleep 10
 
     
 }
@@ -609,7 +604,7 @@ if ($admin_permissions_check) {
             3 { settings_privacy }
             4 { settings_customize }
             5 { exit }
-            Default { cls; Write-host""; Write-host""; Write-host "INVALID OPTION. TRY AGAIN.." -f red; Write-host""; Write-host""; Sleep 1; cls; Write-host ""; Write-host "" } 
+            Default { cls; Write-host""; Write-host""; Write-host "INVALID OPTION. TRY AGAIN.." -f red; Write-host""; Write-host""; Start-Sleep 1; cls; Write-host ""; Write-host "" } 
         }
          
     }while ($option -ne 5 )
@@ -620,7 +615,7 @@ if ($admin_permissions_check) {
 else {
     1..99 | % {
         $Warning_message = "POWERSHELL IS NOT RUNNING AS ADMINISTRATOR. Please close this and run this script as administrator."
-        cls; ""; ""; ""; ""; ""; write-host $Warning_message -ForegroundColor White -BackgroundColor Red; ""; ""; ""; ""; ""; sleep 1; cls
-        cls; ""; ""; ""; ""; ""; write-host $Warning_message -ForegroundColor White; ""; ""; ""; ""; ""; sleep 1; cls
+        cls; ""; ""; ""; ""; ""; write-host $Warning_message -ForegroundColor White -BackgroundColor Red; ""; ""; ""; ""; ""; Start-Sleep 1; cls
+        cls; ""; ""; ""; ""; ""; write-host $Warning_message -ForegroundColor White; ""; ""; ""; ""; ""; Start-Sleep 1; cls
     }    
 }
