@@ -1,6 +1,7 @@
 ﻿#clean terminal before run
 Clear-Host
-    
+
+
 #Functions
 Function remove_bloatware {
     Write-host "  REMOVING MICROSOFT BLOAT" -f green
@@ -336,7 +337,7 @@ Function settings_privacy {
         $key = New-Object -com Wscript.Shell
 
         $app.open("ms-settings:privacy-feedback")
-        $key.AppActivate("Settings")
+        $key.AppActivate("Settings") | out-null
         Start-Sleep -s 2
         $key.SendKeys("{TAB}")
         $key.SendKeys("{TAB}")
@@ -363,11 +364,13 @@ Function settings_customize {
         Switch ($answer) { 
             Y {
                 Write-Host "            YES. Removing Cortana" -f Green
+                $ProgressPreference = "SilentlyContinue" #hide progressbar
                 Get-AppxPackage -name *Microsoft.549981C3F5F10* | Remove-AppxPackage
                 If (!(Test-Path "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
                     New-Item -Path "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null
                 }
                 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Type DWord -Value 0
+                $ProgressPreference = "Continue" #unhide progressbar 
                 Stop-Process -name explorer
                 Start-Sleep -s 2
             }
@@ -517,9 +520,19 @@ Function settings_customize {
             Y {
                 Write-Host "            YES. This may take a while.." -f Green
                 $ProgressPreference = "SilentlyContinue" #hide progressbar
-                If ((Get-WmiObject -Class "Win32_OperatingSystem").Caption -like "*Server*") {
-                    Install-WindowsFeature -Name "Hyper-V" -IncludeManagementTools -WarningAction SilentlyContinue | Out-Null
-                }
+                if (((Get-WmiObject -class Win32_OperatingSystem).Caption) -match "Home"){$dst = "$env:TMP\install-hyper-v"
+                    write-host "                Windows Home detected, additional script is needed!" -f green
+                    $file = "install.bat"
+                    md "$env:TMP\install-hyper-v" -Force | out-null
+                    New-Item "$dst\$file" -Force | out-null
+                    $domain = Invoke-WebRequest -Uri 'https://gist.githubusercontent.com/samuel-fonseca/662a620ae32aca254ea7730be5ff7145/raw/a1de2537d5b0613e29c9ca3b9bc0ec67ff1e29a2/Hyper-V-Enabler.bat'  -UseBasicParsing
+                    $domain = $domain.content; Start-sleep 1
+                    write-host "                Downloading script..." -f green
+                    Set-content "$dst\$file" $domain; sleep 1
+                    write-host "                Opening CMD..." -f green
+                    start cmd -Verb RunAs -ArgumentList "/c","$dst/$file" -wait}
+                elseIf ((Get-WmiObject -Class "Win32_OperatingSystem").Caption -like "*Server*") {
+                    Install-WindowsFeature -Name "Hyper-V" -IncludeManagementTools -WarningAction SilentlyContinue | Out-Null}
                 Else { Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Hyper-V-All" -NoRestart -WarningAction SilentlyContinue | Out-Null }
                 $ProgressPreference = "Continue" #unhide progressbar 
                 Write-Host "            Installation complete. Restart PC to take effect." -f Green
