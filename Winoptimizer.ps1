@@ -269,7 +269,7 @@ Function settings_privacy {
         Start-Sleep -s 2
 
     # Disabling services
-        Write-host "      BLOCKING - Startup services (tracking)" -f green
+        Write-host "      BLOCKING - Tracking startup services" -f green
         $trackingservices = @(
         "diagnosticshub.standardcollector.service" # Microsoft (R) Diagnostics Hub Standard Collector Service
         "DiagTrack"                                # Diagnostics Tracking Service
@@ -331,8 +331,31 @@ Function settings_privacy {
         start-sleep 5
 
     # Send Microsoft a request to delete collected data about you.
+        
+        #lock keyboard and mouse to avoid disruption while navigating in GUI.
+        function block_input{
+            $code = @"
+        [DllImport("user32.dll")]
+        public static extern bool BlockInput(bool fBlockIt);
+"@
+            $userInput = Add-Type -MemberDefinition $code -Name UserInput -Namespace UserInput -PassThru
+            $userInput::BlockInput($true)
+            }
+    
+        function allow_input{
+            $code = @"
+        [DllImport("user32.dll")]
+        public static extern bool BlockInput(bool fBlockIt);
+"@
+            $userInput = Add-Type -MemberDefinition $code -Name UserInput -Namespace UserInput -PassThru
+            $userInput::BlockInput($false)
+            }
+    
+        
+        block_input | Out-Null
         Write-host "      SUBMIT - request to Microsoft to delete data about you." -f green
         Start-Sleep -s 2
+        #start navigating
         $app = New-Object -ComObject Shell.Application
         $key = New-Object -com Wscript.Shell
 
@@ -348,7 +371,12 @@ Function settings_privacy {
         $key.SendKeys("{ENTER}")
         Start-Sleep -s 3
         $key.SendKeys("%{F4}")
-    
+        Start-Sleep -s 2
+        
+        #unlocking keyboard and mouse
+        allow_input | Out-Null
+        
+
         write-host "      COMPLETE - PRIVACY OPTIMIZATION" -f Green
         start-sleep 10
 
