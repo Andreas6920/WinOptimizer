@@ -606,6 +606,31 @@ Function settings_customize {
        
 }
 
+Function app_installer {
+    <#
+    .SYNOPSIS
+    Short description
+
+    .DESCRIPTION
+    This will allow automatic installation and will make sure to keep them updates to keep you safe.
+
+    .EXAMPLE
+    An example
+
+    .NOTES
+    General notes
+    #> 
+    
+        #check if chocolatey is installed
+        if (!(Test-Path "$($env:ProgramData)\chocolatey\choco.exe")) { write-host Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))}
+        else { write-host "yes" }
+        choco install googlechrome -Y | Out-Null
+}
+
+
+
+}
+
 
 #Front end begins here
 $intro = 
@@ -616,7 +641,7 @@ $intro =
 | |/ |/ / / / / / /_/ / /_/ / /_/ / / / / / / / / /_/  __/ /    
 |__/|__/_/_/ /_/\____/ .___/\__/_/_/ /_/ /_/_/ /___/\___/_/     
                     /_/                                         
-Version 1.01
+Version 1.2
 Creator: Andreas6920 | https://github.com/Andreas6920/
                                                                                                                                                     
  "
@@ -640,6 +665,7 @@ if ($admin_permissions_check) {
         Write-Host "Option: " -f yellow -nonewline; ;
         $option = Read-Host
         Switch ($option) { 
+            0 { app_installer # under construction, hidden from menu }
             1 { remove_bloatware; settings_privacy; settings_customize }
             2 { remove_bloatware }
             3 { settings_privacy }
