@@ -622,9 +622,27 @@ Function app_installer {
     #> 
     
         #check if chocolatey is installed
-        if (!(Test-Path "$($env:ProgramData)\chocolatey\choco.exe")) { write-host Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))}
+        if (!(Test-Path "$($env:ProgramData)\chocolatey\choco.exe")) { 
+                # installing chocolatey
+                write-host " - Chocolatey was not found on system."
+                write-host " - install Chocolatey.."
+                Set-ExecutionPolicy Bypass -Scope Process -Force;
+                # Downloading installtion file from original source
+                (New-Object System.Net.WebClient).DownloadFile("https://chocolatey.org/install.ps1","$env:TMP/choco-install.ps1")
+                # Adding a few lines to make installtion more silent.
+                $add_line1 = "((Get-Content -path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1 -Raw) -replace '\| write-Output', ' | out-null' ) | Set-Content -Path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1; "
+                $add_line2 = "((Get-Content -path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1 -Raw) -replace 'write-', '#write-' ) | Set-Content -Path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1; "
+                $add_line3 = "((Get-Content -path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1 -Raw) -replace 'function.* #write-', 'function Write-' ) | Set-Content -Path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1;"
+                ((Get-Content -path $env:TMP/choco-install.ps1 -Raw) -replace 'write-host', "#write-host" ) | Set-Content -Path $env:TMP/choco-install.ps1
+                ((Get-Content -path $env:TMP/choco-install.ps1 -Raw) -replace '#endregion Download & Extract Chocolatey', "$add_line1`n$add_line2`n$add_line3" ) | Set-Content -Path $env:TMP/choco-install.ps1
+                # Executing installation file.
+                cd $env:TMP
+                .\choco-install.ps1
+        }
         else { write-host "yes" }
-        choco install googlechrome -Y | Out-Null
+        #choco install googlechrome -Y | Out-Null
+        
+        
 }
 
 
