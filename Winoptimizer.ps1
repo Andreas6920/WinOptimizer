@@ -533,8 +533,8 @@ Function settings_customize {
                 Write-Host "            YES. Removing '3D Objects' shortcuts" -f Green
                 $3Dlocation32bit = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}"
                 $3Dlocation64bit = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A"
-                If((test-path $3Dlocation32bit )){remove-item $3Dlocation32bit}
-                If((test-path $3Dlocation64bit )){remove-item $3Dlocation64bit}
+                If((test-path $3Dlocation32bit )){remove-item $3Dlocation32bit}
+                If((test-path $3Dlocation64bit )){remove-item $3Dlocation64bit}
             }
             N { Write-Host "            NO. 3D Objects will remain listed in your explorer" -f Red } 
         }   
@@ -647,8 +647,6 @@ Function app_installer {
 
 
 
-}
-
 
 #Front end begins here
 $intro = 
@@ -671,28 +669,28 @@ if ($admin_permissions_check) {
 
 
     do {
-        Write-host $intro -f Yellow 
-        Write-host "Please select one of the following options:" -f yellow
-        Write-host ""; Write-host "";
-        Write-host "        [1] - All"
-        Write-host "        [2] - Bloatware removal"
-        Write-host "        [3] - Privacy optimizer"
-        Write-host "        [4] - Customize Windows settings"
-        Write-host "        [5] - Exit"
-        Write-host ""; Write-host "";
-        Write-Host "Option: " -f yellow -nonewline; ;
-        $option = Read-Host
-        Switch ($option) { 
-            0 { app_installer # under construction, hidden from menu }
-            1 { remove_bloatware; settings_privacy; settings_customize }
-            2 { remove_bloatware }
-            3 { settings_privacy }
+        Write-host $intro -f Yellow 
+        Write-host "Please select one of the following options:" -f yellow
+        Write-host ""; Write-host "";
+        Write-host "        [1] - All"
+        Write-host "        [2] - Bloatware removal"
+        Write-host "        [3] - Privacy optimizer"
+        Write-host "        [4] - Customize Windows settings"
+        Write-host "        [5] - Exit"
+        Write-host ""; Write-host "";
+        Write-Host "Option: " -f yellow -nonewline; ;
+        $option = Read-Host
+        Switch ($option) { 
+            0 { app_installer}
+            1 { remove_bloatware; settings_privacy; settings_customize }
+            2 { remove_bloatware }
+            3 { settings_privacy }
             4 { settings_customize }
             5 { exit }
-            Default { cls; Write-host""; Write-host""; Write-host "INVALID OPTION. TRY AGAIN.." -f red; Write-host""; Write-host""; Start-Sleep 1; cls; Write-host ""; Write-host "" } 
+            Default { cls; Write-host""; Write-host""; Write-host "INVALID OPTION. TRY AGAIN.." -f red; Write-host""; Write-host""; Start-Sleep 1; cls; Write-host ""; Write-host "" } 
         }
          
-    }while ($option -ne 5 )
+    }while ($option -ne 5 )
      
     if ($option -le 5) { Write-host "         **Placeholder for exit menu**" -f Yellow }
 
