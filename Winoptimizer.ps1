@@ -677,6 +677,7 @@ $appheader =
             write-host "        Vim             Eclipse          PyCharm" -f green
             write-host "        PuTTY           Superputty       TeraTerm" -f green
             write-host "        Filezilla       WinSCP           mRemoteNG" -f green
+            write-host "        Wireshark" -f green
             "";
             write-host "    Social:" -f yellow
             write-host "        Webex           Zoom           Microsoft Teams" -f green
@@ -690,11 +691,13 @@ $appheader =
             $requested_apps = (Read-Host " ").Split(",") | Foreach-object { $_ -replace ' ',''}
             foreach ($requested_app in $requested_apps) {
                 if("cancel" -eq "$requested_app"){Write-Output "Skipping this section.."}
+                # Browsers
                 elseif("Firefox" -match "$requested_app"){Write-host "        - installing firefox.." -f yellow -nonewline; choco install firefox -y | out-null;write-host "          [ COMPLETE ]" -f green;} 
                 elseif("Chrome" -match "$requested_app"){Write-host "        - installing Chrome.." -f yellow -nonewline; choco install googlechrome -y | out-null;write-host "           [ COMPLETE ]" -f green;} 
                 elseif("Brave" -match "$requested_app"){Write-host "        - installing Brave.." -f yellow -nonewline; choco install Brave -y | out-null;write-host "            [ COMPLETE ]" -f green;} 
                 elseif("Opera" -match "$requested_app"){Write-host "        - installing Opera.." -f yellow -nonewline; choco install opera -y | out-null;write-host "            [ COMPLETE ]" -f green;} 
                 elseif("Vivaldi" -match "$requested_app"){Write-host "        - installing Vivaldi.." -f yellow -nonewline; choco install Vivaldi -y | out-null;write-host "          [ COMPLETE ]" -f green;} 
+                # Tools
                 elseif("Dropbox" -match "$requested_app"){Write-host "        - installing Dropbox.." -f yellow -nonewline; choco install dropbox -y | out-null;write-host "          [ COMPLETE ]" -f green;} 
                 elseif("Google Drive" -match "$requested_app"){Write-host "        - installing Google Drive.." -f yellow -nonewline; choco install googledrive -y | out-null;write-host "     [ COMPLETE ]" -f green;} 
                 elseif("TeamViewer" -match "$requested_app"){Write-host "        - installing TeamViewer.." -f yellow -nonewline; choco install TeamViewer -y | out-null;write-host "       [ COMPLETE ]" -f green;} 
@@ -704,6 +707,7 @@ $appheader =
                 elseif("ShareX" -match "$requested_app"){Write-host "        - installing Sharex.." -f yellow -nonewline; choco install Sharex -y | out-null;write-host "           [ COMPLETE ]" -f green;} 
                 elseif("Gimp" -match "$requested_app"){Write-host "        - installing Gimp.." -f yellow -nonewline; choco install Gimp -y | out-null;write-host "             [ COMPLETE ]" -f green;} 
                 elseif("Visual studio++" -match "$requested_app"){Write-host "        - installing Visual studio++.." -f yellow -nonewline; choco install vcredist140 -y | out-null;write-host "  [ COMPLETE ]" -f green;} 
+                # Media Player
                 elseif("spotify" -match "$requested_app"){Write-host "        - installing spotify.." -f yellow -nonewline; choco install spotify -y | out-null;write-host "          [ COMPLETE ]" -f green;}  
                 elseif("VLC" -match "$requested_app"){Write-host "        - installing VLC.." -f yellow -nonewline; choco install VLC -y | out-null;write-host "              [ COMPLETE ]" -f green;}  
                 elseif("itunes" -match "$requested_app"){Write-host "        - installing itunes.." -f yellow -nonewline; choco install itunes -y | out-null;write-host "           [ COMPLETE ]" -f green;}  
@@ -712,6 +716,7 @@ $appheader =
                 elseif("K-lite" -match "$requested_app"){Write-host "        - installing K-Lite.." -f yellow -nonewline; choco install k-litecodecpackfull -y | out-null;write-host "           [ COMPLETE ]" -f green;}  
                 elseif("MPC-HC" -match "$requested_app"){Write-host "        - installing MPC-HC.." -f yellow -nonewline; choco install MPC-HC -y | out-null;write-host "           [ COMPLETE ]" -f green;}  
                 elseif("popcorn" -match "$requested_app"){Write-host "        - installing Popcorntime.." -f yellow -nonewline; choco install popcorntime -y | out-null;write-host "      [ COMPLETE ]" -f green;}  
+                # Development
                 elseif("notepad++" -match "$requested_app"){Write-host "        - installing Notepad++.." -f yellow -nonewline; choco install notepadplusplus -y | out-null;write-host "        [ COMPLETE ]" -f green;}  
                 elseif("vscode" -match "$requested_app"){Write-host "        - installing vscode.." -f yellow -nonewline; choco install vscode -y | out-null;write-host "           [ COMPLETE ]" -f green;}  
                 elseif("atom" -match "$requested_app"){Write-host "        - installing atom.." -f yellow -nonewline; choco install atom -y | out-null;write-host "             [ COMPLETE ]" -f green;}  
@@ -724,6 +729,8 @@ $appheader =
                 elseif("Filezilla" -match "$requested_app"){Write-host "        - installing Filezilla.." -f yellow -nonewline; choco install Filezilla -y | out-null;write-host "        [ COMPLETE ]" -f green;} 
                 elseif("WinSCP" -match "$requested_app"){Write-host "        - installing WinSCP.." -f yellow -nonewline; choco install WinSCP -y | out-null;write-host "           [ COMPLETE ]" -f green;} 
                 elseif("mremoteng" -match "$requested_app"){Write-host "        - installing MRemoteNG.." -f yellow -nonewline; choco install mremoteng -y | out-null;write-host "        [ COMPLETE ]" -f green;} 
+                elseif("wireshark" -match "$requested_app"){Write-host "        - installing Wireshark.." -f yellow -nonewline; choco install wireshark -y | out-null;write-host "        [ COMPLETE ]" -f green;} 
+                # Social
                 elseif("Microsoft Teams" -match "$requested_app"){Write-host "        - installing Microsoft Teams.." -f yellow -nonewline; choco install microsoft-teams -y | out-null;write-host "  [ COMPLETE ]" -f green;} 
                 elseif("Zoom" -match "$requested_app"){Write-host "        - installing Zoom.." -f yellow -nonewline; choco install Zoom -y | out-null;write-host "             [ COMPLETE ]" -f green;} 
                 elseif("Webex" -match "$requested_app"){Write-host "        - installing Webex.." -f yellow -nonewline; choco install webex-teams -y | out-null;choco install webex-meetings -y | out-null;  write-host "            [ COMPLETE ]" -f green;}
@@ -758,13 +765,7 @@ $appheader =
 
 }
 
-
-        
-
-
-
-
-
+   
 #Front end begins here
 $intro = 
 "
