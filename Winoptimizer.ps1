@@ -617,7 +617,7 @@ Function app_installer {
     This will automaticly update the installed apps to gaining maximum security.
 
     .EXAMPLE
-    An example
+    firefox, notepad++, vscode, vlc
 
     .NOTES
     General notes
@@ -677,14 +677,15 @@ $appheader =
             write-host "        Vim             Eclipse          PyCharm" -f green
             write-host "        PuTTY           Superputty       TeraTerm" -f green
             write-host "        Filezilla       WinSCP           mRemoteNG" -f green
-            write-host "        Wireshark" -f green
+            write-host "        Wireshark       git              Github Desktop" -f green
             "";
             write-host "    Social:" -f yellow
             write-host "        Webex           Zoom           Microsoft Teams" -f green
             write-host "        Discord         Twitch         Ubisoft-Connect" -f green
             write-host "        Steam" -f green
 
-
+            Write-host "    ** List multiple programs seperated by , (comma) - spaces are allowed." -f yellow;
+            "";
             Write-host "Type the programs you would like to be installed on this system" -nonewline; 
             
 
@@ -730,6 +731,8 @@ $appheader =
                 elseif("WinSCP" -match "$requested_app"){Write-host "        - installing WinSCP.." -f yellow -nonewline; choco install WinSCP -y | out-null;write-host "           [ COMPLETE ]" -f green;} 
                 elseif("mremoteng" -match "$requested_app"){Write-host "        - installing MRemoteNG.." -f yellow -nonewline; choco install mremoteng -y | out-null;write-host "        [ COMPLETE ]" -f green;} 
                 elseif("wireshark" -match "$requested_app"){Write-host "        - installing Wireshark.." -f yellow -nonewline; choco install wireshark -y | out-null;write-host "        [ COMPLETE ]" -f green;} 
+                elseif("git" -match "$requested_app"){Write-host "        - installing git.." -f yellow -nonewline; choco install git.install -y | out-null;write-host "              [ COMPLETE ]" -f green;}
+                elseif("GithubDesktop" -match "$requested_app"){Write-host "        - installing Github Desktop.." -f yellow -nonewline; choco install github-desktop -y | out-null;write-host "   [ COMPLETE ]" -f green;}
                 # Social
                 elseif("Microsoft Teams" -match "$requested_app"){Write-host "        - installing Microsoft Teams.." -f yellow -nonewline; choco install microsoft-teams -y | out-null;write-host "  [ COMPLETE ]" -f green;} 
                 elseif("Zoom" -match "$requested_app"){Write-host "        - installing Zoom.." -f yellow -nonewline; choco install Zoom -y | out-null;write-host "             [ COMPLETE ]" -f green;} 
@@ -737,30 +740,30 @@ $appheader =
                 elseif("Discord" -match "$requested_app"){Write-host "        - installing Discord.." -f yellow -nonewline; choco install Discord -y | out-null;Write-host "          [ COMPLETE ]" -f green;}
                 elseif("Twitch" -match "$requested_app"){Write-host "        - installing Twitch.." -f yellow -nonewline; choco install Twitch -y | out-null;Write-host "           [ COMPLETE ]" -f green;}
                 elseif("Steam" -match "$requested_app"){Write-host "        - installing Steam.." -f yellow -nonewline; choco install Steam -y | out-null;  write-host "            [ COMPLETE ]" -f green;}
-                elseif("Ubisoft Connect" -match "$requested_app"){Write-host "        - installing Ubisoft Connect.." -f yellow -nonewline; choco install ubisoft-connect -y | out-null;write-host "            [ COMPLETE ]" -f green;}
+                elseif("Ubisoft Connect" -match "$requested_app"){Write-host "        - installing Ubisoft Connect.." -f yellow -nonewline; choco install ubisoft-connect -y | out-null;write-host "  [ COMPLETE ]" -f green;}
             }
-            #app-updater
-            #    Do {
-            #        Write-Host "        - Would you like to install auto-updater? (y/n)" -f yellow -nonewline; ;
-            #        $answer = Read-Host " " 
-            #        Switch ($answer) { 
-            #            Y {
-            #                if (!(Test-Path "$($env:ProgramData)\chocolatey\update.ps1")){     
-            #                    #create update file
-            #                    write-host "        - creating updating script." -f green
-            #                    Set-Content -path "$env:ProgramData\chocolatey\update.ps1" -value "choco upgrade all" -force
-            #
-            #                    # Create scheduled job
-            #                    write-host "        - scheduling update routine." -f green
-            #                    $jobname = 'winoptimizer_appupdate'
-            #                    $jobtrigger = New-JobTrigger -Daily -At 4:30PM
-            #                    $joboptions = New-ScheduledJobOption -RunElevated -RequireNetwork -StartIfOnBattery -ContinueIfGoingOnBattery
-            #                    Register-ScheduledJob -Name $jobname -Trigger $jobtrigger -FilePath 'update.ps1' -ScheduledJobOption $joboptions
-            #                                                                            }
-            #                else {write-host "        - Updater is already installed on this system." -f green}
-            #            }
-            #            N { Write-Host "        - NO. Skipping this step." -f Red }}
-            #        } While ($answer -notin "y", "n") 
+            app-updater
+                Do {
+                    Write-Host "        - Would you like to install auto-updater? (y/n)" -f yellow -nonewline; ;
+                    $answer = Read-Host " " 
+                    Switch ($answer) { 
+                        Y {
+                            if (!(Test-Path "$($env:ProgramData)\chocolatey\update.ps1")){     
+                                #create update file
+                                write-host "        - creating updating script." -f green
+                                Set-Content -path "$env:ProgramData\chocolatey\update.ps1" -value "choco upgrade all" -force
+            
+                                # Create scheduled job
+                                write-host "        - scheduling update routine." -f green
+                                $jobname = 'winoptimizer_appupdate'
+                                $jobtrigger = New-JobTrigger -Daily -At 4:30PM
+                                $joboptions = New-ScheduledJobOption -RunElevated -RequireNetwork -StartIfOnBattery -ContinueIfGoingOnBattery
+                                Register-ScheduledJob -Name $jobname -Trigger $jobtrigger -FilePath 'update.ps1' -ScheduledJobOption $joboptions
+                                                                                        }
+                            else {write-host "        - Updater is already installed on this system." -f green}
+                        }
+                        N { Write-Host "        - NO. Skipping this step." -f Red }}
+                    } While ($answer -notin "y", "n") 
 
 
 }
