@@ -623,16 +623,19 @@ Function app_installer {
     General notes
     #> 
     
-    #app-installer
+    # STEP 1 - app-installer
         #check if chocolatey is installed
+        Write-host "  Checking the system if the appinstaller is installed." -f green
         if (!(Test-Path "$($env:ProgramData)\chocolatey\choco.exe")) { 
                 # installing chocolatey
-                write-host " - Chocolatey was not found on system."
-                write-host " - install Chocolatey.."
+                Write-host "      application not found. Installing:" -f green
+                Write-host "        - Preparing system.." -f yellow
                 Set-ExecutionPolicy Bypass -Scope Process -Force;
                 # Downloading installtion file from original source
+                Write-host "        - Downloading script.." -f yellow
                 (New-Object System.Net.WebClient).DownloadFile("https://chocolatey.org/install.ps1","$env:TMP/choco-install.ps1")
                 # Adding a few lines to make installtion more silent.
+                Write-host "        - Preparing script.." -f yellow
                 $add_line1 = "((Get-Content -path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1 -Raw) -replace '\| write-Output', ' | out-null' ) | Set-Content -Path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1; "
                 $add_line2 = "((Get-Content -path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1 -Raw) -replace 'write-', '#write-' ) | Set-Content -Path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1; "
                 $add_line3 = "((Get-Content -path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1 -Raw) -replace 'function.* #write-', 'function Write-' ) | Set-Content -Path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1;"
@@ -640,12 +643,14 @@ Function app_installer {
                 ((Get-Content -path $env:TMP/choco-install.ps1 -Raw) -replace '#endregion Download & Extract Chocolatey', "$add_line1`n$add_line2`n$add_line3" ) | Set-Content -Path $env:TMP/choco-install.ps1
                 # Executing installation file.
                 cd $env:TMP
+                Write-host "        - Installing.." -f yellow
                 .\choco-install.ps1
+                Write-host "        - Installation complete.." -f yellow
         }
         else { write-host "appinstaller already installed on this system. skipping installation." }
         
     
-    #app-installation
+    #STEP 2 - app-installation
         
 $appheader = 
 "
@@ -742,7 +747,7 @@ $appheader =
                 elseif("Steam" -match "$requested_app"){Write-host "        - installing Steam.." -f yellow -nonewline; choco install Steam -y | out-null;  write-host "            [ COMPLETE ]" -f green;}
                 elseif("Ubisoft Connect" -match "$requested_app"){Write-host "        - installing Ubisoft Connect.." -f yellow -nonewline; choco install ubisoft-connect -y | out-null;write-host "  [ COMPLETE ]" -f green;}
             }
-            app-updater
+    # STEP 3 - app-updater
                 Do {
                     Write-Host "        - Would you like to install auto-updater? (y/n)" -f yellow -nonewline; ;
                     $answer = Read-Host " " 
