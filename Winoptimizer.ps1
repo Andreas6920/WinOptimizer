@@ -760,10 +760,11 @@ $appheader =
             
                                 # Create scheduled job
                                 write-host "        - scheduling update routine." -f green
-                                $jobname = 'winoptimizer_appupdate'
-                                $jobtrigger = New-JobTrigger -Daily -At 4:30PM
-                                $joboptions = New-ScheduledJobOption -RunElevated -RequireNetwork -StartIfOnBattery -ContinueIfGoingOnBattery
-                                Register-ScheduledJob -Name $jobname -Trigger $jobtrigger -FilePath 'c:\ProgramData\chocolatey\update.ps1' -ScheduledJobOption $joboptions
+                                $TaskName = 'winoptimizer-app-Updater'
+                                $scriptPath = "$env:ProgramData\chocolatey\update.ps1"
+                                $Trigger= New-ScheduledTaskTrigger -At 16:30 -Daily -DaysInterval 2
+                                $Action= New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-executionpolicy bypass -noprofile -file $scriptPath" 
+                                Register-ScheduledTask -TaskName $TaskName -Trigger $Trigger -Action $Action -RunLevel Highest -Force
                                                                                         }
                             else {write-host "        - Updater is already installed on this system." -f green}
                         }
