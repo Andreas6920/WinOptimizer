@@ -756,14 +756,14 @@ $appheader =
                             if (!(Test-Path "$($env:ProgramData)\chocolatey\update.ps1")){     
                                 #create update file
                                 write-host "        - creating updating script." -f green
-                                Set-Content -path "$env:ProgramData\chocolatey\update.ps1" -value "choco upgrade all" -force
+                                Set-Content -path "$env:ProgramData\chocolatey\update.ps1" -value "choco upgrade all -y" -force
             
                                 # Create scheduled job
                                 write-host "        - scheduling update routine." -f green
                                 $jobname = 'winoptimizer_appupdate'
                                 $jobtrigger = New-JobTrigger -Daily -At 4:30PM
                                 $joboptions = New-ScheduledJobOption -RunElevated -RequireNetwork -StartIfOnBattery -ContinueIfGoingOnBattery
-                                Register-ScheduledJob -Name $jobname -Trigger $jobtrigger -FilePath 'update.ps1' -ScheduledJobOption $joboptions
+                                Register-ScheduledJob -Name $jobname -Trigger $jobtrigger -FilePath 'c:\ProgramData\chocolatey\update.ps1' -ScheduledJobOption $joboptions
                                                                                         }
                             else {write-host "        - Updater is already installed on this system." -f green}
                         }
