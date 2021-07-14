@@ -688,7 +688,7 @@ $appheader =
             write-host "        Webex           Zoom           Microsoft Teams" -f green
             write-host "        Discord         Twitch         Ubisoft-Connect" -f green
             write-host "        Steam" -f green
-
+            "";
             Write-host "    ** List multiple programs seperated by , (comma) - spaces are allowed." -f yellow;
             "";
             Write-host "Type the programs you would like to be installed on this system" -nonewline; 
@@ -803,17 +803,19 @@ if ($admin_permissions_check) {
         Write-host "        [2] - Bloatware removal"
         Write-host "        [3] - Privacy optimizer"
         Write-host "        [4] - Customize Windows settings"
-        Write-host "        [5] - Exit"
+        Write-host "        [5] - App installer"
+        "";
+        Write-host "        [0] - Exit"
         Write-host ""; Write-host "";
         Write-Host "Option: " -f yellow -nonewline; ; ;
         $option = Read-Host
         Switch ($option) { 
-            0 { app_installer }
-            1 { remove_bloatware; settings_privacy; settings_customize }
+            0 { exit }
+            1 { remove_bloatware; settings_privacy; settings_customize; app_installer; }
             2 { remove_bloatware }
             3 { settings_privacy }
             4 { settings_customize }
-            5 { exit }
+            5 { app_installer }
             Default { cls; Write-host""; Write-host""; Write-host "INVALID OPTION. TRY AGAIN.." -f red; Write-host""; Write-host""; Start-Sleep 1; cls; Write-host ""; Write-host "" } 
         }
          
