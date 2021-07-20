@@ -15,14 +15,14 @@ $date = (get-date -f "yyyy/MM/dd - HH:mm:ss")
 $check_updates = choco outdated
 $log = "$env:ProgramData\chocolatey\update_log.txt"
 
-## Version 1.0
-
+# if no updates available, just write to logs that scan is done and nothing found.
 if ($check_updates -match "Chocolatey has determined 0 package") 
 {
 echo "`n$date - No update(s) found :)`n" $check_updates >> $log
 echo "`n###################################################################################################" >> $log
 }
 
+# if updates found, update and add to logs
 else
 {
 echo "`n date - UPDATE(S) FOUND!! :O`n$" $check_updates >> $log
