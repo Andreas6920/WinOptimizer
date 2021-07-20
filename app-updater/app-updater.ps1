@@ -2,14 +2,15 @@
 if(Test-Connection www.github.com -Quiet){
     $this_version = "Version 2.0"
     $version = (Invoke-WebRequest "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/app-updater/app-updater.ps1").Content
-    if ($version -notmatch "$this_version")
-    {
-    remove-item $env:USERPROFILE\Desktop\app.ps1 -Force; sleep -s 5
-    Invoke-WebRequest "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/app-updater/app-updater.ps1" -OutFile $env:USERPROFILE\Desktop\app.ps1 | out-null
+    if ($version -cmatch "$this_version")
+    {write "same"}
+    else {
+    remove-item "$env:ProgramData\chocolatey\app-updater.ps1" -Force; sleep -s 5
+    Invoke-WebRequest "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/app-updater/app-updater.ps1" -OutFile "$env:ProgramData\chocolatey\app-updater.ps1" -UseBasicParsing | out-null
     sleep -s 5
-    powershell -ep bypass "$env:USERPROFILE\Desktop\app.ps1"
-    }}
-
+    powershell -ep bypass -runas Verb "$env:ProgramData\chocolatey\app-updater.ps1"
+     }
+    }
 
 $date = (get-date -f "yyyy/MM/dd - HH:mm:ss")
 $check_updates = choco outdated
