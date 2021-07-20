@@ -759,27 +759,26 @@ $appheader =
                     Write-Host "        - Would you like to install auto-updater? (y/n)" -f yellow -nonewline; ;
                     $answer = Read-Host " " 
                     Switch ($answer) { 
-                        Y {
-                            if (!(Test-Path "$($env:ProgramData)\chocolatey\update.ps1")){     
+                        Y {   
                                 #create update file
-                                write-host "        - creating updating script." -f green
-                                Set-Content -path "$env:ProgramData\chocolatey\update.ps1" -value "choco upgrade all -y" -force
-            
+                                write-host "        - Downloading updating script." -f green
+                                $filepath = "$env:ProgramData\chocolatey\app-updater.ps1"
+                                (New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/app-updater/app-updater.ps1","$path")
+
                                 # Create scheduled job
                                 write-host "        - scheduling update routine." -f green
                                 $name = 'winoptimizer-app-Updater'
-                                $filepath = "$env:ProgramData\chocolatey\update.ps1"
                                 $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-nop -W hidden -noni -ep bypass -file $filepath"
                                 $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM"-LogonType ServiceAccount -RunLevel Highest
                                 $trigger= New-ScheduledTaskTrigger -At 12:00 -Daily
-                                $settings = New-ScheduledTaskSettingsSet -RunOnlyIfNetworkAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -RunOnlyIfIdle -IdleDuration 00:05:00 -IdleWaitTimeout 06:00:00
+                                $settings = New-ScheduledTaskSettingsSet -RunOnlyIfNetworkAvailable -DontStopIfGoingOnBatteries -RunOnlyIfIdle -IdleDuration 00:05:00 -IdleWaitTimeout 06:00:00
 
-                                Register-ScheduledTask -TaskName $Name -Settings $settings -Principal $principal -Action $action -Trigger $trigger -Force
-                                                                                        }
-                            else {write-host "        - Updater is already installed on this system." -f green}
+                                Register-ScheduledTask -TaskName $Name -Settings $settings -Principal $principal -Action $action -Trigger $trigger -Force | Out-Null
+                                                                                    
                         }
                         N { Write-Host "        - NO. Skipping this step." -f Red }}
-                    } While ($answer -notin "y", "n") 
+                    } While ($answer -notin "y", "n")
+
 
 
 }
