@@ -1,5 +1,5 @@
 # WinOptimizer
- Optimize your windows machine
+ Optimize your windows machine by removing bloat (like Xbox, Minecraft, bing, ads), optimize your privacy settings, install apps and even enable hidden features!
 
 ## Modules
  * <b>Cleaning Windows 10 from bloat</b><br>
@@ -24,9 +24,8 @@
    * Bulk install apps silently<br>
    * Auto app updater, will update all apps automatically when you enjoying lunch.<br>
 ## Install
-download the Winoptimizer.ps1 file to your desktop.
-open powershell as admin and run:
+open powershell <b>AS ADMIN</b> and run:
 ```
-cd $env:userprofile\Desktop; powershell –ep bypass .\Winoptimizer.ps1
+(New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/Winoptimizer.ps1","$env:APPDATA\Winoptimizer.ps1"); cls; powershell -ep bypass "$env:APPDATA\Winoptimizer.ps1"
 ```
 
