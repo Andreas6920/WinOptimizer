@@ -763,7 +763,7 @@ $appheader =
                                 #create update file
                                 write-host "        - Downloading updating script." -f green
                                 $filepath = "$env:ProgramData\chocolatey\app-updater.ps1"
-                                (New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/app-updater/app-updater.ps1","$path")
+                                Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/app-updater/app-updater.ps1" -OutFile $filepath -UseBasicParsing
 
                                 # Create scheduled job
                                 write-host "        - scheduling update routine." -f green
