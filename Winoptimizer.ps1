@@ -178,6 +178,10 @@ Function remove_bloatware {
         #Start-Process explorer
         write-host "        - CLEANED - Taskbar" -f yellow
 
+    # Remove Windows pre-installed bloat printers (Fax, PDF, OneNote) These are almost never used.
+            if((get-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" | Select-Object -ExpandProperty AutoSetup) -ne 0)
+            {Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type DWord -Value 0}
+            Get-Printer | ? Name -cMatch "OneNote for Windows 10|Microsoft XPS Document Writer|Microsoft Print to PDF|Fax" | Remove-Printer
     #END
         write-host "      COMPLETE - BLOAT REMOVAL" -f Green
         start-sleep 10
@@ -593,7 +597,10 @@ Function settings_customize {
         Switch ($answer) { 
             Y {
                 Write-Host "            YES. Removing printers.." -f Green
-                Get-Printer | Where-Object Name -match "xps|fax|pdf|onenote" | Remove-Printer -ErrorAction SilentlyContinue            
+                if((get-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" | Select-Object -ExpandProperty AutoSetup) -ne 0)
+                {Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type DWord -Value 0}
+                Get-Printer | Where-Object Name -match "xps|fax|pdf|onenote" | Remove-Printer -ErrorAction SilentlyContinue
+
             }
             N { Write-Host "            NO. Skipping this step." -f Red } 
         }   
@@ -834,3 +841,4 @@ else {
         cls; ""; ""; ""; ""; ""; write-host $Warning_message -ForegroundColor White; ""; ""; ""; ""; ""; Start-Sleep 1; cls
     }    
 }
+#test: æøå
