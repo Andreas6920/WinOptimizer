@@ -764,7 +764,10 @@ $appheader =
                                 $filepath = "$env:ProgramData\chocolatey\update.ps1"
                                 $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-nop -W hidden -noni -ep bypass -file $filepath"
                                 $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM"-LogonType ServiceAccount -RunLevel Highest
-                                $trigger= New-ScheduledTaskTrigger -At 16:00 -Daily                                $settings = New-ScheduledTaskSettingsSet -RunOnlyIfNetworkAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -RunOnlyIfIdle -IdleDuration 00:03:00 -IdleWaitTimeout 03:00:00                                Register-ScheduledTask -TaskName $Name -Settings $settings -Principal $principal -Action $action -Trigger $trigger -Force
+                                $trigger= New-ScheduledTaskTrigger -At 12:00 -Daily
+                                $settings = New-ScheduledTaskSettingsSet -RunOnlyIfNetworkAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -RunOnlyIfIdle -IdleDuration 00:05:00 -IdleWaitTimeout 06:00:00
+
+                                Register-ScheduledTask -TaskName $Name -Settings $settings -Principal $principal -Action $action -Trigger $trigger -Force
                                                                                         }
                             else {write-host "        - Updater is already installed on this system." -f green}
                         }
