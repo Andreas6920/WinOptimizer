@@ -1,6 +1,3 @@
-# WinOptimizer
-Optimize your windows machine
-
 Cleaning Windows 10 from bloat
 	- Removing Bing search, weather, travel, news etc..
 	- Removing Xbox, Minecraft and other stuff..
@@ -21,11 +18,4 @@ Customize the PC
 	- Install Hyper-V, Linux
 Appinstaller
 	- Bulk install apps silently
-	- Auto app updater, will update all apps automatically when you enjoying lunch.
-
-#### Install
-download the Winoptimizer.ps1 file to your desktop.
-open powershell as admin and run:
-```
-cd $env:userprofile\Desktop; powershell -ep bypass .\Winoptimizer.ps1
-```
+	- Auto app updater, will update all apps automatically.
