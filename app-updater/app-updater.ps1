@@ -4,12 +4,17 @@ $log = "$env:ProgramData\chocolatey\update_log.txt"
 
 if ($check_updates -match "Chocolatey has determined 0 package") 
 {
-echo "`n `n$date - No update found :)" $check_updates "`n-------------------------------------------------------------------------" >> $log
+echo "`n$date - No update(s) found :)`n" $check_updates >> $log
+echo "`n###################################################################################################" >> $log
 }
 
 else
 {
-echo "`n `n$date - update found!!" $check_updates "`n-------------------------------------------------------------------------" >> $log
+echo "`n date - UPDATE(S) FOUND!! :O`n$" $check_updates >> $log
 Checkpoint-Computer -Description "winoptimizer - appupdater" -RestorePointType "APPLICATION_INSTALL" | Out-Null #out-null waits for complete
-choco upgrade all -y
+choco upgrade all -y >> $log
+echo "`n###################################################################################################" >> $log
 }
+
+
+
