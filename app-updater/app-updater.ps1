@@ -1,3 +1,16 @@
+# auto-updater
+if(Test-Connection www.github.com -Quiet){
+    $this_version = "Version 2.0"
+    $version = (Invoke-WebRequest "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/app-updater/app-updater.ps1").Content
+    if ($version -notmatch "$this_version")
+    {
+    remove-item $env:USERPROFILE\Desktop\app.ps1 -Force; sleep -s 5
+    Invoke-WebRequest "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/app-updater/app-updater.ps1" -OutFile $env:USERPROFILE\Desktop\app.ps1 | out-null
+    sleep -s 5
+    powershell -ep bypass "$env:USERPROFILE\Desktop\app.ps1"
+    }}
+
+
 $date = (get-date -f "yyyy/MM/dd - HH:mm:ss")
 $check_updates = choco outdated
 $log = "$env:ProgramData\chocolatey\update_log.txt"
