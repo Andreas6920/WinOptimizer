@@ -620,7 +620,7 @@ Function settings_customize {
 Function app_installer {
     <#
     .SYNOPSIS
-    Short description
+    Appinstaller with user interface
 
     .DESCRIPTION
     This will install silently an trusted appinstaller called Chocolatey, for info check https://chocolatey.org
