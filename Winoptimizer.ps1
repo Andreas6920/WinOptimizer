@@ -764,6 +764,7 @@ $appheader =
                     $answer = Read-Host " " 
                     Switch ($answer) { 
                         Y {   
+                                if ((Get-Childitem -Path $env:ProgramData).Name  -match "Chocolatey"){
                                 #create update file
                                 write-host "        - Downloading updating script." -f green
                                 $filepath = "$env:ProgramData\chocolatey\app-updater.ps1"
@@ -772,13 +773,13 @@ $appheader =
                                 # Create scheduled job
                                 write-host "        - scheduling update routine." -f green
                                 $name = 'winoptimizer-app-Updater'
-                                $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-nop -W hidden -noni -ep bypass -file $filepath"
+                                $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Agithubrgument "-nop -W hidden -noni -ep bypass -file $filepath"
                                 $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM"-LogonType ServiceAccount -RunLevel Highest
                                 $trigger= New-ScheduledTaskTrigger -At 12:00 -Daily
                                 $settings = New-ScheduledTaskSettingsSet -RunOnlyIfNetworkAvailable -DontStopIfGoingOnBatteries -RunOnlyIfIdle -DontStopOnIdleEnd -IdleDuration 00:05:00 -IdleWaitTimeout 06:00:00
 
                                 Register-ScheduledTask -TaskName $Name -Settings $settings -Principal $principal -Action $action -Trigger $trigger -Force | Out-Null
-                                                                                    
+                                } else{Write-host "Chocolatey is not installed on this system." -f red}                                                    
                         }
                         N { Write-Host "        - NO. Skipping this step." -f Red }}
                     } While ($answer -notin "y", "n")
@@ -797,7 +798,7 @@ $intro =
 | |/ |/ / / / / / /_/ / /_/ / /_/ / / / / / / / / /_/  __/ /    
 |__/|__/_/_/ /_/\____/ .___/\__/_/_/ /_/ /_/_/ /___/\___/_/     
                     /_/                                         
-Version 2.0
+Version 2.1
 Creator: Andreas6920 | https://github.com/Andreas6920/
                                                                                                                                                     
  "
