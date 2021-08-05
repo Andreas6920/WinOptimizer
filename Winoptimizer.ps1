@@ -117,7 +117,7 @@ Function remove_bloatware {
 "@
     
 
-        $layoutFile = "C:\Windows\StartMenuLayout.xml"
+        $layoutFile = "$env:SystemRoot\StartMenuLayout.xml"
                 
         start-sleep 5
         #Delete layout file if it already exists
@@ -299,8 +299,8 @@ Function settings_privacy {
         start-sleep -s 5
          Write-Host "        - Backing up your hostsfile.." -f Yellow
         #Taking backup of current hosts file first
-        $hostsfile = "C:\Windows\System32\drivers\etc\hosts"
-        $Takebackup = "C:\Windows\System32\drivers\etc\hosts_backup"
+        $hostsfile = "$env:SystemRoot\System32\drivers\etc\hosts"
+        $Takebackup = "$env:SystemRoot\System32\drivers\etc\hosts_backup"
         Copy-Item $hostsfile $Takebackup
         
         Write-Host "        - Getting an updated list of microsoft tracking domains" -f Yellow
