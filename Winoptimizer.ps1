@@ -773,12 +773,12 @@ $appheader =
                                 # Create scheduled job
                                 write-host "        - scheduling update routine." -f green
                                 $name = 'winoptimizer-app-Updater'
-                                $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Agithubrgument "-nop -W hidden -noni -ep bypass -file $filepath"
+                                $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-nop -W hidden -noni -ep bypass -file $filepath"
                                 $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM"-LogonType ServiceAccount -RunLevel Highest
                                 $trigger= New-ScheduledTaskTrigger -At 12:00 -Daily
                                 $settings = New-ScheduledTaskSettingsSet -RunOnlyIfNetworkAvailable -DontStopIfGoingOnBatteries -RunOnlyIfIdle -DontStopOnIdleEnd -IdleDuration 00:05:00 -IdleWaitTimeout 06:00:00
 
-                                Register-ScheduledTask -TaskName $Name -Settings $settings -Principal $principal -Action $action -Trigger $trigger -Force | Out-Null
+                                Register-ScheduledTask -TaskName $Name -Taskpath "\Microsoft\Windows\Winoptimizer\" -Settings $settings -Principal $principal -Action $action -Trigger $trigger -Force | Out-Null
                                 } else{Write-host "Chocolatey is not installed on this system." -f red}                                                    
                         }
                         N { Write-Host "        - NO. Skipping this step." -f Red }}
