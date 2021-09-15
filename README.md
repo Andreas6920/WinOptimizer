@@ -26,6 +26,6 @@
 ## Install
 open powershell <b>AS ADMIN</b> and run:
 ```
-Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/Winoptimizer.ps1" -OutFile "$env:APPDATA\Winoptimizer.ps1" -UseBasicParsing; cls; powershell -ep bypass "$env:APPDATA\Winoptimizer.ps1"
+Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/Winoptimizer.ps1" -OutFile "$env:ProgramData\Winoptimizer.ps1" -UseBasicParsing; cls; powershell -ep bypass "$env:ProgramData\Winoptimizer.ps1"
 ```
 
