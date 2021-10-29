@@ -26,7 +26,7 @@ echo "`n########################################################################
 # if updates found, update and add to logs
 else
 {
-echo "`n date - UPDATE(S) FOUND!! :O`n$" $check_updates >> $log
+echo "`n$date - UPDATE(S) FOUND!! :O`n$" $check_updates >> $log
 Checkpoint-Computer -Description "winoptimizer - appupdater" -RestorePointType "APPLICATION_INSTALL" | Out-Null #out-null waits for complete
 choco upgrade all -y >> $log
 echo "`n###################################################################################################" >> $log
