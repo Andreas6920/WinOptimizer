@@ -825,7 +825,7 @@ if ($admin_permissions_check) {
         Write-Host "Option: " -f yellow -nonewline; ; ;
         $option = Read-Host
         Switch ($option) { 
-            0 { exit }
+            0 {}
             1 { remove_bloatware; settings_privacy; settings_customize; app_installer; }
             2 { remove_bloatware }
             3 { settings_privacy }
