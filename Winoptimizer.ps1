@@ -834,9 +834,7 @@ if ($admin_permissions_check) {
             Default { cls; Write-host""; Write-host""; Write-host "INVALID OPTION. TRY AGAIN.." -f red; Write-host""; Write-host""; Start-Sleep 1; cls; Write-host ""; Write-host "" } 
         }
          
-    }while ($option -ne 5 )
-     
-    if ($option -le 5) { Write-host "         **Placeholder for exit menu**" -f Yellow }
+    }while ($option -ne 0 )
 
 } 
 else {
