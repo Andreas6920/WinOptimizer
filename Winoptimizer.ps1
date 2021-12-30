@@ -800,18 +800,18 @@ $appheader =
 
     # Step 4 - Office installer
                 Do {
-                    Write-Host "Would you like to install Microsoft Office? (y/n)" -nonewline;
+                    Write-Host "`t- Would you like to install Microsoft Office? (y/n)" -nonewline;
                     $Readhostoffice = Read-Host " " 
                         Switch ($Readhostoffice) { 
                         Y {
                             Do {
-                            Write-Host "`t -What Language would you prefer? (Danish/English)" -nonewline;
-                            $Readhostofficelanguage = Read-Host " "
-                            Switch ($Readhostofficelanguage) { 
+                            Write-Host "`t`t- What Language would you prefer? (Danish/English)" -nonewline;
+                            $officelanguage = Read-Host " "
+                            Switch ($officelanguage) { 
                                     Danish  {   
-                                                write-host "`t`t- Downloader og installere Microsoft Office.. Dette kan tage op til 10 minutter" -f green
-                                                Write-host "`t`t`t- Installation startet:`t" (get-date -Format "HH':'mm':'ss") -f white
-                                                Write-host "`t`t`t- Forventet færdigt:`t" ((get-date).AddMinutes(10).ToString("HH':'mm':'ss")) -f white
+                                                write-host "`t`t`t- Downloader og installere Microsoft Office.. Dette kan tage op til 10 minutter" -f green
+                                                Write-host "`t`t`t`t- Installation startet:`t" (get-date -Format "HH':'mm':'ss") -f white
+                                                Write-host "`t`t`t`t- Forventet færdigt:`t" ((get-date).AddMinutes(10).ToString("HH':'mm':'ss")) -f white
                                                 if(!(test-path HKLM:\Software\Microsoft\Office\)){
                                                 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
                                                 If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main")) {New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Force | Out-Null}
@@ -819,16 +819,16 @@ $appheader =
                                                 $file = "$($env:ProgramData)\office-danish.ps1"
                                                 Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/other/office-danish.ps1" -OutFile $file -UseBasicParsing; 
                                                 Start-Process cmd -Verb RunAs -ArgumentList "/c","powershell -ep bypass $file" -Wait; Sleep -s 10;                       
-                                                write-host "`t`t- Microsoft Office er nu installeret på dette system!" -f green
+                                                write-host "`t`t`t- Microsoft Office er nu installeret på dette system!" -f green
                                                 remove-item "$env:ProgramData\office-danish.ps1" -ea ignore
-                                                } else {write-host "`t`t - Office er allerede installeret."}
+                                                } else {write-host "`t`t`t - Office er allerede installeret."}
                                                     Do {
                                                         Write-Host "ønsker du at aktivere Microsoft Office? (y/n)" -nonewline;
-                                                        $Readhostofficeactivation = Read-Host " " 
-                                                            Switch ($ReadHost) { 
+                                                        $officeactivation = Read-Host " " 
+                                                            Switch ($officeactivation) { 
                                                             Y {
                                                                     # 7-zip installation
-                                                                        write-host "`t`t- Klargøre system til aktivering.." -f Yellow; Sleep -s 1;
+                                                                        write-host "`t`t`t- Klargøre system til aktivering.." -f Yellow; Sleep -s 1;
                                                                         if(!(Test-Path "$($env:ProgramFiles)\7-Zip\7z.exe")){
                                                                         $dlurl = 'https://7-zip.org/' + (Invoke-WebRequest -Uri 'https://7-zip.org/' | Select-Object -ExpandProperty Links | Where-Object {($_.innerHTML -eq 'Download') -and ($_.href -like "a/*") -and ($_.href -like "*-x64.exe")} | Select-Object -First 1 | Select-Object -ExpandProperty href)
                                                                         $installerPath = Join-Path $env:TEMP (Split-Path $dlurl -Leaf)
@@ -838,18 +838,19 @@ $appheader =
                                                                         $link = "https://git.io/JySmg"
                                                                         $folder = "$($env:TEMP)\KMS_VL_ALL_AIO-40"
                                                                         $file = (Join-Path $folder (Split-Path $link -Leaf))
-                                                                        write-host "`t`t- Opretter mapper.." -f Yellow; Sleep -s 1;
+                                                                        write-host "`t`t`t- Opretter mapper.." -f Yellow; Sleep -s 1;
                                                                         mkdir $folder -ea Ignore | Out-Null
-                                                                        Write-host "`t`t- Downloader aktivering..." -f Yellow; Sleep -s 1;
+                                                                        Write-host "`t`t`t- Downloader aktivering..." -f Yellow; Sleep -s 1;
                                                                         Invoke-WebRequest -uri $link -OutFile $file
                                                                         & "C:\Program Files\7-Zip\7z.exe" x -o"$folder" -y -p"2020" "$file" | Out-Null
                                                                         Remove-Item $file -Force -ea Ignore
-                                                                        $file = (Get-ChildItem -Path $folder | where {$_.extension -in ".cmd"}).FullName
+                                                                        $file = (Get-ChildItem -Path $folder | Where-Object {$_.extension -in ".cmd"}).FullName
                                                                         ((Get-Content -path $file -Raw) -replace 'set uAutoRenewal=0', "set uAutoRenewal=1" ) | Set-Content -Path $file
-                                                                        Write-host "`t`t- Aktiveringen kører i baggrunden..." -f Yellow; Sleep -s 2;
-                                                                        Write-host "`t`t- Dette kan tage op til 5 minutter. nuværende tidspunkt:" (get-date -f "HH:mm:ss...") -f white
+                                                                        Write-host "`t`t`t- Aktiveringen kører i baggrunden... Dette kan tage op til 5 minutter" -f Yellow; Sleep -s 2;
+                                                                        Write-host "`t`t`t`t- Installation startet:`t" (get-date -Format "HH':'mm':'ss") -f white
+                                                                        Write-host "`t`t`t`t- Forventet færdigt:`t" ((get-date).AddMinutes(5).ToString("HH':'mm':'ss")) -f white
                                                                         Start-Process cmd -WindowStyle Hidden -Verb RunAs -ArgumentList "/c","$file" -Wait
-                                                                        Write-host "`t`t- Office 2019 er aktiveret!" (get-date -f "HH:mm:ss...") -f green;
+                                                                        write-host "`t`t`t- Microsoft Office er nu installeret på dette system!" -f green; Sleep -s 3
                                                                         Remove-Item $file -Force -ea Ignore
                                                                     
 
@@ -857,14 +858,14 @@ $appheader =
 
                                                             } 
                                                             N {Write-Host "        - NO. Skipping this step." -f Red;} 
-                                                            } } While($Readhost -notin "y", "n")
+                                                            } } While($officeactivation -notin "y", "n")
 
 
                                             }
                                     English {echo "english is chosen"}
 
                                                         }
-                            } While($Readhostofficelanguage -notin "danish", "english") 
+                            } While($officelanguage -notin "danish", "english") 
 
 
 
