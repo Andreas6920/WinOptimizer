@@ -795,62 +795,66 @@ Function app_installer {
                         Switch ($installoffice) { 
                         Y {
                             Do {
-                            Write-Host "`t`t`t- What Language would you prefer? (Danish/English)" -f Yellow -nonewline;
-                            $officelanguage = Read-Host " "
-                            Switch ($officelanguage) { 
-                                Danish  {   write-host "`t`t`t`t- Downloader og installere Microsoft Office.. Dette kan tage op til 10 minutter" -f Yellow; Sleep -s 3;
-                                            Write-host "`t`t`t`t- Installation started:`t" (get-date -Format "HH':'mm':'ss") -f Yellow;
-                                            Write-host "`t`t`t`t- Forventet færdigt:`t" ((get-date).AddMinutes(10).ToString("HH':'mm':'ss")) -f Yellow;
-                                            if(!(test-path HKLM:\Software\Microsoft\Office\)){
-                                                choco install microsoft-office-deployment /Language da-dk /DisableUpdate TRUE -y | out-null
-                                                write-host "`t`t`t- Microsoft Office is now installed!" -f green; Sleep -s 5;"";"";
-                                                $officejustinstalled = $true}
-                                            else {write-host "`t`t`t - Office er allerede installeret."}}
-                                English {   write-host "`t`t`t`t- Downloading.. May take up to 10 minutes" -f green; Sleep -s 3;
-                                            Write-host "`t`t`t`t- Installation started:`t" (get-date -Format "HH':'mm':'ss") -f white
-                                            Write-host "`t`t`t`t- Expected done:`t" ((get-date).AddMinutes(10).ToString("HH':'mm':'ss")) -f white
-                                            if(!(test-path HKLM:\Software\Microsoft\Office\)){
-                                                choco install microsoft-office-deployment /Language en-us /DisableUpdate TRUE -y | out-null
-                                                write-host "`t`t`t- Microsoft Office is now installed!" -f green; Sleep -s 5;"";"";
-                                                $officejustinstalled = $true} 
-                                            else {write-host "`t`t`t - Office er allerede installeret."}}}}
-                            While($officelanguage -notin "danish", "english")
-                                 Do {Write-Host "ønsker du at aktivere Microsoft Office? (y/n)" -nonewline;
-                                    $officeactivation = Read-Host " " 
-                                        Switch ($officeactivation) { 
-                                        Y { # 7-zip installation
-                                                write-host "`t`t`t- Klargøre system til aktivering.." -f Yellow; Sleep -s 1;
-                                                if(!(Test-Path "$($env:ProgramFiles)\7-Zip\7z.exe")){
-                                                $dlurl = 'https://7-zip.org/' + (Invoke-WebRequest -Uri 'https://7-zip.org/' | Select-Object -ExpandProperty Links | Where-Object {($_.innerHTML -eq 'Download') -and ($_.href -like "a/*") -and ($_.href -like "*-x64.exe")} | Select-Object -First 1 | Select-Object -ExpandProperty href)
-                                                $installerPath = Join-Path $env:TEMP (Split-Path $dlurl -Leaf)
-                                                Invoke-WebRequest $dlurl -OutFile $installerPath -UseBasicParsing
-                                                Start-Process -FilePath $installerPath -Args "/S" -Verb RunAs -Wait}
-                                             # Activation
-                                                $link = "https://git.io/JySmg"
-                                                $folder = "$($env:TEMP)\KMS_VL_ALL_AIO-40"
-                                                $file = (Join-Path $folder (Split-Path $link -Leaf))
-                                                write-host "`t`t`t- Opretter mapper.." -f Yellow; Sleep -s 1;
-                                                mkdir $folder -ea Ignore | Out-Null
-                                                Write-host "`t`t`t- Downloader aktivering..." -f Yellow; Sleep -s 1;
-                                                Invoke-WebRequest -uri $link -OutFile $file
-                                                & "C:\Program Files\7-Zip\7z.exe" x -o"$folder" -y -p"2020" "$file" | Out-Null
-                                                Remove-Item $file -Force -ea Ignore
-                                                $file = (Get-ChildItem -Path $folder | Where-Object {$_.extension -in ".cmd"}).FullName
-                                                ((Get-Content -path $file -Raw) -replace 'set uAutoRenewal=0', "set uAutoRenewal=1" ) | Set-Content -Path $file
-                                                Write-host "`t`t`t- Aktiveringen kører i baggrunden... Dette kan tage op til 5 minutter" -f Yellow; Sleep -s 2;
-                                                Write-host "`t`t`t`t- Installation startet:`t" (get-date -Format "HH':'mm':'ss") -f Yellow;
-                                                Write-host "`t`t`t`t- Forventet færdigt:`t" ((get-date).AddMinutes(5).ToString("HH':'mm':'ss")) -f Yellow;
-                                                Start-Process cmd -WindowStyle Hidden -Verb RunAs -ArgumentList "/c","$file" -Wait
-                                                write-host "`t`t`t- Microsoft Office er nu installeret på dette system!" -f green; Sleep -s 3
-                                                Remove-Item $folder -Force -ea Ignore}
-                                         N {    Write-Host "        - NO. Skipping this step." -f Red;} 
-                                        } } While($officeactivation -notin "y", "n")}}                        
-                        N {Write-Host "        - NO. Skipping this step." -f Red ;}
-                        
+                            Write-Host "`t`t- What is your preferred language? (danish/english)" -f Green -nonewline;
+                            $Readhost = Read-Host " " 
+                            Switch ($ReadHost) { 
+                            danish {
+                                    write-host "`t`t`t- Downloading.. This may take up to 10 minutes" -f Yellow;
+                                    Write-host "`t`t`t- Installing..`t`t`t`t`t`t" (get-date -Format "HH':'mm':'ss") -f Yellow;
+                                    Write-host "`t`t`t- Expected to be done installing:`t" ((get-date).AddMinutes(10).ToString("HH':'mm':'ss")) -f Yellow;
+                                    choco install microsoft-office-deployment /Language da-dk /DisableUpdate TRUE -y | out-null;
+                                    Write-host "`t`t`t`t- Installation complete!" -f Green; Sleep -s 3;}
+                                    
+                            english {
+                                    Write-host "`t`t`t- Installing..`t`t`t`t`t`t" (get-date -Format "HH':'mm':'ss") -f Yellow;
+                                    Write-host "`t`t`t- Expected to be done installing:`t" ((get-date).AddMinutes(10).ToString("HH':'mm':'ss")) -f Yellow;
+                                    choco install microsoft-office-deployment /Language en-us /DisableUpdate TRUE -y | out-null;
+                                    Write-host "`t`t`t- Installation complete!" -f Green; Sleep -s 3;}}
+                            
+                                }While($Readhost -notin "danish", "english")
+                        }                       
+                        N {}}}
+                While($installoffice -notin "y", "n")  
 
-                         } While($installoffice -notin "y", "n")   
+   # Step 5 - Office activator
+                Do {Write-Host "`t`t- Would you like to activate Microsoft Office? (y/n)" -f Green -nonewline;
+                $officeactivation = Read-Host " " 
+                    Switch ($officeactivation) { 
+                    Y { # Prepare system
+                            [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+                            If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main")) {New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Force | Out-Null}
+                            Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Type DWord -Value 1
+                        # 7-zip installation
+                            write-host "`t`t`t- Activation begins:" -f Yellow; Sleep -s 1;
+                            if(!(Test-Path "$($env:ProgramFiles)\7-Zip\7z.exe")){
+                            $dlurl = 'https://7-zip.org/' + (Invoke-WebRequest -Uri 'https://7-zip.org/' | Select-Object -ExpandProperty Links | Where-Object {($_.innerHTML -eq 'Download') -and ($_.href -like "a/*") -and ($_.href -like "*-x64.exe")} | Select-Object -First 1 | Select-Object -ExpandProperty href)
+                            $installerPath = Join-Path $env:TEMP (Split-Path $dlurl -Leaf)
+                            Invoke-WebRequest $dlurl -OutFile $installerPath -UseBasicParsing
+                            Start-Process -FilePath $installerPath -Args "/S" -Verb RunAs -Wait}
+                        # Activation
+                            $link = "https://github.com/abbodi1406/KMS_VL_ALL_AIO/releases/download/v0.45.1/KMS_VL_ALL_AIO-45r.7z"
+                            $folder = "$($env:ProgramData)\Activation Script"
+                            $file = $file = "$($env:ProgramData)\Activation Script\KMS_VL_ALL_AIO.7z"
+                            write-host "`t`t`t- Creating directories.." -f Yellow; Sleep -s 1;
+                            mkdir $folder -ea Ignore | Out-Null
+                            Write-host "`t`t`t- Downloading..." -f Yellow; Sleep -s 1;
+                            Invoke-WebRequest -uri $link -OutFile $file
+                            & "C:\Program Files\7-Zip\7z.exe" x -o"$folder" -y -p"2021" "$file" | Out-Null
+                            Remove-Item $file -Force -ea Ignore
+                            $file = $file = "$($env:ProgramData)\Activation Script\KMS_VL_ALL_AIO.cmd"
+                            ((Get-Content -path $file -Raw) -replace 'set uAutoRenewal=0', "set uAutoRenewal=1" ) | Set-Content -Path $file
+                            Write-host "`t`t`t- Activation is running... This may take up to 5 minutes" -f Yellow; Sleep -s 2;
+                            Write-host "`t`t`t- Installing..`t`t`t`t`t`t" (get-date -Format "HH':'mm':'ss") -f Yellow;
+                            Write-host "`t`t`t- Expected to be done installing:`t" ((get-date).AddMinutes(5).ToString("HH':'mm':'ss")) -f Yellow;
+                            Start-Process cmd -WindowStyle Hidden -Verb RunAs -ArgumentList "/c","$file" -Wait
+                            write-host "`t`t`t- Activation complete!" -f green; Sleep -s 3
+                            Remove-Item $folder -Recurse -Force -ea Ignore}
+                        N { Write-Host "`t`t`t- NO. Skipping this step." -f Red;} 
+                    } } While($officeactivation -notin "y", "n")
 
- }
+
+ 
+}
                     
    
 #Front end begins here
