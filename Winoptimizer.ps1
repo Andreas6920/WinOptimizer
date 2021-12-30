@@ -678,13 +678,13 @@ Function app_installer {
             write-host "`tCHOOSE YOUR PREFERRED APPLICATIONS:" -f Green
 
             write-host "`t`tBROWSER:" -f yellow
-            write-host "`t`t`t`tChrome        Firefox      Opera" -f Yellow
-            write-host "`t`t`t`tBrave         Opera        Vevaldi" -f Yellow
+            write-host "`t`t`tChrome        Firefox      Opera" -f Yellow
+            write-host "`t`t`tBrave         Opera        Vevaldi" -f Yellow
             "";
             write-host "`t`tTOOLS:" -f yellow
-            write-host "`t`t`t`tDropbox       Google Drive    Teamviewer" -f Yellow
-            write-host "`t`t`t`t7-zip         Winrar          Greenshot" -f Yellow
-            write-host "`t`t`t`tShareX        Gimp            Visual studio++" -f Yellow
+            write-host "`t`t`tDropbox       Google Drive    Teamviewer" -f Yellow
+            write-host "`t`t`t7-zip         Winrar          Greenshot" -f Yellow
+            write-host "`t`t`tShareX        Gimp            Visual studio++" -f Yellow
             "";
             write-host "`t`tMEDIA PLAYER:" -f yellow
             write-host "`t`t`tSpotify       VLC           Itunes" -f Yellow
