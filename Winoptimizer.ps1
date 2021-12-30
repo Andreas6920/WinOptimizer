@@ -709,8 +709,8 @@ Function app_installer {
 
             $requested_apps = (Read-Host " ").Split(",") | Foreach-object { $_ -replace ' ',''}
             foreach ($requested_app in $requested_apps) {
-                if("cancel" -eq "$requested_app"){Write-Host "        - Skipping this step." -f Red;}
-                elseif($null -eq "$requested_app"){Write-Host "        - Skipping this step." -f Red;}
+                if("cancel" -eq "$requested_app"){Write-Host "`t`t`t- Skipping this step." -f Red;}
+                elseif($null -eq "$requested_app"){Write-Host "`t`t`t- Skipping this step." -f Red;}
                 # Browsers
                 elseif("Firefox" -match "$requested_app"){Write-host "        - installing firefox.." -f yellow -nonewline; choco install firefox -y | out-null;write-host "          [ COMPLETE ]" -f green;} 
                 elseif("Chrome" -match "$requested_app"){Write-host "        - installing Chrome.." -f yellow -nonewline; choco install googlechrome -y | out-null;write-host "           [ COMPLETE ]" -f green;} 
@@ -763,19 +763,19 @@ Function app_installer {
             }
     # STEP 3 - app-updater
                 Do {
-                    Write-Host "        - Would you like to install auto-updater? (y/n)" -f yellow -nonewline; ;
+                    Write-Host "`t`t- Would you like to install auto-updater? (y/n)" -f yellow -nonewline; ;
                     $answer = Read-Host " " 
                     Switch ($answer) { 
                         Y {   
                                 if ((Get-Childitem -Path $env:ProgramData).Name  -match "Chocolatey"){
                                 #create update file
-                                write-host "        - Downloading updating script." -f green
+                                write-host "`t`t`t- Downloading updating script." -f green
                                 $filepath = "$env:ProgramData\chocolatey\app-updater.ps1"
                                 Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/app-updater/app-updater.ps1" -OutFile $filepath -UseBasicParsing
 
                                 
                                 # Create scheduled job
-                                write-host "        - scheduling update routine." -f green
+                                write-host "`t`t`t- scheduling update routine." -f green
                                 $name = 'winoptimizer-app-Updater'
                                 $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-nop -W hidden -noni -ep bypass -file $filepath"
                                 $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM"-LogonType ServiceAccount -RunLevel Highest
@@ -783,7 +783,7 @@ Function app_installer {
                                 $settings = New-ScheduledTaskSettingsSet -RunOnlyIfNetworkAvailable -DontStopIfGoingOnBatteries -RunOnlyIfIdle -DontStopOnIdleEnd -IdleDuration 00:05:00 -IdleWaitTimeout 03:00:00
 
                                 Register-ScheduledTask -TaskName $Name -Taskpath "\Microsoft\Windows\Winoptimizer\" -Settings $settings -Principal $principal -Action $action -Trigger $trigger -Force | Out-Null
-                                } else{Write-host "Chocolatey is not installed on this system." -f red}                                                    
+                                } else{Write-host "`t`t`t- Chocolatey is not installed on this system." -f red}                                                    
                         }
                         N { Write-Host "`t`t`t- NO. Skipping this step." -f Red }}
                     } While ($answer -notin "y", "n")
@@ -806,8 +806,8 @@ Function app_installer {
                                                 write-host "`t`t`t- Microsoft Office is now installed!" -f green; Sleep -s 5;"";"";
                                                 $officejustinstalled = $true}
                                             else {write-host "`t`t`t - Office er allerede installeret."}}
-                                English {   write-host "`t`t`t`t- Downloader og installere Microsoft Office.. Dette kan tage op til 10 minutter" -f green
-                                            Write-host "`t`t`t`t- Installation startet:`t" (get-date -Format "HH':'mm':'ss") -f white
+                                English {   write-host "`t`t`t`t- Downloading.. Dette kan tage op til 10 minutter" -f green
+                                            Write-host "`t`t`t`t- Installating.." (get-date -Format "HH':'mm':'ss") -f white
                                             Write-host "`t`t`t`t- Forventet færdigt:`t" ((get-date).AddMinutes(10).ToString("HH':'mm':'ss")) -f white
                                             if(!(test-path HKLM:\Software\Microsoft\Office\)){
                                                 choco install microsoft-office-deployment /Language en-us /DisableUpdate TRUE -y | out-null
