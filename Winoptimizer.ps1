@@ -802,23 +802,15 @@ Function app_installer {
                                             Write-host "`t`t`t`t- Installation startet:`t" (get-date -Format "HH':'mm':'ss") -f white
                                             Write-host "`t`t`t`t- Forventet færdigt:`t" ((get-date).AddMinutes(10).ToString("HH':'mm':'ss")) -f white
                                             if(!(test-path HKLM:\Software\Microsoft\Office\)){
-                                                [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-                                                If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main")) {New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Force | Out-Null}
-                                                Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Type DWord -Value 1                                                
                                                 choco install microsoft-office-deployment /Language da-dk /DisableUpdate TRUE -y | out-null
-                                                write-host "`t`t`t- Microsoft Office er nu installeret på dette system!" -f green
-                                                remove-item "$env:ProgramData\office-danish.ps1" -ea ignore} 
+                                                write-host "`t`t`t- Microsoft Office er nu installeret på dette system!" -f green} 
                                             else {write-host "`t`t`t - Office er allerede installeret."}}
                                 English {   write-host "`t`t`t- Downloader og installere Microsoft Office.. Dette kan tage op til 10 minutter" -f green
                                             Write-host "`t`t`t`t- Installation startet:`t" (get-date -Format "HH':'mm':'ss") -f white
                                             Write-host "`t`t`t`t- Forventet færdigt:`t" ((get-date).AddMinutes(10).ToString("HH':'mm':'ss")) -f white
                                             if(!(test-path HKLM:\Software\Microsoft\Office\)){
-                                            [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-                                            If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main")) {New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Force | Out-Null}
-                                                  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Type DWord -Value 1                                                
                                                   choco install microsoft-office-deployment /Language en-us /DisableUpdate TRUE -y | out-null
-                                                  write-host "`t`t`t- Microsoft Office er nu installeret på dette system!" -f green
-                                                  remove-item "$env:ProgramData\office-danish.ps1" -ea ignore} 
+                                                  write-host "`t`t`t- Microsoft Office er nu installeret på dette system!" -f green} 
                                             else {write-host "`t`t`t - Office er allerede installeret."}}}
                             } While($officelanguage -notin "danish", "english")
                             if ($officejustinstalled -eq $true){
@@ -864,8 +856,8 @@ Function app_installer {
 
                         } } While($installoffice -notin "y", "n")   
 
-
-
+ }
+                    
    
 #Front end begins here
 $intro = 
