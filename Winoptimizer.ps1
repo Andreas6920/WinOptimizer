@@ -295,6 +295,19 @@ Function settings_privacy {
          write-host "        - Service scan complete" -f yellow
 
     # Adding entries to hosts file
+        
+        
+        # Force system to use a more secure TLS version
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main")) {New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Force | Out-Null}
+        Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Type DWord -Value 1
+        
+        # Check or wait for internet connection
+        do {Write-Host "Verifying network connection ..."; sleep 3}
+        until(Test-NetConnection google.com  | Where-Object { $_.PingSucceeded } )
+
+
+
         Write-host "      BLOCKING - Tracking domains (This may take a while).." -f green
         start-sleep -s 5
          Write-Host "        - Backing up your hostsfile.." -f Yellow
@@ -785,6 +798,36 @@ $appheader =
                         N { Write-Host "        - NO. Skipping this step." -f Red }}
                     } While ($answer -notin "y", "n")
 
+    # Step 4 - Office installer
+                Do {
+                    Write-Host "Would you like to install Microsoft Office? (y/n)" -nonewline;
+                    $Readhostoffice = Read-Host " " 
+                        Switch ($Readhostoffice) { 
+                        Y {
+                            Do {
+                            Write-Host "What Language would you prefer? (Danish/English)" -nonewline;
+                            $Readhostofficelanguage = Read-Host " "
+                            Switch ($Readhostofficelanguage) { 
+                                    Danish  {   
+                                                $file = "$($env:ProgramData)\office-danish.ps1"
+                                                Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/other/office-danish.ps1" -OutFile $file -UseBasicParsing; 
+                                                powershell -ep bypass $file;
+                                                remove-item "$env:ProgramData\office-danish.ps1" -ea ignore
+                                            }
+                                    English {echo "english is chosen"}
+
+                                                        }
+                            } While($Readhostoffice -notin "y", "n") 
+
+
+
+
+                        }
+                        
+                        
+
+                        N {Write-Host "        - NO. Skipping this step." -f Red ;} 
+                        } } While($Readhostoffice -notin "y", "n")   
 
 
 }
