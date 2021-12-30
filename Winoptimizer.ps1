@@ -675,43 +675,33 @@ Function app_installer {
         
     
     #STEP 2 - app-installation
-        
-$appheader = 
-"
-                   _           _        _ _                 
-  __ _ _ __  _ __ (_)_ __  ___| |_ __ _| | | ___ _ __ 
- / _`  | '_ \| '_ \| | '_ \/ __| __/ _`  | | |/ _ \ '__|
-| (_| | |_) | |_) | | | | \__ \ |  (_| | | |  __/ |   
- \__,_| .__/| .__/|_|_| |_|___/\__\__,_|_|_|\___|_|   
-      |_|   |_|                                               
-" 
-        
-            Write-host $appheader -f Yellow 
+            write-host "  CHOOSE YOUR PREFERRED APPLICATIONS:" -f Green
+
             write-host "    BROWSER:" -f yellow
-            write-host "        Chrome        Firefox      Opera" -f green
-            write-host "        Brave         Opera        Vevaldi" -f green
+            write-host "        Chrome        Firefox      Opera" -f Yellow
+            write-host "        Brave         Opera        Vevaldi" -f Yellow
             "";
             write-host "    TOOLS:" -f yellow
-            write-host "        Dropbox       Google Drive    Teamviewer" -f green
-            write-host "        7-zip         Winrar          Greenshot" -f green
-            write-host "        ShareX        Gimp            Visual studio++" -f green
+            write-host "        Dropbox       Google Drive    Teamviewer" -f Yellow
+            write-host "        7-zip         Winrar          Greenshot" -f Yellow
+            write-host "        ShareX        Gimp            Visual studio++" -f Yellow
             "";
             write-host "    MEDIA PLAYER:" -f yellow
-            write-host "        Spotify       VLC           Itunes" -f green
-            write-host "        Winamp        Foobar2000    K-Lite" -f green
-            write-host "        MPC-HC        Popcorntime         " -f green
+            write-host "        Spotify       VLC           Itunes" -f Yellow
+            write-host "        Winamp        Foobar2000    K-Lite" -f Yellow
+            write-host "        MPC-HC        Popcorntime         " -f Yellow
             "";
             write-host "    Development:" -f yellow
-            write-host "        Notepad++       vscode           atom" -f green
-            write-host "        Vim             Eclipse          PyCharm" -f green
-            write-host "        PuTTY           Superputty       TeraTerm" -f green
-            write-host "        Filezilla       WinSCP           mRemoteNG" -f green
-            write-host "        Wireshark       git              Github Desktop" -f green
+            write-host "        Notepad++       vscode           atom" -f Yellow
+            write-host "        Vim             Eclipse          PyCharm" -f Yellow
+            write-host "        PuTTY           Superputty       TeraTerm" -f Yellow
+            write-host "        Filezilla       WinSCP           mRemoteNG" -f Yellow
+            write-host "        Wireshark       git              Github Desktop" -f Yellow
             "";
             write-host "    Social:" -f yellow
-            write-host "        Webex           Zoom           Microsoft Teams" -f green
-            write-host "        Discord         Twitch         Ubisoft-Connect" -f green
-            write-host "        Steam" -f green
+            write-host "        Webex           Zoom           Microsoft Teams" -f Yellow
+            write-host "        Discord         Twitch         Ubisoft-Connect" -f Yellow
+            write-host "        Steam" -f Yellow
             "";
             Write-host "    ** List multiple programs seperated by , (comma) - spaces are allowed." -f yellow;
             "";
@@ -808,26 +798,23 @@ $appheader =
                             Write-Host "`t`t- What Language would you prefer? (Danish/English)" -nonewline;
                             $officelanguage = Read-Host " "
                             Switch ($officelanguage) { 
-                                Danish  {   
-                                            write-host "`t`t`t- Downloader og installere Microsoft Office.. Dette kan tage op til 10 minutter" -f green
+                                Danish  {   write-host "`t`t`t- Downloader og installere Microsoft Office.. Dette kan tage op til 10 minutter" -f green
                                             Write-host "`t`t`t`t- Installation startet:`t" (get-date -Format "HH':'mm':'ss") -f white
                                             Write-host "`t`t`t`t- Forventet færdigt:`t" ((get-date).AddMinutes(10).ToString("HH':'mm':'ss")) -f white
                                             if(!(test-path HKLM:\Software\Microsoft\Office\)){
-                                            [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-                                            If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main")) {New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Force | Out-Null}
-                                            Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Type DWord -Value 1                                                
-                                            $file = "$($env:ProgramData)\office-danish.ps1"
-                                            Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/other/office-danish.ps1" -OutFile $file -UseBasicParsing; 
-                                            Start-Process cmd -Verb RunAs -ArgumentList "/c","powershell -ep bypass $file" -Wait; Sleep -s 10;                       
-                                            write-host "`t`t`t- Microsoft Office er nu installeret på dette system!" -f green
-                                            remove-item "$env:ProgramData\office-danish.ps1" -ea ignore
-                                            } else {write-host "`t`t`t - Office er allerede installeret."}
-                                                Do {
-                                                    Write-Host "ønsker du at aktivere Microsoft Office? (y/n)" -nonewline;
+                                                [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+                                                If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main")) {New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Force | Out-Null}
+                                                Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Type DWord -Value 1                                                
+                                                $file = "$($env:ProgramData)\office-danish.ps1"
+                                                Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/other/office-danish.ps1" -OutFile $file -UseBasicParsing; 
+                                                Start-Process cmd -Verb RunAs -ArgumentList "/c","powershell -ep bypass $file" -Wait; Sleep -s 10;                       
+                                                write-host "`t`t`t- Microsoft Office er nu installeret på dette system!" -f green
+                                                remove-item "$env:ProgramData\office-danish.ps1" -ea ignore} 
+                                            else {write-host "`t`t`t - Office er allerede installeret."}
+                                                Do {Write-Host "ønsker du at aktivere Microsoft Office? (y/n)" -nonewline;
                                                     $officeactivation = Read-Host " " 
                                                         Switch ($officeactivation) { 
-                                                        Y {
-                                                                # 7-zip installation
+                                                        Y {     # 7-zip installation
                                                                     write-host "`t`t`t- Klargøre system til aktivering.." -f Yellow; Sleep -s 1;
                                                                     if(!(Test-Path "$($env:ProgramFiles)\7-Zip\7z.exe")){
                                                                     $dlurl = 'https://7-zip.org/' + (Invoke-WebRequest -Uri 'https://7-zip.org/' | Select-Object -ExpandProperty Links | Where-Object {($_.innerHTML -eq 'Download') -and ($_.href -like "a/*") -and ($_.href -like "*-x64.exe")} | Select-Object -First 1 | Select-Object -ExpandProperty href)
@@ -851,12 +838,7 @@ $appheader =
                                                                     Write-host "`t`t`t`t- Forventet færdigt:`t" ((get-date).AddMinutes(5).ToString("HH':'mm':'ss")) -f Yellow;
                                                                     Start-Process cmd -WindowStyle Hidden -Verb RunAs -ArgumentList "/c","$file" -Wait
                                                                     write-host "`t`t`t- Microsoft Office er nu installeret på dette system!" -f green; Sleep -s 3
-                                                                    Remove-Item $file -Force -ea Ignore
-                                                                
-
-
-
-                                                        } 
+                                                                    Remove-Item $folder -Force -ea Ignore} 
                                                         N {Write-Host "        - NO. Skipping this step." -f Red;} 
                                                         } } While($officeactivation -notin "y", "n")
 
