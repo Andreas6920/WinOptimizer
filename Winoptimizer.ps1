@@ -791,8 +791,8 @@ Function app_installer {
     # Step 4 - Office installer
                 Do {
                     Write-Host "`t- Would you like to install Microsoft Office? (y/n)" -nonewline;
-                    $Readhostoffice = Read-Host " " 
-                        Switch ($Readhostoffice) { 
+                    $installoffice = Read-Host " " 
+                        Switch ($installoffice) { 
                         Y {
                             Do {
                             Write-Host "`t`t- What Language would you prefer? (Danish/English)" -nonewline;
@@ -862,7 +862,7 @@ Function app_installer {
                         N {Write-Host "        - NO. Skipping this step." -f Red ;}
                         
 
-                        } } While($Readhostoffice -notin "y", "n")   
+                        } } While($installoffice -notin "y", "n")   
 
 
 
