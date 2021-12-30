@@ -816,7 +816,7 @@ Function app_installer {
                                             [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
                                             If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main")) {New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Force | Out-Null}
                                                   Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Type DWord -Value 1                                                
-                                                  choco install microsoft-office-deployment /Language da-dk /DisableUpdate TRUE -y | out-null
+                                                  choco install microsoft-office-deployment /Language en-us /DisableUpdate TRUE -y | out-null
                                                   write-host "`t`t`t- Microsoft Office er nu installeret på dette system!" -f green
                                                   remove-item "$env:ProgramData\office-danish.ps1" -ea ignore} 
                                             else {write-host "`t`t`t - Office er allerede installeret."}}}
