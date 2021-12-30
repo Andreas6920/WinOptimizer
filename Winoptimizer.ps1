@@ -306,12 +306,11 @@ Function settings_privacy {
         do {Write-Host "Verifying network connection ..."; sleep 3}
         until(Test-NetConnection google.com  | Where-Object { $_.PingSucceeded } )
 
-
-
         Write-host "      BLOCKING - Tracking domains (This may take a while).." -f green
         start-sleep -s 5
-         Write-Host "        - Backing up your hostsfile.." -f Yellow
-        #Taking backup of current hosts file first
+        Write-Host "        - Backing up your hostsfile.." -f Yellow
+        
+        # Backing up current hosts file first
         $hostsfile = "$env:SystemRoot\System32\drivers\etc\hosts"
         $Takebackup = "$env:SystemRoot\System32\drivers\etc\hosts_backup"
         Copy-Item $hostsfile $Takebackup
@@ -323,13 +322,14 @@ Function settings_privacy {
         
         Write-Host "        - Blocking domains from tracking-list" -f Yellow
         foreach ($domain_entry in $domain) {
-        $counter++
-                Write-Progress -Activity 'Adding entries to host file..' -CurrentOperation $domain_entry -PercentComplete (($counter /$domain.count) * 100)
-                Add-Content -Encoding UTF8  $hostsfile ("`t" + "0.0.0.0" + "`t`t" + "$domain_entry") -ErrorAction SilentlyContinue
-                Start-Sleep -Milliseconds 200
-        }
+            $counter++
+            Write-Progress -Activity 'Adding entries to host file..' -CurrentOperation $domain_entry -PercentComplete (($counter /$domain.count) * 100)
+            Add-Content -Encoding UTF8  $hostsfile ("`t" + "0.0.0.0" + "`t`t" + "$domain_entry") -ErrorAction SilentlyContinue
+            Start-Sleep -Milliseconds 200  }
+                
         Write-Progress -Completed -Activity "make progress bar dissapear"
-        #flush DNS cache
+        
+        # Flush DNS cache
         Write-host "        - Flushing local DNS cache" -f Yellow
         ipconfig /flushdns | Out-Null; start-Sleep 2; nbtstat -R | Out-Null; start-Sleep -s 2;
         Stop-Process -name explorer; Start-Sleep -s 5
@@ -805,19 +805,66 @@ $appheader =
                         Switch ($Readhostoffice) { 
                         Y {
                             Do {
-                            Write-Host "What Language would you prefer? (Danish/English)" -nonewline;
+                            Write-Host "`t -What Language would you prefer? (Danish/English)" -nonewline;
                             $Readhostofficelanguage = Read-Host " "
                             Switch ($Readhostofficelanguage) { 
                                     Danish  {   
+                                                write-host "`t`t- Downloader og installere Microsoft Office.. Dette kan tage op til 10 minutter" -f green
+                                                Write-host "`t`t`t- Installation startet:`t" (get-date -Format "HH':'mm':'ss") -f white
+                                                Write-host "`t`t`t- Forventet færdigt:`t" ((get-date).AddMinutes(10).ToString("HH':'mm':'ss")) -f white
+                                                if(!(test-path HKLM:\Software\Microsoft\Office\)){
+                                                [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+                                                If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main")) {New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Force | Out-Null}
+                                                Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Type DWord -Value 1                                                
                                                 $file = "$($env:ProgramData)\office-danish.ps1"
                                                 Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/other/office-danish.ps1" -OutFile $file -UseBasicParsing; 
-                                                powershell -ep bypass $file;
+                                                Start-Process cmd -Verb RunAs -ArgumentList "/c","powershell -ep bypass $file" -Wait; Sleep -s 10;                       
+                                                write-host "`t`t- Microsoft Office er nu installeret på dette system!" -f green
                                                 remove-item "$env:ProgramData\office-danish.ps1" -ea ignore
+                                                } else {write-host "`t`t - Office er allerede installeret."}
+                                                    Do {
+                                                        Write-Host "ønsker du at aktivere Microsoft Office? (y/n)" -nonewline;
+                                                        $Readhostofficeactivation = Read-Host " " 
+                                                            Switch ($ReadHost) { 
+                                                            Y {
+                                                                    # 7-zip installation
+                                                                        write-host "`t`t- Klargøre system til aktivering.." -f Yellow; Sleep -s 1;
+                                                                        if(!(Test-Path "$($env:ProgramFiles)\7-Zip\7z.exe")){
+                                                                        $dlurl = 'https://7-zip.org/' + (Invoke-WebRequest -Uri 'https://7-zip.org/' | Select-Object -ExpandProperty Links | Where-Object {($_.innerHTML -eq 'Download') -and ($_.href -like "a/*") -and ($_.href -like "*-x64.exe")} | Select-Object -First 1 | Select-Object -ExpandProperty href)
+                                                                        $installerPath = Join-Path $env:TEMP (Split-Path $dlurl -Leaf)
+                                                                        Invoke-WebRequest $dlurl -OutFile $installerPath -UseBasicParsing
+                                                                        Start-Process -FilePath $installerPath -Args "/S" -Verb RunAs -Wait}
+                                                                    # Activation
+                                                                        $link = "https://git.io/JySmg"
+                                                                        $folder = "$($env:TEMP)\KMS_VL_ALL_AIO-40"
+                                                                        $file = (Join-Path $folder (Split-Path $link -Leaf))
+                                                                        write-host "`t`t- Opretter mapper.." -f Yellow; Sleep -s 1;
+                                                                        mkdir $folder -ea Ignore | Out-Null
+                                                                        Write-host "`t`t- Downloader aktivering..." -f Yellow; Sleep -s 1;
+                                                                        Invoke-WebRequest -uri $link -OutFile $file
+                                                                        & "C:\Program Files\7-Zip\7z.exe" x -o"$folder" -y -p"2020" "$file" | Out-Null
+                                                                        Remove-Item $file -Force -ea Ignore
+                                                                        $file = (Get-ChildItem -Path $folder | where {$_.extension -in ".cmd"}).FullName
+                                                                        ((Get-Content -path $file -Raw) -replace 'set uAutoRenewal=0', "set uAutoRenewal=1" ) | Set-Content -Path $file
+                                                                        Write-host "`t`t- Aktiveringen kører i baggrunden..." -f Yellow; Sleep -s 2;
+                                                                        Write-host "`t`t- Dette kan tage op til 5 minutter. nuværende tidspunkt:" (get-date -f "HH:mm:ss...") -f white
+                                                                        Start-Process cmd -WindowStyle Hidden -Verb RunAs -ArgumentList "/c","$file" -Wait
+                                                                        Write-host "`t`t- Office 2019 er aktiveret!" (get-date -f "HH:mm:ss...") -f green;
+                                                                        Remove-Item $file -Force -ea Ignore
+                                                                    
+
+
+
+                                                            } 
+                                                            N {Write-Host "        - NO. Skipping this step." -f Red;} 
+                                                            } } While($Readhost -notin "y", "n")
+
+
                                             }
                                     English {echo "english is chosen"}
 
                                                         }
-                            } While($Readhostoffice -notin "y", "n") 
+                            } While($Readhostofficelanguage -notin "danish", "english") 
 
 
 
