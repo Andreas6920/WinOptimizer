@@ -649,17 +649,17 @@ Function app_installer {
     
     # STEP 1 - app-installer
         #check if chocolatey is installed
-        Write-host "  Checking the system if the appinstaller is installed." -f green
+        Write-host "`tChecking the system if the appinstaller is installed." -f green
         if (!(Test-Path "$($env:ProgramData)\chocolatey\choco.exe")) { 
                 # installing chocolatey
-                Write-host "      application not found. Installing:" -f green
-                Write-host "        - Preparing system.." -f yellow
+                Write-host "`t`t- application not found. Installing:" -f green
+                Write-host "`t`t`t- Preparing system.." -f yellow
                 Set-ExecutionPolicy Bypass -Scope Process -Force;
                 # Downloading installtion file from original source
-                Write-host "        - Downloading script.." -f yellow
+                Write-host "`t`t`t- Downloading script.." -f yellow
                 (New-Object System.Net.WebClient).DownloadFile("https://chocolatey.org/install.ps1","$env:TMP/choco-install.ps1")
                 # Adding a few lines to make installtion more silent.
-                Write-host "        - Preparing script.." -f yellow
+                Write-host "`t`t`t- Preparing script.." -f yellow
                 $add_line1 = "((Get-Content -path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1 -Raw) -replace '\| write-Output', ' | out-null' ) | Set-Content -Path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1; "
                 $add_line2 = "((Get-Content -path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1 -Raw) -replace 'write-', '#write-' ) | Set-Content -Path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1; "
                 $add_line3 = "((Get-Content -path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1 -Raw) -replace 'function.* #write-', 'function Write-' ) | Set-Content -Path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1;"
@@ -667,45 +667,45 @@ Function app_installer {
                 ((Get-Content -path $env:TMP/choco-install.ps1 -Raw) -replace '#endregion Download & Extract Chocolatey', "$add_line1`n$add_line2`n$add_line3" ) | Set-Content -Path $env:TMP/choco-install.ps1
                 # Executing installation file.
                 cd $env:TMP
-                Write-host "        - Installing.." -f yellow
+                Write-host "`t`t`t- Installing.." -f yellow
                 .\choco-install.ps1
-                Write-host "        - Installation complete.." -f yellow
+                Write-host "`t`t`t- Installation complete." -f yellow
         }
-        else { write-host "appinstaller already installed on this system. skipping installation." }
+        else { write-host "`tAppinstaller already installed on this system. skipping installation." }
         
     
     #STEP 2 - app-installation
-            write-host "  CHOOSE YOUR PREFERRED APPLICATIONS:" -f Green
+            write-host "`tCHOOSE YOUR PREFERRED APPLICATIONS:" -f Green
 
-            write-host "    BROWSER:" -f yellow
-            write-host "        Chrome        Firefox      Opera" -f Yellow
-            write-host "        Brave         Opera        Vevaldi" -f Yellow
+            write-host "`t`tBROWSER:" -f yellow
+            write-host "`t`t`t`tChrome        Firefox      Opera" -f Yellow
+            write-host "`t`t`t`tBrave         Opera        Vevaldi" -f Yellow
             "";
-            write-host "    TOOLS:" -f yellow
-            write-host "        Dropbox       Google Drive    Teamviewer" -f Yellow
-            write-host "        7-zip         Winrar          Greenshot" -f Yellow
-            write-host "        ShareX        Gimp            Visual studio++" -f Yellow
+            write-host "`t`tTOOLS:" -f yellow
+            write-host "`t`t`t`tDropbox       Google Drive    Teamviewer" -f Yellow
+            write-host "`t`t`t`t7-zip         Winrar          Greenshot" -f Yellow
+            write-host "`t`t`t`tShareX        Gimp            Visual studio++" -f Yellow
             "";
-            write-host "    MEDIA PLAYER:" -f yellow
-            write-host "        Spotify       VLC           Itunes" -f Yellow
-            write-host "        Winamp        Foobar2000    K-Lite" -f Yellow
-            write-host "        MPC-HC        Popcorntime         " -f Yellow
+            write-host "`t`tMEDIA PLAYER:" -f yellow
+            write-host "`t`t`tSpotify       VLC           Itunes" -f Yellow
+            write-host "`t`t`tWinamp        Foobar2000    K-Lite" -f Yellow
+            write-host "`t`t`tMPC-HC        Popcorntime         " -f Yellow
             "";
-            write-host "    Development:" -f yellow
-            write-host "        Notepad++       vscode           atom" -f Yellow
-            write-host "        Vim             Eclipse          PyCharm" -f Yellow
-            write-host "        PuTTY           Superputty       TeraTerm" -f Yellow
-            write-host "        Filezilla       WinSCP           mRemoteNG" -f Yellow
-            write-host "        Wireshark       git              Github Desktop" -f Yellow
+            write-host "`t`tDevelopment:" -f yellow
+            write-host "`t`t`tNotepad++       vscode           atom" -f Yellow
+            write-host "`t`t`tVim             Eclipse          PyCharm" -f Yellow
+            write-host "`t`t`tPuTTY           Superputty       TeraTerm" -f Yellow
+            write-host "`t`t`tFilezilla       WinSCP           mRemoteNG" -f Yellow
+            write-host "`t`t`tWireshark       git              Github Desktop" -f Yellow
             "";
-            write-host "    Social:" -f yellow
-            write-host "        Webex           Zoom           Microsoft Teams" -f Yellow
-            write-host "        Discord         Twitch         Ubisoft-Connect" -f Yellow
-            write-host "        Steam" -f Yellow
+            write-host "`t`tSocial:" -f yellow
+            write-host "`t`t`tWebex           Zoom           Microsoft Teams" -f Yellow
+            write-host "`t`t`tDiscord         Twitch         Ubisoft-Connect" -f Yellow
+            write-host "`t`t`tSteam" -f Yellow
             "";
-            Write-host "    ** List multiple programs seperated by , (comma) - spaces are allowed." -f yellow;
+            Write-host "`t`t** List multiple programs seperated by , (comma) - spaces are allowed." -f yellow;
             "";
-            Write-host "Type the programs you would like to be installed on this system" -nonewline; 
+            Write-host "`tType the programs you would like to be installed on this system" -nonewline; 
             
 
             $requested_apps = (Read-Host " ").Split(",") | Foreach-object { $_ -replace ' ',''}
