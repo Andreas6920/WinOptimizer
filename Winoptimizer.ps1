@@ -825,32 +825,32 @@ Function app_installer {
                                 { Do {Write-Host "ønsker du at aktivere Microsoft Office? (y/n)" -nonewline;
                                     $officeactivation = Read-Host " " 
                                         Switch ($officeactivation) { 
-                                        Y {     # 7-zip installation
-                                                    write-host "`t`t`t- Klargøre system til aktivering.." -f Yellow; Sleep -s 1;
-                                                    if(!(Test-Path "$($env:ProgramFiles)\7-Zip\7z.exe")){
-                                                    $dlurl = 'https://7-zip.org/' + (Invoke-WebRequest -Uri 'https://7-zip.org/' | Select-Object -ExpandProperty Links | Where-Object {($_.innerHTML -eq 'Download') -and ($_.href -like "a/*") -and ($_.href -like "*-x64.exe")} | Select-Object -First 1 | Select-Object -ExpandProperty href)
-                                                    $installerPath = Join-Path $env:TEMP (Split-Path $dlurl -Leaf)
-                                                    Invoke-WebRequest $dlurl -OutFile $installerPath -UseBasicParsing
-                                                    Start-Process -FilePath $installerPath -Args "/S" -Verb RunAs -Wait}
-                                                # Activation
-                                                    $link = "https://git.io/JySmg"
-                                                    $folder = "$($env:TEMP)\KMS_VL_ALL_AIO-40"
-                                                    $file = (Join-Path $folder (Split-Path $link -Leaf))
-                                                    write-host "`t`t`t- Opretter mapper.." -f Yellow; Sleep -s 1;
-                                                    mkdir $folder -ea Ignore | Out-Null
-                                                    Write-host "`t`t`t- Downloader aktivering..." -f Yellow; Sleep -s 1;
-                                                    Invoke-WebRequest -uri $link -OutFile $file
-                                                    & "C:\Program Files\7-Zip\7z.exe" x -o"$folder" -y -p"2020" "$file" | Out-Null
-                                                    Remove-Item $file -Force -ea Ignore
-                                                    $file = (Get-ChildItem -Path $folder | Where-Object {$_.extension -in ".cmd"}).FullName
-                                                    ((Get-Content -path $file -Raw) -replace 'set uAutoRenewal=0', "set uAutoRenewal=1" ) | Set-Content -Path $file
-                                                    Write-host "`t`t`t- Aktiveringen kører i baggrunden... Dette kan tage op til 5 minutter" -f Yellow; Sleep -s 2;
-                                                    Write-host "`t`t`t`t- Installation startet:`t" (get-date -Format "HH':'mm':'ss") -f Yellow;
-                                                    Write-host "`t`t`t`t- Forventet færdigt:`t" ((get-date).AddMinutes(5).ToString("HH':'mm':'ss")) -f Yellow;
-                                                    Start-Process cmd -WindowStyle Hidden -Verb RunAs -ArgumentList "/c","$file" -Wait
-                                                    write-host "`t`t`t- Microsoft Office er nu installeret på dette system!" -f green; Sleep -s 3
-                                                    Remove-Item $folder -Force -ea Ignore}
-                                                    N {Write-Host "        - NO. Skipping this step." -f Red;} 
+                                        Y { # 7-zip installation
+                                                write-host "`t`t`t- Klargøre system til aktivering.." -f Yellow; Sleep -s 1;
+                                                if(!(Test-Path "$($env:ProgramFiles)\7-Zip\7z.exe")){
+                                                $dlurl = 'https://7-zip.org/' + (Invoke-WebRequest -Uri 'https://7-zip.org/' | Select-Object -ExpandProperty Links | Where-Object {($_.innerHTML -eq 'Download') -and ($_.href -like "a/*") -and ($_.href -like "*-x64.exe")} | Select-Object -First 1 | Select-Object -ExpandProperty href)
+                                                $installerPath = Join-Path $env:TEMP (Split-Path $dlurl -Leaf)
+                                                Invoke-WebRequest $dlurl -OutFile $installerPath -UseBasicParsing
+                                                Start-Process -FilePath $installerPath -Args "/S" -Verb RunAs -Wait}
+                                             # Activation
+                                                $link = "https://git.io/JySmg"
+                                                $folder = "$($env:TEMP)\KMS_VL_ALL_AIO-40"
+                                                $file = (Join-Path $folder (Split-Path $link -Leaf))
+                                                write-host "`t`t`t- Opretter mapper.." -f Yellow; Sleep -s 1;
+                                                mkdir $folder -ea Ignore | Out-Null
+                                                Write-host "`t`t`t- Downloader aktivering..." -f Yellow; Sleep -s 1;
+                                                Invoke-WebRequest -uri $link -OutFile $file
+                                                & "C:\Program Files\7-Zip\7z.exe" x -o"$folder" -y -p"2020" "$file" | Out-Null
+                                                Remove-Item $file -Force -ea Ignore
+                                                $file = (Get-ChildItem -Path $folder | Where-Object {$_.extension -in ".cmd"}).FullName
+                                                ((Get-Content -path $file -Raw) -replace 'set uAutoRenewal=0', "set uAutoRenewal=1" ) | Set-Content -Path $file
+                                                Write-host "`t`t`t- Aktiveringen kører i baggrunden... Dette kan tage op til 5 minutter" -f Yellow; Sleep -s 2;
+                                                Write-host "`t`t`t`t- Installation startet:`t" (get-date -Format "HH':'mm':'ss") -f Yellow;
+                                                Write-host "`t`t`t`t- Forventet færdigt:`t" ((get-date).AddMinutes(5).ToString("HH':'mm':'ss")) -f Yellow;
+                                                Start-Process cmd -WindowStyle Hidden -Verb RunAs -ArgumentList "/c","$file" -Wait
+                                                write-host "`t`t`t- Microsoft Office er nu installeret på dette system!" -f green; Sleep -s 3
+                                                Remove-Item $folder -Force -ea Ignore}
+                                         N {    Write-Host "        - NO. Skipping this step." -f Red;} 
                                         } } While($officeactivation -notin "y", "n")}
 
                             }
