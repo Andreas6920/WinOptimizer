@@ -798,7 +798,7 @@ Function app_installer {
                             Write-Host "`t`t`t- What Language would you prefer? (Danish/English)" -f Yellow -nonewline;
                             $officelanguage = Read-Host " "
                             Switch ($officelanguage) { 
-                                Danish  {   write-host "`t`t`t`t- Downloader og installere Microsoft Office.. Dette kan tage op til 10 minutter" -f Yellow;
+                                Danish  {   write-host "`t`t`t`t- Downloader og installere Microsoft Office.. Dette kan tage op til 10 minutter" -f Yellow; Sleep -s 3;
                                             Write-host "`t`t`t`t- Installation started:`t" (get-date -Format "HH':'mm':'ss") -f Yellow;
                                             Write-host "`t`t`t`t- Forventet færdigt:`t" ((get-date).AddMinutes(10).ToString("HH':'mm':'ss")) -f Yellow;
                                             if(!(test-path HKLM:\Software\Microsoft\Office\)){
@@ -806,7 +806,7 @@ Function app_installer {
                                                 write-host "`t`t`t- Microsoft Office is now installed!" -f green; Sleep -s 5;"";"";
                                                 $officejustinstalled = $true}
                                             else {write-host "`t`t`t - Office er allerede installeret."}}
-                                English {   write-host "`t`t`t`t- Downloading.. May take up to 10 minutes" -f green
+                                English {   write-host "`t`t`t`t- Downloading.. May take up to 10 minutes" -f green; Sleep -s 3;
                                             Write-host "`t`t`t`t- Installation started:`t" (get-date -Format "HH':'mm':'ss") -f white
                                             Write-host "`t`t`t`t- Expected done:`t" ((get-date).AddMinutes(10).ToString("HH':'mm':'ss")) -f white
                                             if(!(test-path HKLM:\Software\Microsoft\Office\)){
