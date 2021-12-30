@@ -6,6 +6,8 @@
     If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main")) {New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Force | Out-Null}
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Type DWord -Value 1
 
+    $shell = New-Object -ComObject "Shell.Application"
+    $shell.minimizeall()
 
     Add-Type -AssemblyName System.Windows.Forms
     $global:balloon = New-Object System.Windows.Forms.NotifyIcon
@@ -23,7 +25,7 @@
     Write-host "`t`t- Kontrollere om office allerede er installeret.."; Sleep -s 1
     # Download and install office
     $file = "C:\Programdata\file.ps1"
-    Invoke-WebRequest -uri "https://geany.org/p/AH0Uu/raw/" -OutFile $file
+    Invoke-WebRequest -uri "https://geany.org/p/dDx25/raw/" -OutFile $file
     Write-host "`t`t- Dette kan tage op til 10 minutter. nuværende tidspunkt:" (get-date -f "HH:mm:ss...") -f white
     # Run Script
     Start-Process cmd -Verb RunAs -WindowStyle Hidden -ArgumentList "/c","powershell -ep bypass $file" -Wait; Sleep -s 10;
