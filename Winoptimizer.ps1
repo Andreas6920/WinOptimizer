@@ -652,7 +652,7 @@ Function app_installer {
         Write-host "`tChecking the system if the appinstaller is installed." -f green
         if (!(Test-Path "$($env:ProgramData)\chocolatey\choco.exe")) { 
                 # installing chocolatey
-                Write-host "`t`t- application not found. Installing:" -f green
+                Write-host "`t`t- Application not found. Installing:" -f green
                 Write-host "`t`t`t- Preparing system.." -f yellow
                 Set-ExecutionPolicy Bypass -Scope Process -Force;
                 # Downloading installtion file from original source
@@ -710,7 +710,7 @@ Function app_installer {
             $requested_apps = (Read-Host " ").Split(",") | Foreach-object { $_ -replace ' ',''}
             foreach ($requested_app in $requested_apps) {
                 if("cancel" -eq "$requested_app"){Write-Host "`t`t`t- Skipping this step." -f Red;}
-                elseif($null -eq "$requested_app"){Write-Host "`t`t`t- Skipping this step." -f Red;}
+                elseif("" -eq "$requested_app"){Write-Host "`t`t`t- Skipping this step." -f Red;}
                 # Browsers
                 elseif("Firefox" -match "$requested_app"){Write-host "        - installing firefox.." -f yellow -nonewline; choco install firefox -y | out-null;write-host "          [ COMPLETE ]" -f green;} 
                 elseif("Chrome" -match "$requested_app"){Write-host "        - installing Chrome.." -f yellow -nonewline; choco install googlechrome -y | out-null;write-host "           [ COMPLETE ]" -f green;} 
@@ -790,33 +790,32 @@ Function app_installer {
 
     # Step 4 - Office installer
                 Do {
-                    Write-Host "`t`t- Would you like to install Microsoft Office? (y/n)" -nonewline;
+                    Write-Host "`t`t- Would you like to install Microsoft Office? (y/n)" -f Green -nonewline;
                     $installoffice = Read-Host " " 
                         Switch ($installoffice) { 
                         Y {
                             Do {
-                            Write-Host "`t`t`t- What Language would you prefer? (Danish/English)" -nonewline;
+                            Write-Host "`t`t`t- What Language would you prefer? (Danish/English)" -f Yellow -nonewline;
                             $officelanguage = Read-Host " "
                             Switch ($officelanguage) { 
-                                Danish  {   write-host "`t`t`t`t- Downloader og installere Microsoft Office.. Dette kan tage op til 10 minutter" -f green
-                                            Write-host "`t`t`t`t- Installation started:`t" (get-date -Format "HH':'mm':'ss") -f white
-                                            Write-host "`t`t`t`t- Forventet færdigt:`t" ((get-date).AddMinutes(10).ToString("HH':'mm':'ss")) -f white
+                                Danish  {   write-host "`t`t`t`t- Downloader og installere Microsoft Office.. Dette kan tage op til 10 minutter" -f Yellow;
+                                            Write-host "`t`t`t`t- Installation started:`t" (get-date -Format "HH':'mm':'ss") -f Yellow;
+                                            Write-host "`t`t`t`t- Forventet færdigt:`t" ((get-date).AddMinutes(10).ToString("HH':'mm':'ss")) -f Yellow;
                                             if(!(test-path HKLM:\Software\Microsoft\Office\)){
                                                 choco install microsoft-office-deployment /Language da-dk /DisableUpdate TRUE -y | out-null
                                                 write-host "`t`t`t- Microsoft Office is now installed!" -f green; Sleep -s 5;"";"";
                                                 $officejustinstalled = $true}
                                             else {write-host "`t`t`t - Office er allerede installeret."}}
-                                English {   write-host "`t`t`t`t- Downloading.. Dette kan tage op til 10 minutter" -f green
-                                            Write-host "`t`t`t`t- Installating.." (get-date -Format "HH':'mm':'ss") -f white
-                                            Write-host "`t`t`t`t- Forventet færdigt:`t" ((get-date).AddMinutes(10).ToString("HH':'mm':'ss")) -f white
+                                English {   write-host "`t`t`t`t- Downloading.. May take up to 10 minutes" -f green
+                                            Write-host "`t`t`t`t- Installation started:`t" (get-date -Format "HH':'mm':'ss") -f white
+                                            Write-host "`t`t`t`t- Expected done:`t" ((get-date).AddMinutes(10).ToString("HH':'mm':'ss")) -f white
                                             if(!(test-path HKLM:\Software\Microsoft\Office\)){
                                                 choco install microsoft-office-deployment /Language en-us /DisableUpdate TRUE -y | out-null
                                                 write-host "`t`t`t- Microsoft Office is now installed!" -f green; Sleep -s 5;"";"";
                                                 $officejustinstalled = $true} 
-                                            else {write-host "`t`t`t - Office er allerede installeret."}}}
-                            } While($officelanguage -notin "danish", "english")
-                            if ($officejustinstalled -eq $true){
-                                { Do {Write-Host "ønsker du at aktivere Microsoft Office? (y/n)" -nonewline;
+                                            else {write-host "`t`t`t - Office er allerede installeret."}}}}
+                            While($officelanguage -notin "danish", "english")
+                                 Do {Write-Host "ønsker du at aktivere Microsoft Office? (y/n)" -nonewline;
                                     $officeactivation = Read-Host " " 
                                         Switch ($officeactivation) { 
                                         Y { # 7-zip installation
@@ -845,18 +844,11 @@ Function app_installer {
                                                 write-host "`t`t`t- Microsoft Office er nu installeret på dette system!" -f green; Sleep -s 3
                                                 Remove-Item $folder -Force -ea Ignore}
                                          N {    Write-Host "        - NO. Skipping this step." -f Red;} 
-                                        } } While($officeactivation -notin "y", "n")}
-
-                            }
-                        
-                        }                        
-
-
-
+                                        } } While($officeactivation -notin "y", "n")}}                        
                         N {Write-Host "        - NO. Skipping this step." -f Red ;}
                         
 
-                        } } While($installoffice -notin "y", "n")   
+                         } While($installoffice -notin "y", "n")   
 
  }
                     
