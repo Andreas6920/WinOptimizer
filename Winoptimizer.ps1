@@ -23,6 +23,7 @@ Function remove_bloatware {
             "Microsoft.Office.OneNote"
             "Microsoft.People"
             "Microsoft.3DBuilder"
+            "Microsoft.Wallet"
             "*officehub*"
             "*feedback*"
             "Microsoft.Music.Preview"
@@ -205,7 +206,7 @@ Function settings_privacy {
         Start-Sleep -s 2
       
     # Disable let websites provide locally relevant content by accessing language list
-        Write-host "        - Disabling location tracking." -f yellow
+        Write-host "        - Disabling Location tracking." -f yellow
         If (!(Test-Path "HKCU:\Control Panel\International\User Profile")) {
             New-Item -Path "HKCU:\Control Panel\International\User Profile" -Force | Out-Null
         }
@@ -213,7 +214,7 @@ Function settings_privacy {
         Start-Sleep -s 2
       
     # Disable Show me suggested content in the Settings app
-        Write-host "        - Disabling personalized content suggestions." -f Yellow
+        Write-host "        - Disabling Personalized content suggestions." -f Yellow
         If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager")) {
             New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Force | Out-Null
         }
@@ -260,7 +261,7 @@ Function settings_privacy {
         Start-Sleep -s 2
        
     # Disable diagnostic data collection
-        Write-host "        - Disabling diagnostic data collection" -f Yellow
+        Write-host "        - Disabling Diagnostic data collection" -f Yellow
         If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection")) {
             New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Force | Out-Null
         }
@@ -276,7 +277,7 @@ Function settings_privacy {
         Start-Sleep -s 2
 
     # Disable "tailored expirence"
-        Write-host "        - Disable tailored expirience." -f Yellow        
+        Write-host "        - Disable Tailored expirience." -f Yellow        
         If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy")) {   
             New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Force | Out-Null
         }
@@ -284,89 +285,89 @@ Function settings_privacy {
         Start-Sleep -s 2
 
     # Disabling services
-        Write-host "      BLOCKING - Tracking startup services" -f green
-        $trackingservices = @(
-        "diagnosticshub.standardcollector.service" # Microsoft (R) Diagnostics Hub Standard Collector Service
-        "DiagTrack"                                # Diagnostics Tracking Service
-        "dmwappushservice"                         # WAP Push Message Routing Service (see known issues)
-        "lfsvc"                                    # Geolocation Service
-        "TrkWks"                                   # Distributed Link Tracking Client
-        "XblAuthManager"                           # Xbox Live Auth Manager
-        "XblGameSave"                              # Xbox Live Game Save Service
-        "XboxNetApiSvc"                            # Xbox Live Networking Service
-        "WMPNetworkSvc"                            # Media Player Network Sharing Service
-        "NvTelemetryContainer"                     # Nvidia telemetry
-        "Razer Game Scanner Service"               # Razer telemetry
-        "LogiRegistryService"                      # Logitech gaming telemetry
-        "Adobe Acrobat Update Task"                # Adobe telemetry                 
-        "Adobe Flash Player Updater"               # Adobe telemetry                 
-        "adobeflashplayerupdatesvc"                # Adobe telemetry                 
-        "adobeupdateservice"                       # Adobe telemetry                 
-        "AdobeARMservice"                          # Adobe telemetry                 
-                             )
+        Write-host "        - Disabling Tracking services." -f yellow
+            Write-host "      BLOCKING - Tracking startup services" -f green
+            $trackingservices = @(
+            "diagnosticshub.standardcollector.service" # Microsoft (R) Diagnostics Hub Standard Collector Service
+            "DiagTrack"                                # Diagnostics Tracking Service
+            "dmwappushservice"                         # WAP Push Message Routing Service (see known issues)
+            "lfsvc"                                    # Geolocation Service
+            "TrkWks"                                   # Distributed Link Tracking Client
+            "XblAuthManager"                           # Xbox Live Auth Manager
+            "XblGameSave"                              # Xbox Live Game Save Service
+            "XboxNetApiSvc"                            # Xbox Live Networking Service
+            "WMPNetworkSvc"                            # Media Player Network Sharing Service
+            "NvTelemetryContainer"                     # Nvidia telemetry
+            "Razer Game Scanner Service"               # Razer telemetry
+            "LogiRegistryService"                      # Logitech gaming telemetry
+            "Adobe Acrobat Update Task"                # Adobe telemetry                 
+            "Adobe Flash Player Updater"               # Adobe telemetry                 
+            "adobeflashplayerupdatesvc"                # Adobe telemetry                 
+            "adobeupdateservice"                       # Adobe telemetry                 
+            "AdobeARMservice"                          # Adobe telemetry                 
+                                )
 
-         foreach ($trackingservice in $trackingservices) {
-         if((Get-Service -Name $trackingservice | where Starttype -ne Disabled)){
-         write-host "        - Tracking Service found! $trackingservice - disabling service.." -f yellow
-         Get-Service | where name -eq $trackingservice | Set-Service -StartupType Disabled}}
-         write-host "        - Service scan complete" -f yellow
+            foreach ($trackingservice in $trackingservices) {
+            if((Get-Service -Name $trackingservice | where Starttype -ne Disabled)){
+            write-host "        - Tracking Service found! $trackingservice - disabling service.." -f yellow
+            Get-Service | where name -eq $trackingservice | Set-Service -StartupType Disabled}}
+            write-host "        - Service scan complete" -f yellow
 
     # Adding entries to hosts file
-        
-        
-        # Force system to use a more secure TLS version
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-        If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main")) {New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Force | Out-Null}
-        Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Type DWord -Value 1
-        
-        # Check or wait for internet connection
-        do {Write-Host "Verifying network connection ..."; sleep 3}
-        until(Test-NetConnection google.com  | Where-Object { $_.PingSucceeded } )
+        Write-host "        - Blocking tracking domains." -f yellow
+            # Force system to use a more secure TLS version
+            [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+            If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main")) {New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Force | Out-Null}
+            Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Type DWord -Value 1
+            do {Start-Sleep -S 1}
+            until(Test-NetConnection github.com  | Where-Object { $_.PingSucceeded } )
 
-        Write-host "      BLOCKING - Tracking domains (This may take a while).." -f green
-        start-sleep -s 5
-        Write-Host "        - Backing up your hostsfile.." -f Yellow
+            Write-host "      BLOCKING - Tracking domains (This may take a while).." -f green
+            start-sleep -s 5
+            Write-Host "        - Backing up your hostsfile.." -f Yellow
+            
+            # Backing up current hosts file first
+            $hostsfile = "$env:SystemRoot\System32\drivers\etc\hosts"
+            $Takebackup = "$env:SystemRoot\System32\drivers\etc\hosts_backup"
+            Copy-Item $hostsfile $Takebackup
+            
+            Write-Host "        - Getting an updated list of microsoft tracking domains" -f Yellow
+            $domain = Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt'  -UseBasicParsing
+            $domain = $domain.Content | Foreach-object { $_ -replace "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", "" } | Foreach-object { $_ -replace " ", "" }
+            $domain = $domain.Split("`n") -notlike "#*" -notmatch "spynet2.microsoft.com" -match "\w"
+            
+            Write-Host "        - Blocking domains from tracking-list" -f Yellow
+            foreach ($domain_entry in $domain) {
+                $counter++
+                Write-Progress -Activity 'Adding entries to host file..' -CurrentOperation $domain_entry -PercentComplete (($counter /$domain.count) * 100)
+                Add-Content -Encoding UTF8  $hostsfile ("`t" + "0.0.0.0" + "`t`t" + "$domain_entry") -ErrorAction SilentlyContinue
+                Start-Sleep -Milliseconds 200  }
+                    
+            Write-Progress -Completed -Activity "make progress bar dissapear"
+            
+            # Flush DNS cache
+            Write-host "        - Flushing local DNS cache" -f Yellow
+            ipconfig /flushdns | Out-Null; start-Sleep 2; nbtstat -R | Out-Null; start-Sleep -s 2;
+            Stop-Process -name explorer; Start-Sleep -s 5
         
-        # Backing up current hosts file first
-        $hostsfile = "$env:SystemRoot\System32\drivers\etc\hosts"
-        $Takebackup = "$env:SystemRoot\System32\drivers\etc\hosts_backup"
-        Copy-Item $hostsfile $Takebackup
-        
-        Write-Host "        - Getting an updated list of microsoft tracking domains" -f Yellow
-        $domain = Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt'  -UseBasicParsing
-        $domain = $domain.Content | Foreach-object { $_ -replace "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", "" } | Foreach-object { $_ -replace " ", "" }
-        $domain = $domain.Split("`n") -notlike "#*" -notmatch "spynet2.microsoft.com" -match "\w"
-        
-        Write-Host "        - Blocking domains from tracking-list" -f Yellow
-        foreach ($domain_entry in $domain) {
-            $counter++
-            Write-Progress -Activity 'Adding entries to host file..' -CurrentOperation $domain_entry -PercentComplete (($counter /$domain.count) * 100)
-            Add-Content -Encoding UTF8  $hostsfile ("`t" + "0.0.0.0" + "`t`t" + "$domain_entry") -ErrorAction SilentlyContinue
-            Start-Sleep -Milliseconds 200  }
-                
-        Write-Progress -Completed -Activity "make progress bar dissapear"
-        
-        # Flush DNS cache
-        Write-host "        - Flushing local DNS cache" -f Yellow
-        ipconfig /flushdns | Out-Null; start-Sleep 2; nbtstat -R | Out-Null; start-Sleep -s 2;
-        Stop-Process -name explorer; Start-Sleep -s 5
-
     # Blocking Microsoft Tracking IP's in the firewall
-        Write-host "      BLOCKING - Tracking IP's" -f green
-        Write-Host "        - Getting updated lists of Microsoft's trackin IP's" -f Yellow
-        $blockip = Invoke-WebRequest -Uri https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/firewall/spy.txt  -UseBasicParsing
-        $blockip = $blockip.Content | Foreach-object { $_ -replace "0.0.0.0 ", "" } | Out-String
-        $blockip = $blockip.Split("`n") -notlike "#*" -match "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
-        Clear-Variable -Name counter
-        Write-Host "        - Configuring blocking rules in your firewall.." -f Yellow
-        foreach ($ip_entry in $blockip) {
-        $counter++
-        Write-Progress -Activity 'Configuring firewall rules..' -CurrentOperation $ip_entry -PercentComplete (($counter /$blockip.count) * 100)
-        netsh advfirewall firewall add rule name="Block Microsoft Tracking IP: $ip_entry" dir=out action=block remoteip=$ip_entry enable=yes | Out-Null}
-        Write-Progress -Completed -Activity "make progress bar dissapear"
-        Write-Host "        - Firewall configuration complete." -f Yellow
-        start-sleep 5
-
+        
+        Write-host "        - Blocking tracking IP's." -f yellow
+            Write-host "      BLOCKING - Tracking IP's" -f green
+            Write-Host "        - Getting updated lists of Microsoft's trackin IP's" -f Yellow
+            $blockip = Invoke-WebRequest -Uri https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/firewall/spy.txt  -UseBasicParsing
+            $blockip = $blockip.Content | Foreach-object { $_ -replace "0.0.0.0 ", "" } | Out-String
+            $blockip = $blockip.Split("`n") -notlike "#*" -match "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
+            Clear-Variable -Name counter
+            Write-Host "        - Configuring blocking rules in your firewall.." -f Yellow
+            foreach ($ip_entry in $blockip) {
+            $counter++
+            Write-Progress -Activity 'Configuring firewall rules..' -CurrentOperation $ip_entry -PercentComplete (($counter /$blockip.count) * 100)
+            netsh advfirewall firewall add rule name="Block Microsoft Tracking IP: $ip_entry" dir=out action=block remoteip=$ip_entry enable=yes | Out-Null}
+            Write-Progress -Completed -Activity "make progress bar dissapear"
+            Write-Host "        - Firewall configuration complete." -f Yellow
+            start-sleep 5
+            
     # Send Microsoft a request to delete collected data about you.
         
         #lock keyboard and mouse to avoid disruption while navigating in GUI.
