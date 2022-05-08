@@ -242,6 +242,14 @@ Function settings_privacy {
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "HasAccepted" -Type DWord -Value 0
         Start-Sleep -s 2
     
+    # Disalbe Inking & Typing personalation
+        Write-host "        - Disabling Inking & Typing personalation." -f yellow
+        If (!(Test-path "HKCU:\Software\Microsoft\Personalization\Settings")){
+            New-Item -Path "HKCU:\Software\Microsoft\Personalization\Settings" -Force | Out-Null
+        }
+        Set-ItemProperty "HKCU:\Software\Microsoft\Personalization\Settings" "AcceptedPrivacyPolicy" 0
+        Start-Sleep -s 2        
+        
     # Hiding personal information from lock screen
         Write-host "        - Hiding email and domain information from sign-in screen." -f yellow
         If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\System")) {
@@ -286,6 +294,15 @@ Function settings_privacy {
         "XblAuthManager"                           # Xbox Live Auth Manager
         "XblGameSave"                              # Xbox Live Game Save Service
         "XboxNetApiSvc"                            # Xbox Live Networking Service
+        "WMPNetworkSvc"                            # Media Player Network Sharing Service
+        "NvTelemetryContainer"                     # Nvidia telemetry
+        "Razer Game Scanner Service"               # Razer telemetry
+        "LogiRegistryService"                      # Logitech gaming telemetry
+        "Adobe Acrobat Update Task"                # Adobe telemetry                 
+        "Adobe Flash Player Updater"               # Adobe telemetry                 
+        "adobeflashplayerupdatesvc"                # Adobe telemetry                 
+        "adobeupdateservice"                       # Adobe telemetry                 
+        "AdobeARMservice"                          # Adobe telemetry                 
                              )
 
          foreach ($trackingservice in $trackingservices) {
