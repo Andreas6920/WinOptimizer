@@ -23,7 +23,6 @@ Function remove_bloatware {
             "Microsoft.Office.OneNote"
             "Microsoft.People"
             "Microsoft.3DBuilder"
-            "Microsoft.Wallet"
             "*officehub*"
             "*feedback*"
             "Microsoft.Music.Preview"
@@ -197,6 +196,8 @@ Function settings_privacy {
     #Cleaning Apps and Features
     Write-host "      BLOCKING - Microsoft Data Collection" -f green
           
+
+    
     # Disable Advertising ID
         Write-host "        - Disabling advertising ID." -f yellow
         If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo")) {
@@ -206,7 +207,7 @@ Function settings_privacy {
         Start-Sleep -s 2
       
     # Disable let websites provide locally relevant content by accessing language list
-        Write-host "        - Disabling Location tracking." -f yellow
+        Write-host "        - Disabling location tracking." -f yellow
         If (!(Test-Path "HKCU:\Control Panel\International\User Profile")) {
             New-Item -Path "HKCU:\Control Panel\International\User Profile" -Force | Out-Null
         }
@@ -214,7 +215,7 @@ Function settings_privacy {
         Start-Sleep -s 2
       
     # Disable Show me suggested content in the Settings app
-        Write-host "        - Disabling Personalized content suggestions." -f Yellow
+        Write-host "        - Disabling personalized content suggestions." -f Yellow
         If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager")) {
             New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Force | Out-Null
         }
@@ -227,8 +228,8 @@ Function settings_privacy {
         Write-host "        - Disabling Cortana." -f yellow
         $ProgressPreference = "SilentlyContinue"
         Get-AppxPackage -name *Microsoft.549981C3F5F10* | Remove-AppxPackage
-        If (!(Test-Path "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
-            New-Item -Path "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null
+        If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
+            New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null
         }
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Type DWord -Value 0
         $ProgressPreference = "Continue"
@@ -243,14 +244,6 @@ Function settings_privacy {
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "HasAccepted" -Type DWord -Value 0
         Start-Sleep -s 2
     
-    # Disalbe Inking & Typing personalation
-        Write-host "        - Disabling Inking & Typing personalation." -f yellow
-        If (!(Test-path "HKCU:\Software\Microsoft\Personalization\Settings")){
-            New-Item -Path "HKCU:\Software\Microsoft\Personalization\Settings" -Force | Out-Null
-        }
-        Set-ItemProperty "HKCU:\Software\Microsoft\Personalization\Settings" "AcceptedPrivacyPolicy" 0
-        Start-Sleep -s 2        
-        
     # Hiding personal information from lock screen
         Write-host "        - Hiding email and domain information from sign-in screen." -f yellow
         If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\System")) {
@@ -261,7 +254,7 @@ Function settings_privacy {
         Start-Sleep -s 2
        
     # Disable diagnostic data collection
-        Write-host "        - Disabling Diagnostic data collection" -f Yellow
+        Write-host "        - Disabling diagnostic data collection" -f Yellow
         If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection")) {
             New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Force | Out-Null
         }
@@ -277,7 +270,7 @@ Function settings_privacy {
         Start-Sleep -s 2
 
     # Disable "tailored expirence"
-        Write-host "        - Disable Tailored expirience." -f Yellow        
+        Write-host "        - Disable tailored expirience." -f Yellow        
         If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy")) {   
             New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Force | Out-Null
         }
@@ -285,89 +278,67 @@ Function settings_privacy {
         Start-Sleep -s 2
 
     # Disabling services
-        Write-host "        - Disabling Tracking services." -f yellow
-            Write-host "      BLOCKING - Tracking startup services" -f green
-            $trackingservices = @(
-            "diagnosticshub.standardcollector.service" # Microsoft (R) Diagnostics Hub Standard Collector Service
-            "DiagTrack"                                # Diagnostics Tracking Service
-            "dmwappushservice"                         # WAP Push Message Routing Service (see known issues)
-            "lfsvc"                                    # Geolocation Service
-            "TrkWks"                                   # Distributed Link Tracking Client
-            "XblAuthManager"                           # Xbox Live Auth Manager
-            "XblGameSave"                              # Xbox Live Game Save Service
-            "XboxNetApiSvc"                            # Xbox Live Networking Service
-            "WMPNetworkSvc"                            # Media Player Network Sharing Service
-            "NvTelemetryContainer"                     # Nvidia telemetry
-            "Razer Game Scanner Service"               # Razer telemetry
-            "LogiRegistryService"                      # Logitech gaming telemetry
-            "Adobe Acrobat Update Task"                # Adobe telemetry                 
-            "Adobe Flash Player Updater"               # Adobe telemetry                 
-            "adobeflashplayerupdatesvc"                # Adobe telemetry                 
-            "adobeupdateservice"                       # Adobe telemetry                 
-            "AdobeARMservice"                          # Adobe telemetry                 
-                                )
+        Write-host "      BLOCKING - Tracking startup services" -f green
+        $trackingservices = @(
+        "diagnosticshub.standardcollector.service" # Microsoft (R) Diagnostics Hub Standard Collector Service
+        "DiagTrack"                                # Diagnostics Tracking Service
+        "dmwappushservice"                         # WAP Push Message Routing Service (see known issues)
+        "lfsvc"                                    # Geolocation Service
+        "TrkWks"                                   # Distributed Link Tracking Client
+        "XblAuthManager"                           # Xbox Live Auth Manager
+        "XblGameSave"                              # Xbox Live Game Save Service
+        "XboxNetApiSvc"                            # Xbox Live Networking Service
+                             )
 
-            foreach ($trackingservice in $trackingservices) {
-            if((Get-Service -Name $trackingservice | where Starttype -ne Disabled)){
-            write-host "        - Tracking Service found! $trackingservice - disabling service.." -f yellow
-            Get-Service | where name -eq $trackingservice | Set-Service -StartupType Disabled}}
-            write-host "        - Service scan complete" -f yellow
+         foreach ($trackingservice in $trackingservices) {
+         if((Get-Service -Name $trackingservice | where Starttype -ne Disabled)){
+         write-host "        - Tracking Service found! $trackingservice - disabling service.." -f yellow
+         Get-Service | where name -eq $trackingservice | Set-Service -StartupType Disabled}}
+         write-host "        - Service scan complete" -f yellow
 
     # Adding entries to hosts file
-        Write-host "        - Blocking tracking domains." -f yellow
-            # Force system to use a more secure TLS version
-            [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-            If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main")) {New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Force | Out-Null}
-            Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Type DWord -Value 1
-            do {Start-Sleep -S 1}
-            until(Test-NetConnection github.com  | Where-Object { $_.PingSucceeded } )
-
-            Write-host "      BLOCKING - Tracking domains (This may take a while).." -f green
-            start-sleep -s 5
-            Write-Host "        - Backing up your hostsfile.." -f Yellow
-            
-            # Backing up current hosts file first
-            $hostsfile = "$env:SystemRoot\System32\drivers\etc\hosts"
-            $Takebackup = "$env:SystemRoot\System32\drivers\etc\hosts_backup"
-            Copy-Item $hostsfile $Takebackup
-            
-            Write-Host "        - Getting an updated list of microsoft tracking domains" -f Yellow
-            $domain = Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt'  -UseBasicParsing
-            $domain = $domain.Content | Foreach-object { $_ -replace "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", "" } | Foreach-object { $_ -replace " ", "" }
-            $domain = $domain.Split("`n") -notlike "#*" -notmatch "spynet2.microsoft.com" -match "\w"
-            
-            Write-Host "        - Blocking domains from tracking-list" -f Yellow
-            foreach ($domain_entry in $domain) {
-                $counter++
+        Write-host "      BLOCKING - Tracking domains (This may take a while).." -f green
+        start-sleep -s 5
+         Write-Host "        - Backing up your hostsfile.." -f Yellow
+        #Taking backup of current hosts file first
+        $hostsfile = "$env:SystemRoot\System32\drivers\etc\hosts"
+        $Takebackup = "$env:SystemRoot\System32\drivers\etc\hosts_backup"
+        Copy-Item $hostsfile $Takebackup
+        
+        Write-Host "        - Getting an updated list of microsoft tracking domains" -f Yellow
+        $domain = Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt'  -UseBasicParsing
+        $domain = $domain.Content | Foreach-object { $_ -replace "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", "" } | Foreach-object { $_ -replace " ", "" }
+        $domain = $domain.Split("`n") -notlike "#*" -notmatch "spynet2.microsoft.com" -match "\w"
+        
+        Write-Host "        - Blocking domains from tracking-list" -f Yellow
+        foreach ($domain_entry in $domain) {
+        $counter++
                 Write-Progress -Activity 'Adding entries to host file..' -CurrentOperation $domain_entry -PercentComplete (($counter /$domain.count) * 100)
                 Add-Content -Encoding UTF8  $hostsfile ("`t" + "0.0.0.0" + "`t`t" + "$domain_entry") -ErrorAction SilentlyContinue
-                Start-Sleep -Milliseconds 200  }
-                    
-            Write-Progress -Completed -Activity "make progress bar dissapear"
-            
-            # Flush DNS cache
-            Write-host "        - Flushing local DNS cache" -f Yellow
-            ipconfig /flushdns | Out-Null; start-Sleep 2; nbtstat -R | Out-Null; start-Sleep -s 2;
-            Stop-Process -name explorer; Start-Sleep -s 5
-        
+                Start-Sleep -Milliseconds 200
+        }
+        Write-Progress -Completed -Activity "make progress bar dissapear"
+        #flush DNS cache
+        Write-host "        - Flushing local DNS cache" -f Yellow
+        ipconfig /flushdns | Out-Null; start-Sleep 2; nbtstat -R | Out-Null; start-Sleep -s 2;
+        Stop-Process -name explorer; Start-Sleep -s 5
+
     # Blocking Microsoft Tracking IP's in the firewall
-        
-        Write-host "        - Blocking tracking IP's." -f yellow
-            Write-host "      BLOCKING - Tracking IP's" -f green
-            Write-Host "        - Getting updated lists of Microsoft's trackin IP's" -f Yellow
-            $blockip = Invoke-WebRequest -Uri https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/firewall/spy.txt  -UseBasicParsing
-            $blockip = $blockip.Content | Foreach-object { $_ -replace "0.0.0.0 ", "" } | Out-String
-            $blockip = $blockip.Split("`n") -notlike "#*" -match "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
-            Clear-Variable -Name counter
-            Write-Host "        - Configuring blocking rules in your firewall.." -f Yellow
-            foreach ($ip_entry in $blockip) {
-            $counter++
-            Write-Progress -Activity 'Configuring firewall rules..' -CurrentOperation $ip_entry -PercentComplete (($counter /$blockip.count) * 100)
-            netsh advfirewall firewall add rule name="Block Microsoft Tracking IP: $ip_entry" dir=out action=block remoteip=$ip_entry enable=yes | Out-Null}
-            Write-Progress -Completed -Activity "make progress bar dissapear"
-            Write-Host "        - Firewall configuration complete." -f Yellow
-            start-sleep 5
-            
+        Write-host "      BLOCKING - Tracking IP's" -f green
+        Write-Host "        - Getting updated lists of Microsoft's trackin IP's" -f Yellow
+        $blockip = Invoke-WebRequest -Uri https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/firewall/spy.txt  -UseBasicParsing
+        $blockip = $blockip.Content | Foreach-object { $_ -replace "0.0.0.0 ", "" } | Out-String
+        $blockip = $blockip.Split("`n") -notlike "#*" -match "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
+        Clear-Variable -Name counter
+        Write-Host "        - Configuring blocking rules in your firewall.." -f Yellow
+        foreach ($ip_entry in $blockip) {
+        $counter++
+        Write-Progress -Activity 'Configuring firewall rules..' -CurrentOperation $ip_entry -PercentComplete (($counter /$blockip.count) * 100)
+        netsh advfirewall firewall add rule name="Block Microsoft Tracking IP: $ip_entry" dir=out action=block remoteip=$ip_entry enable=yes | Out-Null}
+        Write-Progress -Completed -Activity "make progress bar dissapear"
+        Write-Host "        - Firewall configuration complete." -f Yellow
+        start-sleep 5
+
     # Send Microsoft a request to delete collected data about you.
         
         #lock keyboard and mouse to avoid disruption while navigating in GUI.
@@ -415,9 +386,65 @@ Function settings_privacy {
         allow_input | Out-Null
         
 
-        write-host "      COMPLETE - PRIVACY OPTIMIZATION" -f Green
-        start-sleep 10
+        
+        # Windows hardening
+        Write-host "      BLOCKING - Security holes" -f green
+        
+        # Disable automatic setup of network connected devices.
+            Write-host "        - Disabling auto setup network devices." -f yellow
+            Set-Item "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type DWord -Value 0 -Force 
+            Start-Sleep -s 2
+            
+        # Disable sharing of PC and printers
+             Write-host "        - Disabling sharing of PC and Printers." -f yellow
+            Get-NetConnectionProfile | ForEach-Object {Set-NetConnectionProfile -Name $_.Name -NetworkCategory Public -ErrorAction SilentlyContinue | Out-Null}    
+            get-printer | Where-Object shared -eq True | ForEach-Object {Set-Printer -Name $_.Name -Shared $False -ErrorAction SilentlyContinue | Out-Null}
+            netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=No -ErrorAction SilentlyContinue | Out-Null
 
+        # Disable LLMNR    
+            #https://www.blackhillsinfosec.com/how-to-disable-llmnr-why-you-want-to/
+            Write-host "        - Disabling LLMNR." -f yellow
+            New-Item -Path "HKLM:\Software\policies\Microsoft\Windows NT\" -Name "DNSClient" -ea SilentlyContinue | Out-Null
+            Set-ItemProperty -Path "HKLM:\Software\policies\Microsoft\Windows NT\DNSClient" -Name "EnableMulticast" -Type "DWORD" -Value 0 -Force -ea SilentlyContinue | Out-Null
+            
+        # Disabe SMB Compression - CVE-2020-0796    
+            #https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2020-0796
+            Write-host "        - Disabling SMB Compression." -f yellow
+            Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" DisableCompression -Type DWORD -Value 1 -Force -ea SilentlyContinue | Out-Null
+
+        # Disable SMB v1    
+            #https://docs.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3
+            Write-host "        - Disabling SMB version 1 support." -f yellow
+            Disable-WindowsOptionalFeature -Online -FeatureName smb1protocol -NoRestart -WarningAction:SilentlyContinue  | Out-Null
+            Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force -ea SilentlyContinue | Out-Null
+            Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" SMB1 -Type DWORD -Value 0 –Force
+
+        # Disable SMB v2    
+            #https://docs.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3
+            Write-host "        - Disabling SMB version 2 support." -f yellow
+            Set-SmbServerConfiguration -EnableSMB2Protocol $false -Force -ea SilentlyContinue | Out-Null
+            Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" SMB2 -Type DWORD -Value 0 –Force
+
+        # Enable SMB Encryption    
+            # https://docs.microsoft.com/en-us/windows-server/storage/file-server/smb-security
+            Write-host "        - Activating SMB Encryption." -f yellow
+            Set-SmbServerConfiguration –EncryptData $true -Force -ea SilentlyContinue | Out-Null
+            Set-SmbServerConfiguration –RejectUnencryptedAccess $false -Force -ea SilentlyContinue | Out-Null
+
+        # Bad Neighbor - CVE-2020-16898    
+            # https://blog.rapid7.com/2020/10/14/there-goes-the-neighborhood-dealing-with-cve-2020-16898-a-k-a-bad-neighbor/
+            Write-host "        - Patching Bad Neighbor (CVE-2020-16898)." -f yellow
+            netsh int ipv6 set int *INTERFACENUMBER* rabaseddnsconfig=disable | Out-Null
+            
+        # Spectre Meldown - CVE-2017-5754    
+            # https://support.microsoft.com/en-us/help/4073119/protect-against-speculative-execution-side-channel-vulnerabilities-in
+            Write-host "        - Patching Bad Metldown (CVE-2017-5754)." -f yellow
+            Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name FeatureSettingsOverrideMask -Type DWORD -Value 3 -Force -ea SilentlyContinue | Out-Null
+            Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Virtualization" -Name MinVmVersionForCpuBasedMitigations -Type String -Value "1.0" -Force -ea SilentlyContinue | Out-Null
+                        
+            
+        write-host "      COMPLETE - PRIVACY OPTIMIZATION" -f yellow
+        start-sleep 10
     
 }
      
@@ -667,17 +694,17 @@ Function app_installer {
     
     # STEP 1 - app-installer
         #check if chocolatey is installed
-        Write-host "`tChecking the system if the appinstaller is installed." -f green
+        Write-host "  Checking the system if the appinstaller is installed." -f green
         if (!(Test-Path "$($env:ProgramData)\chocolatey\choco.exe")) { 
                 # installing chocolatey
-                Write-host "`t`t- Application not found. Installing:" -f green
-                Write-host "`t`t`t- Preparing system.." -f yellow
+                Write-host "      application not found. Installing:" -f green
+                Write-host "        - Preparing system.." -f yellow
                 Set-ExecutionPolicy Bypass -Scope Process -Force;
                 # Downloading installtion file from original source
-                Write-host "`t`t`t- Downloading script.." -f yellow
+                Write-host "        - Downloading script.." -f yellow
                 (New-Object System.Net.WebClient).DownloadFile("https://chocolatey.org/install.ps1","$env:TMP/choco-install.ps1")
                 # Adding a few lines to make installtion more silent.
-                Write-host "`t`t`t- Preparing script.." -f yellow
+                Write-host "        - Preparing script.." -f yellow
                 $add_line1 = "((Get-Content -path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1 -Raw) -replace '\| write-Output', ' | out-null' ) | Set-Content -Path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1; "
                 $add_line2 = "((Get-Content -path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1 -Raw) -replace 'write-', '#write-' ) | Set-Content -Path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1; "
                 $add_line3 = "((Get-Content -path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1 -Raw) -replace 'function.* #write-', 'function Write-' ) | Set-Content -Path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1;"
@@ -685,50 +712,60 @@ Function app_installer {
                 ((Get-Content -path $env:TMP/choco-install.ps1 -Raw) -replace '#endregion Download & Extract Chocolatey', "$add_line1`n$add_line2`n$add_line3" ) | Set-Content -Path $env:TMP/choco-install.ps1
                 # Executing installation file.
                 cd $env:TMP
-                Write-host "`t`t`t- Installing.." -f yellow
+                Write-host "        - Installing.." -f yellow
                 .\choco-install.ps1
-                Write-host "`t`t`t- Installation complete." -f yellow}
-        else { write-host "`tAppinstaller already installed on this system. skipping installation." }
+                Write-host "        - Installation complete.." -f yellow
+        }
+        else { write-host "appinstaller already installed on this system. skipping installation." }
         
     
     #STEP 2 - app-installation
-            write-host "`tCHOOSE YOUR PREFERRED APPLICATIONS:" -f Green
-
-            write-host "`t`tBROWSER:" -f yellow
-            write-host "`t`t`tChrome        Firefox      Opera" -f Yellow
-            write-host "`t`t`tBrave         Opera        Vevaldi" -f Yellow
+        
+$appheader = 
+"
+                   _           _        _ _                 
+  __ _ _ __  _ __ (_)_ __  ___| |_ __ _| | | ___ _ __ 
+ / _`  | '_ \| '_ \| | '_ \/ __| __/ _`  | | |/ _ \ '__|
+| (_| | |_) | |_) | | | | \__ \ |  (_| | | |  __/ |   
+ \__,_| .__/| .__/|_|_| |_|___/\__\__,_|_|_|\___|_|   
+      |_|   |_|                                               
+" 
+        
+            Write-host $appheader -f Yellow 
+            write-host "    BROWSER:" -f yellow
+            write-host "        Chrome        Firefox      Opera" -f green
+            write-host "        Brave         Opera        Vevaldi" -f green
             "";
-            write-host "`t`tTOOLS:" -f yellow
-            write-host "`t`t`tDropbox       Google Drive    Teamviewer" -f Yellow
-            write-host "`t`t`t7-zip         Winrar          Greenshot" -f Yellow
-            write-host "`t`t`tShareX        Gimp            Visual studio++" -f Yellow
+            write-host "    TOOLS:" -f yellow
+            write-host "        Dropbox       Google Drive    Teamviewer" -f green
+            write-host "        7-zip         Winrar          Greenshot" -f green
+            write-host "        ShareX        Gimp            Visual studio++" -f green
             "";
-            write-host "`t`tMEDIA PLAYER:" -f yellow
-            write-host "`t`t`tSpotify       VLC           Itunes" -f Yellow
-            write-host "`t`t`tWinamp        Foobar2000    K-Lite" -f Yellow
-            write-host "`t`t`tMPC-HC        Popcorntime         " -f Yellow
+            write-host "    MEDIA PLAYER:" -f yellow
+            write-host "        Spotify       VLC           Itunes" -f green
+            write-host "        Winamp        Foobar2000    K-Lite" -f green
+            write-host "        MPC-HC        Popcorntime         " -f green
             "";
-            write-host "`t`tDevelopment:" -f yellow
-            write-host "`t`t`tNotepad++       vscode           atom" -f Yellow
-            write-host "`t`t`tVim             Eclipse          PyCharm" -f Yellow
-            write-host "`t`t`tPuTTY           Superputty       TeraTerm" -f Yellow
-            write-host "`t`t`tFilezilla       WinSCP           mRemoteNG" -f Yellow
-            write-host "`t`t`tWireshark       git              Github Desktop" -f Yellow
+            write-host "    Development:" -f yellow
+            write-host "        Notepad++       vscode           atom" -f green
+            write-host "        Vim             Eclipse          PyCharm" -f green
+            write-host "        PuTTY           Superputty       TeraTerm" -f green
+            write-host "        Filezilla       WinSCP           mRemoteNG" -f green
+            write-host "        Wireshark       git              Github Desktop" -f green
             "";
-            write-host "`t`tSocial:" -f yellow
-            write-host "`t`t`tWebex           Zoom           Microsoft Teams" -f Yellow
-            write-host "`t`t`tDiscord         Twitch         Ubisoft-Connect" -f Yellow
-            write-host "`t`t`tSteam" -f Yellow
+            write-host "    Social:" -f yellow
+            write-host "        Webex           Zoom           Microsoft Teams" -f green
+            write-host "        Discord         Twitch         Ubisoft-Connect" -f green
+            write-host "        Steam" -f green
             "";
-            Write-host "`t`t** List multiple programs seperated by , (comma) - spaces are allowed." -f yellow;
+            Write-host "    ** List multiple programs seperated by , (comma) - spaces are allowed." -f yellow;
             "";
-            Write-host "`tType the programs you would like to be installed on this system" -nonewline; 
+            Write-host "Type the programs you would like to be installed on this system" -nonewline; 
             
 
             $requested_apps = (Read-Host " ").Split(",") | Foreach-object { $_ -replace ' ',''}
             foreach ($requested_app in $requested_apps) {
-                if("cancel" -eq "$requested_app"){Write-Host "`t`t`t- Skipping this step." -f Red;}
-                elseif("" -eq "$requested_app"){Write-Host "`t`t`t- Skipping this step." -f Red;}
+                if("cancel" -eq "$requested_app"){Write-Output "Skipping this section.."}
                 # Browsers
                 elseif("Firefox" -match "$requested_app"){Write-host "        - installing firefox.." -f yellow -nonewline; choco install firefox -y | out-null;write-host "          [ COMPLETE ]" -f green;} 
                 elseif("Chrome" -match "$requested_app"){Write-host "        - installing Chrome.." -f yellow -nonewline; choco install googlechrome -y | out-null;write-host "           [ COMPLETE ]" -f green;} 
@@ -781,19 +818,19 @@ Function app_installer {
             }
     # STEP 3 - app-updater
                 Do {
-                    Write-Host "`t`t- Would you like to install auto-updater? (y/n)" -f yellow -nonewline; ;
+                    Write-Host "        - Would you like to install auto-updater? (y/n)" -f yellow -nonewline; ;
                     $answer = Read-Host " " 
                     Switch ($answer) { 
                         Y {   
                                 if ((Get-Childitem -Path $env:ProgramData).Name  -match "Chocolatey"){
                                 #create update file
-                                write-host "`t`t`t- Downloading updating script." -f green
+                                write-host "        - Downloading updating script." -f green
                                 $filepath = "$env:ProgramData\chocolatey\app-updater.ps1"
                                 Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/app-updater/app-updater.ps1" -OutFile $filepath -UseBasicParsing
 
                                 
                                 # Create scheduled job
-                                write-host "`t`t`t- scheduling update routine." -f green
+                                write-host "        - scheduling update routine." -f green
                                 $name = 'winoptimizer-app-Updater'
                                 $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-nop -W hidden -noni -ep bypass -file $filepath"
                                 $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM"-LogonType ServiceAccount -RunLevel Highest
@@ -801,79 +838,15 @@ Function app_installer {
                                 $settings = New-ScheduledTaskSettingsSet -RunOnlyIfNetworkAvailable -DontStopIfGoingOnBatteries -RunOnlyIfIdle -DontStopOnIdleEnd -IdleDuration 00:05:00 -IdleWaitTimeout 03:00:00
 
                                 Register-ScheduledTask -TaskName $Name -Taskpath "\Microsoft\Windows\Winoptimizer\" -Settings $settings -Principal $principal -Action $action -Trigger $trigger -Force | Out-Null
-                                } else{Write-host "`t`t`t- Chocolatey is not installed on this system." -f red}                                                    
+                                } else{Write-host "Chocolatey is not installed on this system." -f red}                                                    
                         }
-                        N { Write-Host "`t`t`t- NO. Skipping this step." -f Red }}
+                        N { Write-Host "        - NO. Skipping this step." -f Red }}
                     } While ($answer -notin "y", "n")
 
-    # Step 4 - Office installer
-                Do {
-                    Write-Host "`t`t- Would you like to install Microsoft Office? (y/n)" -f Green -nonewline;
-                    $installoffice = Read-Host " " 
-                        Switch ($installoffice) { 
-                        Y {
-                            Do {
-                            Write-Host "`t`t- What is your preferred language? (danish/english)" -f Green -nonewline;
-                            $Readhost = Read-Host " " 
-                            Switch ($ReadHost) { 
-                            danish {
-                                    write-host "`t`t`t- Downloading.. This may take up to 10 minutes" -f Yellow;
-                                    Write-host "`t`t`t- Installing..`t`t`t`t`t`t" (get-date -Format "HH':'mm':'ss") -f Yellow;
-                                    Write-host "`t`t`t- Expected to be done installing:`t" ((get-date).AddMinutes(10).ToString("HH':'mm':'ss")) -f Yellow;
-                                    choco install microsoft-office-deployment /Language da-dk /DisableUpdate TRUE -y | out-null;
-                                    Write-host "`t`t`t`t- Installation complete!" -f Green; Sleep -s 3;}
-                                    
-                            english {
-                                    Write-host "`t`t`t- Installing..`t`t`t`t`t`t" (get-date -Format "HH':'mm':'ss") -f Yellow;
-                                    Write-host "`t`t`t- Expected to be done installing:`t" ((get-date).AddMinutes(10).ToString("HH':'mm':'ss")) -f Yellow;
-                                    choco install microsoft-office-deployment /Language en-us /DisableUpdate TRUE -y | out-null;
-                                    Write-host "`t`t`t- Installation complete!" -f Green; Sleep -s 3;}}
-                            
-                                }While($Readhost -notin "danish", "english")
-                        }                       
-                        N {}}}
-                While($installoffice -notin "y", "n")  
-
-   # Step 5 - Office activator
-                Do {Write-Host "`t`t- Would you like to activate Microsoft Office? (y/n)" -f Green -nonewline;
-                $officeactivation = Read-Host " " 
-                    Switch ($officeactivation) { 
-                    Y { # Prepare system
-                            [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-                            If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main")) {New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Force | Out-Null}
-                            Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Type DWord -Value 1
-                        # 7-zip installation
-                            write-host "`t`t`t- Activation begins:" -f Yellow; Sleep -s 1;
-                            if(!(Test-Path "$($env:ProgramFiles)\7-Zip\7z.exe")){
-                            $dlurl = 'https://7-zip.org/' + (Invoke-WebRequest -Uri 'https://7-zip.org/' | Select-Object -ExpandProperty Links | Where-Object {($_.innerHTML -eq 'Download') -and ($_.href -like "a/*") -and ($_.href -like "*-x64.exe")} | Select-Object -First 1 | Select-Object -ExpandProperty href)
-                            $installerPath = Join-Path $env:TEMP (Split-Path $dlurl -Leaf)
-                            Invoke-WebRequest $dlurl -OutFile $installerPath -UseBasicParsing
-                            Start-Process -FilePath $installerPath -Args "/S" -Verb RunAs -Wait}
-                        # Activation
-                            $link = "https://github.com/abbodi1406/KMS_VL_ALL_AIO/releases/download/v0.45.1/KMS_VL_ALL_AIO-45r.7z"
-                            $folder = "$($env:ProgramData)\Activation Script"
-                            $file = $file = "$($env:ProgramData)\Activation Script\KMS_VL_ALL_AIO.7z"
-                            write-host "`t`t`t- Creating directories.." -f Yellow; Sleep -s 1;
-                            mkdir $folder -ea Ignore | Out-Null
-                            Write-host "`t`t`t- Downloading..." -f Yellow; Sleep -s 1;
-                            Invoke-WebRequest -uri $link -OutFile $file
-                            & "C:\Program Files\7-Zip\7z.exe" x -o"$folder" -y -p"2021" "$file" | Out-Null
-                            Remove-Item $file -Force -ea Ignore
-                            $file = $file = "$($env:ProgramData)\Activation Script\KMS_VL_ALL_AIO.cmd"
-                            ((Get-Content -path $file -Raw) -replace 'set uAutoRenewal=0', "set uAutoRenewal=1" ) | Set-Content -Path $file
-                            Write-host "`t`t`t- Activation is running... This may take up to 5 minutes" -f Yellow; Sleep -s 2;
-                            Write-host "`t`t`t- Installing..`t`t`t`t`t`t" (get-date -Format "HH':'mm':'ss") -f Yellow;
-                            Write-host "`t`t`t- Expected to be done installing:`t" ((get-date).AddMinutes(5).ToString("HH':'mm':'ss")) -f Yellow;
-                            Start-Process cmd -WindowStyle Hidden -Verb RunAs -ArgumentList "/c","$file" -Wait
-                            write-host "`t`t`t- Activation complete!" -f green; Sleep -s 3
-                            Remove-Item $folder -Recurse -Force -ea Ignore}
-                        N { Write-Host "`t`t`t- NO. Skipping this step." -f Red;} 
-                    } } While($officeactivation -notin "y", "n")
 
 
- 
 }
-                    
+
    
 #Front end begins here
 $intro = 
@@ -884,7 +857,7 @@ $intro =
 | |/ |/ / / / / / /_/ / /_/ / /_/ / / / / / / / / /_/  __/ /    
 |__/|__/_/_/ /_/\____/ .___/\__/_/_/ /_/ /_/_/ /___/\___/_/     
                     /_/                                         
-Version 2.5
+Version 2.1
 Creator: Andreas6920 | https://github.com/Andreas6920/
                                                                                                                                                     
  "
@@ -910,7 +883,7 @@ if ($admin_permissions_check) {
         Write-Host "Option: " -f yellow -nonewline; ; ;
         $option = Read-Host
         Switch ($option) { 
-            0 {}
+            0 { exit }
             1 { remove_bloatware; settings_privacy; settings_customize; app_installer; }
             2 { remove_bloatware }
             3 { settings_privacy }
@@ -919,7 +892,9 @@ if ($admin_permissions_check) {
             Default { cls; Write-host""; Write-host""; Write-host "INVALID OPTION. TRY AGAIN.." -f red; Write-host""; Write-host""; Start-Sleep 1; cls; Write-host ""; Write-host "" } 
         }
          
-    }while ($option -ne 0 )
+    }while ($option -ne 5 )
+     
+    if ($option -le 5) { Write-host "         **Placeholder for exit menu**" -f Yellow }
 
 } 
 else {
