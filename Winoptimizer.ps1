@@ -30,6 +30,7 @@ Function remove_bloatware {
             "*windowscommunicationsapps*"
             "*autodesksketch*"
             "*plex*"
+            "*maps*"
             "*print3d*"
             "*Paint3D*"
             "*Mixed*"
@@ -192,14 +193,14 @@ Function remove_bloatware {
 }
 Function settings_privacy {
       
-    Write-host "  ENHANCE WINDOWS PRIVACY" -f green
+    Write-host "`tENHANCE WINDOWS PRIVACY" -f green
     #Cleaning Apps and Features
-    Write-host "      BLOCKING - Microsoft Data Collection" -f green
+    Write-host "`t`tBLOCKING - Microsoft Data Collection" -f green
           
 
     
     # Disable Advertising ID
-        Write-host "        - Disabling advertising ID." -f yellow
+        Write-host "`t`t`t- Disabling advertising ID." -f yellow
         If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo")) {
             New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Force | Out-Null
         }
@@ -207,7 +208,7 @@ Function settings_privacy {
         Start-Sleep -s 2
       
     # Disable let websites provide locally relevant content by accessing language list
-        Write-host "        - Disabling location tracking." -f yellow
+        Write-host "`t`t`t- Disabling location tracking." -f yellow
         If (!(Test-Path "HKCU:\Control Panel\International\User Profile")) {
             New-Item -Path "HKCU:\Control Panel\International\User Profile" -Force | Out-Null
         }
@@ -215,7 +216,7 @@ Function settings_privacy {
         Start-Sleep -s 2
       
     # Disable Show me suggested content in the Settings app
-        Write-host "        - Disabling personalized content suggestions." -f Yellow
+        Write-host "`t`t`t- Disabling personalized content suggestions." -f Yellow
         If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager")) {
             New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Force | Out-Null
         }
@@ -225,7 +226,7 @@ Function settings_privacy {
         Start-Sleep -s 2
       
     # Remove Cortana
-        Write-host "        - Disabling Cortana." -f yellow
+        Write-host "`t`t`t- Disabling Cortana." -f yellow
         $ProgressPreference = "SilentlyContinue"
         Get-AppxPackage -name *Microsoft.549981C3F5F10* | Remove-AppxPackage
         If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
@@ -237,7 +238,7 @@ Function settings_privacy {
         Start-Sleep -s 5
 
     # Disable Online Speech Recognition
-        Write-host "        - Disabling Online Speech Recognition." -f yellow
+        Write-host "`t`t`t- Disabling Online Speech Recognition." -f yellow
         If (!(Test-Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy")) {
             New-Item -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Force | Out-Null
         }
@@ -245,7 +246,7 @@ Function settings_privacy {
         Start-Sleep -s 2
     
     # Hiding personal information from lock screen
-        Write-host "        - Hiding email and domain information from sign-in screen." -f yellow
+        Write-host "`t`t`t- Disabling sign-in screen notifications." -f yellow
         If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\System")) {
             New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Force | Out-Null
         }
@@ -254,7 +255,7 @@ Function settings_privacy {
         Start-Sleep -s 2
        
     # Disable diagnostic data collection
-        Write-host "        - Disabling diagnostic data collection" -f Yellow
+        Write-host "`t`t`t- Disabling diagnostic data collection" -f Yellow
         If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection")) {
             New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Force | Out-Null
         }
@@ -262,7 +263,7 @@ Function settings_privacy {
         Start-Sleep -s 2
     
     # Disable App Launch Tracking
-        Write-host "        - Disabling App Launch Tracking." -f Yellow
+        Write-host "`t`t`t- Disabling App Launch Tracking." -f Yellow
         If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
             New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null
         }
@@ -270,7 +271,7 @@ Function settings_privacy {
         Start-Sleep -s 2
 
     # Disable "tailored expirence"
-        Write-host "        - Disable tailored expirience." -f Yellow        
+        Write-host "`t`t`t- Disable tailored expirience." -f Yellow        
         If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy")) {   
             New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Force | Out-Null
         }
@@ -278,7 +279,7 @@ Function settings_privacy {
         Start-Sleep -s 2
 
     # Disabling services
-        Write-host "      BLOCKING - Tracking startup services" -f green
+        Write-host "`t`tBLOCKING - Tracking startup services" -f green
         $trackingservices = @(
         "diagnosticshub.standardcollector.service" # Microsoft (R) Diagnostics Hub Standard Collector Service
         "DiagTrack"                                # Diagnostics Tracking Service
@@ -291,26 +292,69 @@ Function settings_privacy {
                              )
 
          foreach ($trackingservice in $trackingservices) {
-         if((Get-Service -Name $trackingservice | where Starttype -ne Disabled)){
-         write-host "        - Tracking Service found! $trackingservice - disabling service.." -f yellow
-         Get-Service | where name -eq $trackingservice | Set-Service -StartupType Disabled}}
-         write-host "        - Service scan complete" -f yellow
+         if((Get-Service -Name $trackingservice | Where-Object Starttype -ne Disabled)){
+         write-host "`t`t`t- Blocking tracking service: $trackingservice" -f yellow
+         Get-Service | Where-Object name -eq $trackingservice | Set-Service -StartupType Disabled}}
+         write-host "`t`t`t- Service scan complete" -f yellow
+
+    #Disabling Scheduled tasks that logs your activity
+        Write-host "`t`tBLOCKING - scheduled taks" -f green
+        write-host "`t`t`t- Disabling all the jobs in the background" -f yellow
+        Start-Job -Name "Disabling scheduled tasks" -ScriptBlock {
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\AppID\" -TaskName "SmartScreenSpecific" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Application Experience\" -TaskName "AitAgent" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Application Experience\" -TaskName "Microsoft Compatibility Appraiser" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Application Experience\" -TaskName "ProgramDataUpdater" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Application Experience\" -TaskName "StartupAppTask" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Autochk\" -Taskname "Proxy" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\CloudExperienceHost\" -TaskName "CreateObjectTask" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Customer Experience Improvement Program\" -TaskName "BthSQM" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Customer Experience Improvement Program\" -TaskName "Consolidator" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Customer Experience Improvement Program\" -TaskName "KernelCeipTask" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Customer Experience Improvement Program\" -TaskName "Uploader" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Customer Experience Improvement Program\" -TaskName "UsbCeip" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\DiskDiagnostic\" -TaskName "Microsoft-Windows-DiskDiagnosticDataCollector" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\DiskFootprint\" -TaskName "Diagnostics" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\FileHistory\" -Taskname "File History (maintenance mode)" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Maintenance\" -TaskName "WinSAT" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\PI\" -TaskName "Sqm-Tasks" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Power Efficiency Diagnostics\" -TaskName "AnalyzeSystem" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Shell\" -TaskName "FamilySafetyMonitor" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Shell\" -TaskName "FamilySafetyRefresh" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Shell\" -TaskName "FamilySafetyUpload" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Windows Error Reporting\" -TaskName "QueueReporting" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\WindowsUpdate\" -TaskName "Automatic App Update" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\License Manager\" -TaskName "TempSignedLicenseExchange" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Clip\" -TaskName "License Validation" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\ApplicationData\" -TaskName "DsSvcCleanup" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Power Efficiency Diagnostics\" -TaskName "AnalyzeSystem" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\PushToInstall\" -TaskName "LoginCheck" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\PushToInstall\" -TaskName "Registration" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Shell\" -TaskName "FamilySafetyMonitor" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Shell\" -TaskName "FamilySafetyMonitorToastTask" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Shell\" -TaskName "FamilySafetyRefreshTask" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Subscription\" -TaskName "EnableLicenseAcquisition" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Subscription\" -TaskName "LicenseAcquisition" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Diagnosis\" -TaskName "RecommendedTroubleshootingScanner" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Diagnosis\" -TaskName "Scheduled" | Out-Null
+        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\NetTrace\" -TaskName "GatherNetworkInfo" | Out-Null
+        } | Out-Null | Wait-Job
 
     # Adding entries to hosts file
-        Write-host "      BLOCKING - Tracking domains (This may take a while).." -f green
-        start-sleep -s 5
-         Write-Host "        - Backing up your hostsfile.." -f Yellow
+        Write-host "`t`tBLOCKING - Tracking domains (This may take a while).." -f green
+        start-sleep -s 3
+         Write-Host "`t`t`t- Backing up your hostsfile.." -f Yellow
         #Taking backup of current hosts file first
         $hostsfile = "$env:SystemRoot\System32\drivers\etc\hosts"
         $Takebackup = "$env:SystemRoot\System32\drivers\etc\hosts_backup"
         Copy-Item $hostsfile $Takebackup
         
-        Write-Host "        - Getting an updated list of microsoft tracking domains" -f Yellow
+        Write-Host "`t`t`t- Getting an updated list of microsoft tracking domains" -f Yellow
         $domain = Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt'  -UseBasicParsing
         $domain = $domain.Content | Foreach-object { $_ -replace "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", "" } | Foreach-object { $_ -replace " ", "" }
         $domain = $domain.Split("`n") -notlike "#*" -notmatch "spynet2.microsoft.com" -match "\w"
         
-        Write-Host "        - Blocking domains from tracking-list" -f Yellow
+        Write-Host "`t`t`t- Blocking domains from tracking-list" -f Yellow
         foreach ($domain_entry in $domain) {
         $counter++
                 Write-Progress -Activity 'Adding entries to host file..' -CurrentOperation $domain_entry -PercentComplete (($counter /$domain.count) * 100)
@@ -319,24 +363,24 @@ Function settings_privacy {
         }
         Write-Progress -Completed -Activity "make progress bar dissapear"
         #flush DNS cache
-        Write-host "        - Flushing local DNS cache" -f Yellow
+        Write-host "`t`t`t- Flushing local DNS cache" -f Yellow
         ipconfig /flushdns | Out-Null; start-Sleep 2; nbtstat -R | Out-Null; start-Sleep -s 2;
         Stop-Process -name explorer; Start-Sleep -s 5
 
     # Blocking Microsoft Tracking IP's in the firewall
-        Write-host "      BLOCKING - Tracking IP's" -f green
-        Write-Host "        - Getting updated lists of Microsoft's trackin IP's" -f Yellow
+        Write-host "`t`tBLOCKING - Tracking IP's" -f green
+        Write-Host "`t`t`t- Getting updated lists of Microsoft's trackin IP's" -f Yellow
         $blockip = Invoke-WebRequest -Uri https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/firewall/spy.txt  -UseBasicParsing
         $blockip = $blockip.Content | Foreach-object { $_ -replace "0.0.0.0 ", "" } | Out-String
         $blockip = $blockip.Split("`n") -notlike "#*" -match "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
         Clear-Variable -Name counter
-        Write-Host "        - Configuring blocking rules in your firewall.." -f Yellow
+        Write-Host "`t`t`t- Configuring blocking rules in your firewall.." -f Yellow
         foreach ($ip_entry in $blockip) {
         $counter++
         Write-Progress -Activity 'Configuring firewall rules..' -CurrentOperation $ip_entry -PercentComplete (($counter /$blockip.count) * 100)
         netsh advfirewall firewall add rule name="Block Microsoft Tracking IP: $ip_entry" dir=out action=block remoteip=$ip_entry enable=yes | Out-Null}
         Write-Progress -Completed -Activity "make progress bar dissapear"
-        Write-Host "        - Firewall configuration complete." -f Yellow
+        Write-Host "`t`t`t- Firewall configuration complete." -f Yellow
         start-sleep 5
 
     # Send Microsoft a request to delete collected data about you.
@@ -362,7 +406,7 @@ Function settings_privacy {
     
         
         block_input | Out-Null
-        Write-host "      SUBMIT - request to Microsoft to delete data about you." -f green
+        Write-host "`t`tSUBMIT - request to Microsoft to delete data about you." -f green
         Start-Sleep -s 2
         #start navigating
         $app = New-Object -ComObject Shell.Application
@@ -385,60 +429,61 @@ Function settings_privacy {
         #unlocking keyboard and mouse
         allow_input | Out-Null
         
-
-        
         # Windows hardening
-        Write-host "      BLOCKING - Security holes" -f green
+        Write-host "`t`tBLOCKING - Security holes" -f green
         
         # Disable automatic setup of network connected devices.
-            Write-host "        - Disabling auto setup network devices." -f yellow
-            Set-Item "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type DWord -Value 0 -Force 
+            Write-host "`t`t`t- Disabling auto setup network devices." -f yellow
+            If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private")) {
+                New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Force | Out-Null
+            }
+            Set-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type DWord -Value 0 -Force 
             Start-Sleep -s 2
             
         # Disable sharing of PC and printers
-             Write-host "        - Disabling sharing of PC and Printers." -f yellow
+            Write-host "`t`t`t- Disabling sharing of PC and Printers." -f yellow
             Get-NetConnectionProfile | ForEach-Object {Set-NetConnectionProfile -Name $_.Name -NetworkCategory Public -ErrorAction SilentlyContinue | Out-Null}    
             get-printer | Where-Object shared -eq True | ForEach-Object {Set-Printer -Name $_.Name -Shared $False -ErrorAction SilentlyContinue | Out-Null}
             netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=No -ErrorAction SilentlyContinue | Out-Null
 
         # Disable LLMNR    
             #https://www.blackhillsinfosec.com/how-to-disable-llmnr-why-you-want-to/
-            Write-host "        - Disabling LLMNR." -f yellow
+            Write-host "`t`t`t- Disabling LLMNR." -f yellow
             New-Item -Path "HKLM:\Software\policies\Microsoft\Windows NT\" -Name "DNSClient" -ea SilentlyContinue | Out-Null
             Set-ItemProperty -Path "HKLM:\Software\policies\Microsoft\Windows NT\DNSClient" -Name "EnableMulticast" -Type "DWORD" -Value 0 -Force -ea SilentlyContinue | Out-Null
             
         # Disabe SMB Compression - CVE-2020-0796    
             #https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2020-0796
-            Write-host "        - Disabling SMB Compression." -f yellow
+            Write-host "`t`t`t- Disabling SMB Compression." -f yellow
             Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" DisableCompression -Type DWORD -Value 1 -Force -ea SilentlyContinue | Out-Null
 
         # Disable SMB v1    
             #https://docs.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3
-            Write-host "        - Disabling SMB version 1 support." -f yellow
+            Write-host "`t`t`t- Disabling SMB version 1 support." -f yellow
             Disable-WindowsOptionalFeature -Online -FeatureName smb1protocol -NoRestart -WarningAction:SilentlyContinue  | Out-Null
             Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force -ea SilentlyContinue | Out-Null
             Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" SMB1 -Type DWORD -Value 0 –Force
 
         # Disable SMB v2    
             #https://docs.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3
-            Write-host "        - Disabling SMB version 2 support." -f yellow
+            Write-host "`t`t`t- Disabling SMB version 2 support." -f yellow
             Set-SmbServerConfiguration -EnableSMB2Protocol $false -Force -ea SilentlyContinue | Out-Null
             Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" SMB2 -Type DWORD -Value 0 –Force
 
         # Enable SMB Encryption    
             # https://docs.microsoft.com/en-us/windows-server/storage/file-server/smb-security
-            Write-host "        - Activating SMB Encryption." -f yellow
+            Write-host "`t`t- Activating SMB Encryption." -f yellow
             Set-SmbServerConfiguration –EncryptData $true -Force -ea SilentlyContinue | Out-Null
             Set-SmbServerConfiguration –RejectUnencryptedAccess $false -Force -ea SilentlyContinue | Out-Null
 
         # Bad Neighbor - CVE-2020-16898    
             # https://blog.rapid7.com/2020/10/14/there-goes-the-neighborhood-dealing-with-cve-2020-16898-a-k-a-bad-neighbor/
-            Write-host "        - Patching Bad Neighbor (CVE-2020-16898)." -f yellow
+            Write-host "`t`t- Patching Bad Neighbor (CVE-2020-16898)." -f yellow
             netsh int ipv6 set int *INTERFACENUMBER* rabaseddnsconfig=disable | Out-Null
             
         # Spectre Meldown - CVE-2017-5754    
             # https://support.microsoft.com/en-us/help/4073119/protect-against-speculative-execution-side-channel-vulnerabilities-in
-            Write-host "        - Patching Bad Metldown (CVE-2017-5754)." -f yellow
+            Write-host "`t`t- Patching Bad Metldown (CVE-2017-5754)." -f yellow
             Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name FeatureSettingsOverrideMask -Type DWORD -Value 3 -Force -ea SilentlyContinue | Out-Null
             Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Virtualization" -Name MinVmVersionForCpuBasedMitigations -Type String -Value "1.0" -Force -ea SilentlyContinue | Out-Null
                         
