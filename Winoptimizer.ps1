@@ -79,7 +79,7 @@ Function remove_bloatware {
             "*Flipboard*"
         )
         foreach ($Bloat in $Bloatware) {
-            $bloat_output = Get-AppxPackage | Where-Object Name -Like $Bloat | Select -Property Name; #Write-Host "        - Removing: $bloat_output"
+            $bloat_output = Get-AppxPackage | Where-Object Name -Like $Bloat | Select-Object -Property Name; #Write-Host "        - Removing: $bloat_output"
             if ($bloat_output -ne $null) { Write-host "        - Bloat app found! Removing: " -f yellow -nonewline; ; write-host "$bloat_output".Split(".")[1].Split("}")[0] -f yellow }
             Get-AppxPackage -Name $Bloat | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null
             Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Out-Null
@@ -96,9 +96,9 @@ Function remove_bloatware {
                 "DmClientOnScenarioDownload"
                 )
             foreach ($BloatSchedule in $BloatSchedules) {
-            if ((Get-ScheduledTask | where state -ne Disabled | where TaskName -like $BloatSchedule)){
+            if ((Get-ScheduledTask | Where-Object state -ne Disabled | Where-Object TaskName -like $BloatSchedule)){
             Write-host "        - Bloat found in Task Scheduler! Disabling: $BloatSchedule" -f yellow
-            Get-ScheduledTask | where Taskname -eq $BloatSchedule | Disable-ScheduledTask | Out-Null}}
+            Get-ScheduledTask | Where-Object Taskname -eq $BloatSchedule | Disable-ScheduledTask | Out-Null}}
             Write-host "        - CLEANED - Task Scheduler" -f yellow;
             
         
@@ -301,43 +301,43 @@ Function settings_privacy {
         Write-host "`t`tBLOCKING - scheduled taks" -f green
         write-host "`t`t`t- Disabling all the jobs in the background" -f yellow
         Start-Job -Name "Disabling scheduled tasks" -ScriptBlock {
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\AppID\" -TaskName "SmartScreenSpecific" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Application Experience\" -TaskName "AitAgent" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Application Experience\" -TaskName "Microsoft Compatibility Appraiser" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Application Experience\" -TaskName "ProgramDataUpdater" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Application Experience\" -TaskName "StartupAppTask" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Autochk\" -Taskname "Proxy" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\CloudExperienceHost\" -TaskName "CreateObjectTask" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Customer Experience Improvement Program\" -TaskName "BthSQM" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Customer Experience Improvement Program\" -TaskName "Consolidator" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Customer Experience Improvement Program\" -TaskName "KernelCeipTask" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Customer Experience Improvement Program\" -TaskName "Uploader" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Customer Experience Improvement Program\" -TaskName "UsbCeip" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\DiskDiagnostic\" -TaskName "Microsoft-Windows-DiskDiagnosticDataCollector" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\DiskFootprint\" -TaskName "Diagnostics" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\FileHistory\" -Taskname "File History (maintenance mode)" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Maintenance\" -TaskName "WinSAT" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\PI\" -TaskName "Sqm-Tasks" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Power Efficiency Diagnostics\" -TaskName "AnalyzeSystem" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Shell\" -TaskName "FamilySafetyMonitor" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Shell\" -TaskName "FamilySafetyRefresh" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Shell\" -TaskName "FamilySafetyUpload" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Windows Error Reporting\" -TaskName "QueueReporting" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\WindowsUpdate\" -TaskName "Automatic App Update" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\License Manager\" -TaskName "TempSignedLicenseExchange" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Clip\" -TaskName "License Validation" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\ApplicationData\" -TaskName "DsSvcCleanup" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Power Efficiency Diagnostics\" -TaskName "AnalyzeSystem" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\PushToInstall\" -TaskName "LoginCheck" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\PushToInstall\" -TaskName "Registration" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Shell\" -TaskName "FamilySafetyMonitor" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Shell\" -TaskName "FamilySafetyMonitorToastTask" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Shell\" -TaskName "FamilySafetyRefreshTask" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Subscription\" -TaskName "EnableLicenseAcquisition" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Subscription\" -TaskName "LicenseAcquisition" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Diagnosis\" -TaskName "RecommendedTroubleshootingScanner" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Diagnosis\" -TaskName "Scheduled" | Out-Null
-        Disable-ScheduledTask -TaskPath "\Microsoft\Windows\NetTrace\" -TaskName "GatherNetworkInfo" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\AppID\" -TaskName "SmartScreenSpecific" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Application Experience\" -TaskName "AitAgent" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Application Experience\" -TaskName "Microsoft Compatibility Appraiser" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Application Experience\" -TaskName "ProgramDataUpdater" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Application Experience\" -TaskName "StartupAppTask" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Autochk\" -Taskname "Proxy" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\CloudExperienceHost\" -TaskName "CreateObjectTask" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Customer Experience Improvement Program\" -TaskName "BthSQM" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Customer Experience Improvement Program\" -TaskName "Consolidator" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Customer Experience Improvement Program\" -TaskName "KernelCeipTask" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Customer Experience Improvement Program\" -TaskName "Uploader" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Customer Experience Improvement Program\" -TaskName "UsbCeip" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\DiskDiagnostic\" -TaskName "Microsoft-Windows-DiskDiagnosticDataCollector" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\DiskFootprint\" -TaskName "Diagnostics" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\FileHistory\" -Taskname "File History (maintenance mode)" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Maintenance\" -TaskName "WinSAT" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\PI\" -TaskName "Sqm-Tasks" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Power Efficiency Diagnostics\" -TaskName "AnalyzeSystem" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Shell\" -TaskName "FamilySafetyMonitor" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Shell\" -TaskName "FamilySafetyRefresh" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Shell\" -TaskName "FamilySafetyUpload" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Windows Error Reporting\" -TaskName "QueueReporting" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\WindowsUpdate\" -TaskName "Automatic App Update" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\License Manager\" -TaskName "TempSignedLicenseExchange" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Clip\" -TaskName "License Validation" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\ApplicationData\" -TaskName "DsSvcCleanup" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Power Efficiency Diagnostics\" -TaskName "AnalyzeSystem" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\PushToInstall\" -TaskName "LoginCheck" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\PushToInstall\" -TaskName "Registration" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Shell\" -TaskName "FamilySafetyMonitor" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Shell\" -TaskName "FamilySafetyMonitorToastTask" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Shell\" -TaskName "FamilySafetyRefreshTask" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Subscription\" -TaskName "EnableLicenseAcquisition" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Subscription\" -TaskName "LicenseAcquisition" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Diagnosis\" -TaskName "RecommendedTroubleshootingScanner" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Diagnosis\" -TaskName "Scheduled" | Out-Null
+                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\NetTrace\" -TaskName "GatherNetworkInfo" | Out-Null
         } | Out-Null | Wait-Job
 
     # Adding entries to hosts file
@@ -666,7 +666,7 @@ Function settings_customize {
                     $domain = Invoke-WebRequest -Uri 'https://gist.githubusercontent.com/samuel-fonseca/662a620ae32aca254ea7730be5ff7145/raw/a1de2537d5b0613e29c9ca3b9bc0ec67ff1e29a2/Hyper-V-Enabler.bat'  -UseBasicParsing
                     $domain = $domain.content; Start-sleep 1
                     write-host "                Downloading script..." -f green
-                    Set-content "$dst\$file" $domain; sleep 1
+                    Set-content "$dst\$file" $domain; Start-Sleep -S 1
                     write-host "                Opening CMD..." -f green
                     start cmd -Verb RunAs -ArgumentList "/c","$dst/$file" -wait}
                 elseIf ((Get-WmiObject -Class "Win32_OperatingSystem").Caption -like "*Server*") {
