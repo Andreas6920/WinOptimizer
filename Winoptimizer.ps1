@@ -777,6 +777,59 @@ $appheader =
 " 
         
             Write-host $appheader -f Yellow 
+
+            
+            Do {
+                Write-Host "Would you like to .NET FrameWork" -f yellow -nonewline; ;
+                $answer = Read-Host " " 
+                Switch ($answer) { 
+                    Y {
+                        iwr -useb 'https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/other/Dotnetinstaller.ps1' -OutFile "$($env:ProgramData)\visualplusplus.ps1"
+                        Start-Sleep -S 3
+                        start-process powershell -argument "-ep bypass -windowstyle Hidden -file `"$($env:ProgramData)\visualplusplus.ps1`""
+                    }
+                    N { Write-Host "            NO. Skipping this step." -f Red } 
+                }   
+            } While ($answer -notin "y", "n")  
+            
+            Do {
+                Write-Host "Would you like to install all Microsoft Visual C++ Redistributable versions?" -f yellow -nonewline; ;
+                $answer = Read-Host " " 
+                Switch ($answer) { 
+                    Y {
+                        
+                        “[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12”
+                        If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main")) {
+                        New-Item -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Force | Out-Null}
+                        Set-ItemProperty -Path  "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize"  -Value 1
+                        
+                        $path = "$($env:TMP)\Visual"
+                            if(!(test-path $path)){New-Item $path -ItemType Directory -ea SilentlyContinue | Out-Null}
+                        $FileDestination = "$($env:TMP)\Visual\drivers.zip"
+                        
+                        write-host "downloading.." 
+                        $link =  "https://drive.google.com/uc?export=download&confirm=uc-download-link&id=1mHvNVA_pI0XnWyjRDNee0vhQxLp6agp_"
+                        (New-Object net.webclient).Downloadfile($link, $FileDestination)
+                    
+                        write-host "extracting.."   
+                        Expand-Archive $FileDestination -DestinationPath $path | Out-Null; 
+                        start-sleep -s 5
+                        
+                    
+                        write-host "Installing.." 
+                        Set-Location $path
+                        ./vcredist2005_x64.exe /q | Out-Null
+                        ./vcredist2008_x64.exe /qb | Out-Null
+                        ./vcredist2010_x64.exe /passive /norestart | Out-Null
+                        ./vcredist2012_x64.exe /passive /norestart | Out-Null
+                        ./vcredist2013_x64.exe /passive /norestart | Out-Null
+                        ./vcredist2015_2017_2019_2022_x64.exe /passive /norestart | Out-Null
+                      }
+                    N { Write-Host "            NO. Skipping this step." -f Red } 
+                }   
+            } While ($answer -notin "y", "n")  
+
+
             write-host "    BROWSER:" -f yellow
             write-host "        Chrome        Firefox      Opera" -f green
             write-host "        Brave         Opera        Vevaldi" -f green
@@ -862,6 +915,12 @@ $appheader =
                 elseif("Ubisoft Connect" -match "$requested_app"){Write-host "        - installing Ubisoft Connect.." -f yellow -nonewline; choco install ubisoft-connect -y | out-null;write-host "  [ COMPLETE ]" -f green;}
             }
     # STEP 3 - app-updater
+     
+    
+
+    start-process powershell -argument "-ep bypass -windowstyle Hidden -file `"C:\test\1.ps1`""
+    
+    
                 Do {
                     Write-Host "        - Would you like to install auto-updater? (y/n)" -f yellow -nonewline; ;
                     $answer = Read-Host " " 
