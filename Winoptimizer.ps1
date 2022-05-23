@@ -784,16 +784,16 @@ $appheader =
                             if(!(test-path $path)){New-Item $path -ItemType Directory -ea SilentlyContinue | Out-Null}
                         $FileDestination = "$($env:TMP)\Visual\drivers.zip"
                         
-                        write-host "downloading.." 
+                        Write-Host "`t- Download.." -f yellow
                         $link =  "https://drive.google.com/uc?export=download&confirm=uc-download-link&id=1mHvNVA_pI0XnWyjRDNee0vhQxLp6agp_"
                         (New-Object net.webclient).Downloadfile($link, $FileDestination)
                     
-                        write-host "extracting.."   
+                        Write-Host "`t- Extracting.." -f yellow
                         Expand-Archive $FileDestination -DestinationPath $path | Out-Null; 
                         start-sleep -s 5
                         
                     
-                        write-host "Installing.." 
+                        Write-Host "`t- Installing.." -f yellow
                         Set-Location $path
                         ./vcredist2005_x64.exe /q | Out-Null
                         ./vcredist2008_x64.exe /qb | Out-Null
