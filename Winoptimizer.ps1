@@ -791,7 +791,6 @@ $appheader =
                         Write-Host "`t- Extracting.." -f yellow
                         Expand-Archive $FileDestination -DestinationPath $path | Out-Null; 
                         start-sleep -s 5
-                        
                     
                         Write-Host "`t- Installing.." -f yellow
                         Set-Location $path
