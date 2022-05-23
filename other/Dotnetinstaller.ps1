@@ -7,12 +7,9 @@ Set-ItemProperty -Path  "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name 
 
 
 #Version 3.5 (Version 2.0 and 3.0 included)
-    write-host "Microsoft .NET 3.5 (2.0 and 3.0 included):" -f Green
-        write-host "`t- Enabling Service" -f DarkGreen
         If (!(Test-Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Servicing)) {
         New-Item -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Servicing | Out-Null}
         Set-ItemProperty -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Servicing -Name RepairContentServerSource -Type DWord -Value 2
-        write-host "`t- Downloading and installing.. (This may take a while)" -f DarkGreen
         Enable-WindowsOptionalFeature -Online -FeatureName "NetFx3" | Out-Null
 
 # Latest
