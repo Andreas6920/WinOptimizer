@@ -777,20 +777,25 @@ $appheader =
 " 
         
             Write-host $appheader -f Yellow 
+            "";
 
             
             Do {
-                Write-Host "Would you like to .NET FrameWork" -f yellow -nonewline; ;
+                Write-Host "Would you like to Install Microsoft .NET Framework" -f yellow -nonewline; ;
                 $answer = Read-Host " " 
                 Switch ($answer) { 
                     Y {
+                        Write-Host "`t- Download.." -f yellow 
                         iwr -useb 'https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/other/Dotnetinstaller.ps1' -OutFile "$($env:ProgramData)\visualplusplus.ps1"
                         Start-Sleep -S 3
+                        Write-Host "`t- Installing.." -f yellow 
                         start-process powershell -argument "-ep bypass -windowstyle Hidden -file `"$($env:ProgramData)\visualplusplus.ps1`""
+                        Start-Sleep -S 3
+                        Remove-item "$($env:ProgramData)\visualplusplus.ps1" | Out-Null
                     }
                     N { Write-Host "            NO. Skipping this step." -f Red } 
                 }   
-            } While ($answer -notin "y", "n")  
+            } While ($answer -notin "y", "n")
             
             Do {
                 Write-Host "Would you like to install all Microsoft Visual C++ Redistributable versions?" -f yellow -nonewline; ;
