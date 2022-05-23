@@ -882,7 +882,7 @@ Function app_installer {
                 elseif("Greenshot" -match "$requested_app"){Write-host "        - installing Greenshot.." -f Yellow -nonewline; choco install Greenshot -y | out-null;write-host "        [ COMPLETE ]" -f Green;} 
                 elseif("ShareX" -match "$requested_app"){Write-host "        - installing Sharex.." -f Yellow -nonewline; choco install Sharex -y | out-null;write-host "           [ COMPLETE ]" -f Green;} 
                 elseif("Gimp" -match "$requested_app"){Write-host "        - installing Gimp.." -f Yellow -nonewline; choco install Gimp -y | out-null;write-host "             [ COMPLETE ]" -f Green;} 
-                elseif("Visual studio++" -match "$requested_app"){Write-host "        - installing Adobe Acrobat Reader.." -f Yellow -nonewline; choco install adobereader -y | out-null;write-host "  [ COMPLETE ]" -f Green;} 
+                elseif("Adobe" -match "$requested_app"){Write-host "        - installing Adobe Acrobat Reader.." -f Yellow -nonewline; choco install adobereader -y | out-null;write-host "  [ COMPLETE ]" -f Green;} 
                 # Media Player
                 elseif("spotify" -match "$requested_app"){Write-host "        - installing spotify.." -f Yellow -nonewline; choco install spotify -y | out-null;write-host "          [ COMPLETE ]" -f Green;}  
                 elseif("VLC" -match "$requested_app"){Write-host "        - installing VLC.." -f Yellow -nonewline; choco install VLC -y | out-null;write-host "              [ COMPLETE ]" -f Green;}  
