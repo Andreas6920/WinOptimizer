@@ -737,34 +737,7 @@ Function app_installer {
     General notes
     #> 
     
-    # STEP 1 - app-installer
-        #check if chocolatey is installed
-        Write-host "  Checking the system if the appinstaller is installed." -f green
-        if (!(Test-Path "$($env:ProgramData)\chocolatey\choco.exe")) { 
-                # installing chocolatey
-                Write-host "      application not found. Installing:" -f green
-                Write-host "        - Preparing system.." -f yellow
-                Set-ExecutionPolicy Bypass -Scope Process -Force;
-                # Downloading installtion file from original source
-                Write-host "        - Downloading script.." -f yellow
-                (New-Object System.Net.WebClient).DownloadFile("https://chocolatey.org/install.ps1","$env:TMP/choco-install.ps1")
-                # Adding a few lines to make installtion more silent.
-                Write-host "        - Preparing script.." -f yellow
-                $add_line1 = "((Get-Content -path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1 -Raw) -replace '\| write-Output', ' | out-null' ) | Set-Content -Path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1; "
-                $add_line2 = "((Get-Content -path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1 -Raw) -replace 'write-', '#write-' ) | Set-Content -Path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1; "
-                $add_line3 = "((Get-Content -path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1 -Raw) -replace 'function.* #write-', 'function Write-' ) | Set-Content -Path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1;"
-                ((Get-Content -path $env:TMP/choco-install.ps1 -Raw) -replace 'write-host', "#write-host" ) | Set-Content -Path $env:TMP/choco-install.ps1
-                ((Get-Content -path $env:TMP/choco-install.ps1 -Raw) -replace '#endregion Download & Extract Chocolatey', "$add_line1`n$add_line2`n$add_line3" ) | Set-Content -Path $env:TMP/choco-install.ps1
-                # Executing installation file.
-                cd $env:TMP
-                Write-host "        - Installing.." -f yellow
-                .\choco-install.ps1
-                Write-host "        - Installation complete.." -f yellow
-        }
-        else { write-host "appinstaller already installed on this system. skipping installation." }
-        
-    
-    #STEP 2 - app-installation
+
         
 $appheader = 
 "
@@ -778,10 +751,9 @@ $appheader =
         
             Write-host $appheader -f Yellow 
             "";
-
             
             Do {
-                Write-Host "Would you like to Install Microsoft .NET Framework" -f yellow -nonewline; ;
+                Write-Host "Would you like to Install Microsoft .NET Framework? (y/n)" -f yellow -nonewline; ;
                 $answer = Read-Host " " 
                 Switch ($answer) { 
                     Y {
@@ -794,16 +766,16 @@ $appheader =
                         Remove-item "$($env:ProgramData)\visualplusplus.ps1" | Out-Null
                     }
                     N { Write-Host "            NO. Skipping this step." -f Red } 
-                }   
-            } While ($answer -notin "y", "n")
+                }}
+            While ($answer -notin "y", "n")
             
             Do {
-                Write-Host "Would you like to install all Microsoft Visual C++ Redistributable versions?" -f yellow -nonewline; ;
+                Write-Host "Would you like to install all Microsoft Visual C++ Redistributable versions? (y/n)" -f yellow -nonewline; ;
                 $answer = Read-Host " " 
                 Switch ($answer) { 
                     Y {
                         
-                        “[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12”
+                        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
                         If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main")) {
                         New-Item -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Force | Out-Null}
                         Set-ItemProperty -Path  "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize"  -Value 1
@@ -830,9 +802,34 @@ $appheader =
                         ./vcredist2013_x64.exe /passive /norestart | Out-Null
                         ./vcredist2015_2017_2019_2022_x64.exe /passive /norestart | Out-Null
                       }
-                    N { Write-Host "            NO. Skipping this step." -f Red } 
-                }   
-            } While ($answer -notin "y", "n")  
+                    N { Write-Host "            NO. Skipping this step." -f Red } }} 
+            While ($answer -notin "y", "n")  
+
+
+        #check if chocolatey is installed
+        if (!(Test-Path "$($env:ProgramData)\chocolatey\choco.exe")) { 
+            # installing chocolatey
+            Write-host "      application not found. Installing:" -f green
+            Write-host "        - Preparing system.." -f yellow
+            Set-ExecutionPolicy Bypass -Scope Process -Force;
+            # Downloading installtion file from original source
+            Write-host "        - Downloading script.." -f yellow
+            (New-Object System.Net.WebClient).DownloadFile("https://chocolatey.org/install.ps1","$env:TMP/choco-install.ps1")
+            # Adding a few lines to make installtion more silent.
+            Write-host "        - Preparing script.." -f yellow
+            $add_line1 = "((Get-Content -path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1 -Raw) -replace '\| write-Output', ' | out-null' ) | Set-Content -Path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1; "
+            $add_line2 = "((Get-Content -path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1 -Raw) -replace 'write-', '#write-' ) | Set-Content -Path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1; "
+            $add_line3 = "((Get-Content -path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1 -Raw) -replace 'function.* #write-', 'function Write-' ) | Set-Content -Path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1;"
+            ((Get-Content -path $env:TMP/choco-install.ps1 -Raw) -replace 'write-host', "#write-host" ) | Set-Content -Path $env:TMP/choco-install.ps1
+            ((Get-Content -path $env:TMP/choco-install.ps1 -Raw) -replace '#endregion Download & Extract Chocolatey', "$add_line1`n$add_line2`n$add_line3" ) | Set-Content -Path $env:TMP/choco-install.ps1
+            # Executing installation file.
+            cd $env:TMP
+            Write-host "        - Installing.." -f yellow
+            .\choco-install.ps1
+            Write-host "        - Installation complete.." -f yellow}
+        else { write-host "appinstaller already installed on this system. skipping installation." }
+    
+
 
 
             write-host "    BROWSER:" -f yellow

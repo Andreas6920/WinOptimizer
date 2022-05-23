@@ -1,6 +1,6 @@
 ﻿# Microsoft .NET Framework
     
-“[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12”
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main")) {
 New-Item -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Force | Out-Null}
 Set-ItemProperty -Path  "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize"  -Value 1
