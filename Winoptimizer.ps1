@@ -807,7 +807,7 @@ Function app_installer {
 
 
         #check if chocolatey is installed
-        Write-Host "`t- Preparing application installer:" -f Green
+        Write-Host "`tApp installer:" -f Green
         if (!(Test-Path "$($env:ProgramData)\chocolatey\choco.exe")) { 
             # installing chocolatey
             Write-host "`t`t- Chocolatey not found on system:" -f Yellow
@@ -829,10 +829,10 @@ Function app_installer {
             Write-host "`t`t`t- Installing.." -f Yellow
             .\choco-install.ps1
             Write-host "`t`t`t- Installation complete.." -f Yellow}
-        else { write-host "appinstaller already installed on this system. skipping installation." }
-    
+        else { Write-host "`t`t- Installer found. Skipping installation." -f Yellow }
+            Clear-host
 
-
+            Write-host $appheader -f Yellow 
 
             write-host "`t`tBROWSER:" -f Yellow
             write-host "`t`t`tChrome        Firefox      Opera" -f green
