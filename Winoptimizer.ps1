@@ -10,7 +10,7 @@ Function remove_bloatware {
         start-sleep 5 
         $ProgressPreference = "SilentlyContinue" #hide progressbar
 
-        Write-host "        - Removing bloated Microsoft apps, games, tools etc.." -f yellow
+        Write-host "        - Removing bloated Microsoft apps, games, tools etc.." -f Yellow
         start-sleep 3
         $Bloatware = @(		
             # Microsoft Bloat ##
@@ -80,11 +80,11 @@ Function remove_bloatware {
         )
         foreach ($Bloat in $Bloatware) {
             $bloat_output = Get-AppxPackage | Where-Object Name -Like $Bloat | Select-Object -Property Name; #Write-Host "        - Removing: $bloat_output"
-            if ($bloat_output -ne $null) { Write-host "        - Bloat app found! Removing: " -f yellow -nonewline; ; write-host "$bloat_output".Split(".")[1].Split("}")[0] -f yellow }
+            if ($bloat_output -ne $null) { Write-host "        - Bloat app found! Removing: " -f Yellow -nonewline; ; write-host "$bloat_output".Split(".")[1].Split("}")[0] -f Yellow }
             Get-AppxPackage -Name $Bloat | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null
             Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Out-Null
         }
-        Write-host "        - CLEANED - Apps and Features" -f yellow; $ProgressPreference = "Continue" #unhide progressbar
+        Write-host "        - CLEANED - Apps and Features" -f Yellow; $ProgressPreference = "Continue" #unhide progressbar
         start-sleep 5    
         Write-host "      CLEANING - Task Scheduler" -f green
         $Bloatschedules = @(
@@ -97,9 +97,9 @@ Function remove_bloatware {
                 )
             foreach ($BloatSchedule in $BloatSchedules) {
             if ((Get-ScheduledTask | Where-Object state -ne Disabled | Where-Object TaskName -like $BloatSchedule)){
-            Write-host "        - Bloat found in Task Scheduler! Disabling: $BloatSchedule" -f yellow
+            Write-host "        - Bloat found in Task Scheduler! Disabling: $BloatSchedule" -f Yellow
             Get-ScheduledTask | Where-Object Taskname -eq $BloatSchedule | Disable-ScheduledTask | Out-Null}}
-            Write-host "        - CLEANED - Task Scheduler" -f yellow;
+            Write-host "        - CLEANED - Task Scheduler" -f Yellow;
             
         
         
@@ -144,7 +144,7 @@ Function remove_bloatware {
         }
 
         #Restart Explorer, open the start menu (necessary to load the new layout), and give it a few seconds to process
-        Write-host "        - Restarting explorer..." -f yellow
+        Write-host "        - Restarting explorer..." -f Yellow
         Stop-Process -name explorer -Force
         Start-Sleep -s 5
 
@@ -155,15 +155,15 @@ Function remove_bloatware {
             Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 0
         }
         Stop-Process -name explorer
-        write-host "        - Save changes to all users.." -f yellow
+        write-host "        - Save changes to all users.." -f Yellow
         Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
         Remove-Item $layoutFile
-        write-host "        - CLEANED - Start Menu" -f yellow
+        write-host "        - CLEANED - Start Menu" -f Yellow
         
     #Clean Taskbar
         Write-host "      CLEANING - Taskbar" -f Green
         start-sleep -s 5
-        write-host "        - Changing keys.." -f yellow
+        write-host "        - Changing keys.." -f Yellow
         Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesChanges -Value 3 -Type Dword -Force | Out-Null
         Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesRemovedChanges -Value 32 -Type Dword -Force | Out-Null
         Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesVersion -Value 3 -Type Dword -Force | Out-Null
@@ -172,12 +172,12 @@ Function remove_bloatware {
         Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Search -Name SearchboxTaskbarMode -Value 0 -Type Dword | Out-Null
         set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowTaskViewButton -Type DWord -Value 0 | Out-Null
 
-        write-host "        - Removing shortcuts.." -f yellow
+        write-host "        - Removing shortcuts.." -f Yellow
         Remove-Item -Path "$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*" -Recurse -Force | Out-Null
         Stop-Process -name explorer
         start-sleep -s 5
         #Start-Process explorer
-        write-host "        - CLEANED - Taskbar" -f yellow
+        write-host "        - CLEANED - Taskbar" -f Yellow
 
     # Remove Windows pre-installed bloat printers (Fax, PDF, OneNote) These are almost never used.
             If (!(Test-Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private")) {
@@ -200,7 +200,7 @@ Function settings_privacy {
 
     
     # Disable Advertising ID
-        Write-host "`t`t`t- Disabling advertising ID." -f yellow
+        Write-host "`t`t`t- Disabling advertising ID." -f Yellow
         If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo")) {
             New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Force | Out-Null
         }
@@ -208,7 +208,7 @@ Function settings_privacy {
         Start-Sleep -s 2
       
     # Disable let websites provide locally relevant content by accessing language list
-        Write-host "`t`t`t- Disabling location tracking." -f yellow
+        Write-host "`t`t`t- Disabling location tracking." -f Yellow
         If (!(Test-Path "HKCU:\Control Panel\International\User Profile")) {
             New-Item -Path "HKCU:\Control Panel\International\User Profile" -Force | Out-Null
         }
@@ -226,7 +226,7 @@ Function settings_privacy {
         Start-Sleep -s 2
       
     # Remove Cortana
-        Write-host "`t`t`t- Disabling Cortana." -f yellow
+        Write-host "`t`t`t- Disabling Cortana." -f Yellow
         $ProgressPreference = "SilentlyContinue"
         Get-AppxPackage -name *Microsoft.549981C3F5F10* | Remove-AppxPackage
         If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
@@ -238,7 +238,7 @@ Function settings_privacy {
         Start-Sleep -s 5
 
     # Disable Online Speech Recognition
-        Write-host "`t`t`t- Disabling Online Speech Recognition." -f yellow
+        Write-host "`t`t`t- Disabling Online Speech Recognition." -f Yellow
         If (!(Test-Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy")) {
             New-Item -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Force | Out-Null
         }
@@ -246,7 +246,7 @@ Function settings_privacy {
         Start-Sleep -s 2
     
     # Hiding personal information from lock screen
-        Write-host "`t`t`t- Disabling sign-in screen notifications." -f yellow
+        Write-host "`t`t`t- Disabling sign-in screen notifications." -f Yellow
         If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\System")) {
             New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Force | Out-Null
         }
@@ -293,13 +293,13 @@ Function settings_privacy {
 
          foreach ($trackingservice in $trackingservices) {
          if((Get-Service -Name $trackingservice | Where-Object Starttype -ne Disabled)){
-         write-host "`t`t`t- Blocking tracking service: $trackingservice" -f yellow
+         write-host "`t`t`t- Blocking tracking service: $trackingservice" -f Yellow
          Get-Service | Where-Object name -eq $trackingservice | Set-Service -StartupType Disabled}}
-         write-host "`t`t`t- Service scan complete" -f yellow
+         write-host "`t`t`t- Service scan complete" -f Yellow
 
     #Disabling Scheduled tasks that logs your activity
         Write-host "`t`tBLOCKING - scheduled taks" -f green
-        write-host "`t`t`t- Disabling all the jobs in the background" -f yellow
+        write-host "`t`t`t- Disabling all the jobs in the background" -f Yellow
         Start-Job -Name "Disabling scheduled tasks" -ScriptBlock {
                 Disable-ScheduledTask -TaskPath "\Microsoft\Windows\AppID\" -TaskName "SmartScreenSpecific" | Out-Null
                 Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Application Experience\" -TaskName "AitAgent" | Out-Null
@@ -433,7 +433,7 @@ Function settings_privacy {
         Write-host "`t`tBLOCKING - Security holes" -f green
         
         # Disable automatic setup of network connected devices.
-            Write-host "`t`t`t- Disabling auto setup network devices." -f yellow
+            Write-host "`t`t`t- Disabling auto setup network devices." -f Yellow
             If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private")) {
                 New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Force | Out-Null
             }
@@ -441,54 +441,54 @@ Function settings_privacy {
             Start-Sleep -s 2
             
         # Disable sharing of PC and printers
-            Write-host "`t`t`t- Disabling sharing of PC and Printers." -f yellow
+            Write-host "`t`t`t- Disabling sharing of PC and Printers." -f Yellow
             Get-NetConnectionProfile | ForEach-Object {Set-NetConnectionProfile -Name $_.Name -NetworkCategory Public -ErrorAction SilentlyContinue | Out-Null}    
             get-printer | Where-Object shared -eq True | ForEach-Object {Set-Printer -Name $_.Name -Shared $False -ErrorAction SilentlyContinue | Out-Null}
             netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=No -ErrorAction SilentlyContinue | Out-Null
 
         # Disable LLMNR    
             #https://www.blackhillsinfosec.com/how-to-disable-llmnr-why-you-want-to/
-            Write-host "`t`t`t- Disabling LLMNR." -f yellow
+            Write-host "`t`t`t- Disabling LLMNR." -f Yellow
             New-Item -Path "HKLM:\Software\policies\Microsoft\Windows NT\" -Name "DNSClient" -ea SilentlyContinue | Out-Null
             Set-ItemProperty -Path "HKLM:\Software\policies\Microsoft\Windows NT\DNSClient" -Name "EnableMulticast" -Type "DWORD" -Value 0 -Force -ea SilentlyContinue | Out-Null
             
         # Disabe SMB Compression - CVE-2020-0796    
             #https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2020-0796
-            Write-host "`t`t`t- Disabling SMB Compression." -f yellow
+            Write-host "`t`t`t- Disabling SMB Compression." -f Yellow
             Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" DisableCompression -Type DWORD -Value 1 -Force -ea SilentlyContinue | Out-Null
 
         # Disable SMB v1    
             #https://docs.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3
-            Write-host "`t`t`t- Disabling SMB version 1 support." -f yellow
+            Write-host "`t`t`t- Disabling SMB version 1 support." -f Yellow
             Disable-WindowsOptionalFeature -Online -FeatureName smb1protocol -NoRestart -WarningAction:SilentlyContinue  | Out-Null
             Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force -ea SilentlyContinue | Out-Null
             Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" SMB1 -Type DWORD -Value 0 –Force
 
         # Disable SMB v2    
             #https://docs.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3
-            Write-host "`t`t`t- Disabling SMB version 2 support." -f yellow
+            Write-host "`t`t`t- Disabling SMB version 2 support." -f Yellow
             Set-SmbServerConfiguration -EnableSMB2Protocol $false -Force -ea SilentlyContinue | Out-Null
             Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" SMB2 -Type DWORD -Value 0 –Force
 
         # Enable SMB Encryption    
             # https://docs.microsoft.com/en-us/windows-server/storage/file-server/smb-security
-            Write-host "`t`t- Activating SMB Encryption." -f yellow
+            Write-host "`t`t- Activating SMB Encryption." -f Yellow
             Set-SmbServerConfiguration –EncryptData $true -Force -ea SilentlyContinue | Out-Null
             Set-SmbServerConfiguration –RejectUnencryptedAccess $false -Force -ea SilentlyContinue | Out-Null
 
         # Bad Neighbor - CVE-2020-16898    
             # https://blog.rapid7.com/2020/10/14/there-goes-the-neighborhood-dealing-with-cve-2020-16898-a-k-a-bad-neighbor/
-            Write-host "`t`t- Patching Bad Neighbor (CVE-2020-16898)." -f yellow
+            Write-host "`t`t- Patching Bad Neighbor (CVE-2020-16898)." -f Yellow
             netsh int ipv6 set int *INTERFACENUMBER* rabaseddnsconfig=disable | Out-Null
             
         # Spectre Meldown - CVE-2017-5754    
             # https://support.microsoft.com/en-us/help/4073119/protect-against-speculative-execution-side-channel-vulnerabilities-in
-            Write-host "`t`t- Patching Bad Metldown (CVE-2017-5754)." -f yellow
+            Write-host "`t`t- Patching Bad Metldown (CVE-2017-5754)." -f Yellow
             Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name FeatureSettingsOverrideMask -Type DWORD -Value 3 -Force -ea SilentlyContinue | Out-Null
             Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Virtualization" -Name MinVmVersionForCpuBasedMitigations -Type String -Value "1.0" -Force -ea SilentlyContinue | Out-Null
                         
             
-        write-host "      COMPLETE - PRIVACY OPTIMIZATION" -f yellow
+        write-host "      COMPLETE - PRIVACY OPTIMIZATION" -f Yellow
         start-sleep 10
     
 }
@@ -497,7 +497,7 @@ Function settings_customize {
     
     # Remove 
     Do {
-        Write-Host "        - Would you like to remove Cortana? (y/n)" -f yellow -nonewline; ;
+        Write-Host "        - Would you like to remove Cortana? (y/n)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
@@ -519,7 +519,7 @@ Function settings_customize {
     
     # Remove login screensaver
     Do {
-        Write-Host "        - Disable LockScreen ScreenSaver? To prevent missing first character(y/n)" -f yellow -nonewline; ;
+        Write-Host "        - Disable LockScreen ScreenSaver? To prevent missing first character(y/n)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
@@ -535,7 +535,7 @@ Function settings_customize {
 
     # Taskbar: Hide Searchbox
     Do {
-        Write-Host "        - Hide Searchbox in the taskbar? (y/n)" -f yellow -nonewline; ;
+        Write-Host "        - Hide Searchbox in the taskbar? (y/n)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
@@ -548,7 +548,7 @@ Function settings_customize {
         
     # Taskbar: Hide task view button
     Do {
-        Write-Host "        - Hide task view button? (y/n)" -f yellow -nonewline; ;
+        Write-Host "        - Hide task view button? (y/n)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
@@ -564,7 +564,7 @@ Function settings_customize {
 
     # Show file extensions
     Do {
-        Write-Host "        - Show known filetype extensions? (y/n)" -f yellow -nonewline; ;
+        Write-Host "        - Show known filetype extensions? (y/n)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
@@ -580,7 +580,7 @@ Function settings_customize {
             
     # Show hidden files
     Do {
-        Write-Host "        - Show hidden files? (y/n)" -f yellow -nonewline; ;
+        Write-Host "        - Show hidden files? (y/n)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
@@ -596,7 +596,7 @@ Function settings_customize {
 
     # Enable Windows Dark Mode
     Do {
-        Write-Host "        - Enable Dark Mode (y/n)" -f yellow -nonewline; ;
+        Write-Host "        - Enable Dark Mode (y/n)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
@@ -610,7 +610,7 @@ Function settings_customize {
           
     # Change Explorer to "This PC"
     Do {
-        Write-Host "        - Change Explorer to 'This PC'? (y/n)" -f yellow -nonewline; ;
+        Write-Host "        - Change Explorer to 'This PC'? (y/n)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
@@ -623,7 +623,7 @@ Function settings_customize {
         
     # Start Menu: Disable Bing Search Results
     Do {
-        Write-Host "        - Disable Bing Search Results in StartMenu? (y/n)" -f yellow -nonewline; ;
+        Write-Host "        - Disable Bing Search Results in StartMenu? (y/n)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
@@ -636,7 +636,7 @@ Function settings_customize {
 
     # Remove 3D objects
     Do {
-        Write-Host "        - Remove '3D Objects' shortcuts? (y/n)" -f yellow -nonewline; ;
+        Write-Host "        - Remove '3D Objects' shortcuts? (y/n)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
@@ -652,7 +652,7 @@ Function settings_customize {
 
     # Install Hyper-V
     Do {
-        Write-Host "        - Install Hyper-V? (y/n)" -f yellow -nonewline; ;
+        Write-Host "        - Install Hyper-V? (y/n)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
@@ -681,7 +681,7 @@ Function settings_customize {
 
     # Install Linux Sub-system
     Do {
-        Write-Host "        - Install Linux Sub-system? (y/n)" -f yellow -nonewline; ;
+        Write-Host "        - Install Linux Sub-system? (y/n)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
@@ -698,7 +698,7 @@ Function settings_customize {
     } While ($answer -notin "y", "n")         
 
     Do {
-        Write-Host "        - Removing extra fax and printer? (XPS, Fax, PDF, OneNote)" -f yellow -nonewline; ;
+        Write-Host "        - Removing extra fax and printer? (XPS, Fax, PDF, OneNote)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
@@ -753,14 +753,14 @@ Function app_installer {
             "";
             
             Do {
-                Write-Host "`tWould you like to Install Microsoft .NET Framework? (y/n)" -f yellow -nonewline; ;
+                Write-Host "`tWould you like to Install Microsoft .NET Framework? (y/n)" -f Yellow -nonewline; ;
                 $answer = Read-Host " " 
                 Switch ($answer) { 
                     Y {
-                        Write-Host "`t`t- Download.." -f yellow 
+                        Write-Host "`t`t- Download.." -f Yellow 
                         iwr -useb 'https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/other/Dotnetinstaller.ps1' -OutFile "$($env:TMP)\visualplusplus.ps1"
                         Start-Sleep -S 3
-                        Write-Host "`t`t- Installing.." -f yellow 
+                        Write-Host "`t`t- Installing.." -f Yellow 
                         start-process powershell -argument "-ep bypass -windowstyle Hidden -file `"$($env:TMP)\visualplusplus.ps1`""
                         Start-Sleep -S 3
                         Remove-item "$($env:TMP)\visualplusplus.ps1" | Out-Null
@@ -770,7 +770,7 @@ Function app_installer {
             While ($answer -notin "y", "n")
             
             Do {
-                Write-Host "`tWould you like to install all Microsoft Visual C++ Redistributable versions? (y/n)" -f yellow -nonewline; ;
+                Write-Host "`tWould you like to install all Microsoft Visual C++ Redistributable versions? (y/n)" -f Yellow -nonewline; ;
                 $answer = Read-Host " " 
                 Switch ($answer) { 
                     Y {
@@ -784,15 +784,15 @@ Function app_installer {
                             if(!(test-path $path)){New-Item $path -ItemType Directory -ea SilentlyContinue | Out-Null}
                         $FileDestination = "$($env:TMP)\Visual\drivers.zip"
                         
-                        Write-Host "`t`t- Download.." -f yellow
+                        Write-Host "`t`t- Download.." -f Yellow
                         $link =  "https://drive.google.com/uc?export=download&confirm=uc-download-link&id=1mHvNVA_pI0XnWyjRDNee0vhQxLp6agp_"
                         (New-Object net.webclient).Downloadfile($link, $FileDestination)
                     
-                        Write-Host "`t`t- Extracting.." -f yellow
+                        Write-Host "`t`t- Extracting.." -f Yellow
                         Expand-Archive $FileDestination -DestinationPath $path | Out-Null; 
                         start-sleep -s 5
                     
-                        Write-Host "`t`t- Installing.." -f yellow
+                        Write-Host "`t`t- Installing.." -f Yellow
                         Set-Location $path
                         ./vcredist2005_x64.exe /q | Out-Null
                         ./vcredist2008_x64.exe /qb | Out-Null
@@ -807,16 +807,18 @@ Function app_installer {
 
 
         #check if chocolatey is installed
+        Write-Host "`t- Preparing application installer:" -f Green
         if (!(Test-Path "$($env:ProgramData)\chocolatey\choco.exe")) { 
             # installing chocolatey
-            Write-host "      application not found. Installing:" -f green
-            Write-host "        - Preparing system.." -f yellow
+            Write-host "`t`t- Chocolatey not found on system:" -f Yellow
+            Write-host "`t`t`t- Application not found. Installing:" -f Yellow
+            Write-host "`t`t`t- Preparing system.." -f Yellow
             Set-ExecutionPolicy Bypass -Scope Process -Force;
             # Downloading installtion file from original source
-            Write-host "        - Downloading script.." -f yellow
+            Write-host "`t`t`t- Downloading script.." -f Yellow
             (New-Object System.Net.WebClient).DownloadFile("https://chocolatey.org/install.ps1","$env:TMP/choco-install.ps1")
             # Adding a few lines to make installtion more silent.
-            Write-host "        - Preparing script.." -f yellow
+            Write-host "`t`t`t- Preparing script.." -f Yellow
             $add_line1 = "((Get-Content -path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1 -Raw) -replace '\| write-Output', ' | out-null' ) | Set-Content -Path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1; "
             $add_line2 = "((Get-Content -path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1 -Raw) -replace 'write-', '#write-' ) | Set-Content -Path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1; "
             $add_line3 = "((Get-Content -path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1 -Raw) -replace 'function.* #write-', 'function Write-' ) | Set-Content -Path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1;"
@@ -824,41 +826,41 @@ Function app_installer {
             ((Get-Content -path $env:TMP/choco-install.ps1 -Raw) -replace '#endregion Download & Extract Chocolatey', "$add_line1`n$add_line2`n$add_line3" ) | Set-Content -Path $env:TMP/choco-install.ps1
             # Executing installation file.
             cd $env:TMP
-            Write-host "        - Installing.." -f yellow
+            Write-host "`t`t`t- Installing.." -f Yellow
             .\choco-install.ps1
-            Write-host "        - Installation complete.." -f yellow}
+            Write-host "`t`t`t- Installation complete.." -f Yellow}
         else { write-host "appinstaller already installed on this system. skipping installation." }
     
 
 
 
-            write-host "    BROWSER:" -f yellow
-            write-host "        Chrome        Firefox      Opera" -f green
-            write-host "        Brave         Opera        Vevaldi" -f green
+            write-host "`t`tBROWSER:" -f Yellow
+            write-host "`t`t`tChrome        Firefox      Opera" -f green
+            write-host "`t`t`tBrave         Opera        Vevaldi" -f green
             "";
-            write-host "    TOOLS:" -f yellow
-            write-host "        Dropbox       Google Drive    Teamviewer" -f green
-            write-host "        7-zip         Winrar          Greenshot" -f green
-            write-host "        ShareX        Gimp            Visual studio++" -f green
+            write-host "`t`tTOOLS:" -f Yellow
+            write-host "`t`t`tDropbox       Google Drive    Teamviewer" -f green
+            write-host "`t`t`t7-zip         Winrar          Greenshot" -f green
+            write-host "`t`t`tShareX        Gimp            Visual studio++" -f green
             "";
-            write-host "    MEDIA PLAYER:" -f yellow
-            write-host "        Spotify       VLC           Itunes" -f green
-            write-host "        Winamp        Foobar2000    K-Lite" -f green
-            write-host "        MPC-HC        Popcorntime         " -f green
+            write-host "`t`tMEDIA PLAYER:" -f Yellow
+            write-host "`t`t`tSpotify       VLC           Itunes" -f green
+            write-host "`t`t`tWinamp        Foobar2000    K-Lite" -f green
+            write-host "`t`t`tMPC-HC        Popcorntime         " -f green
             "";
-            write-host "    Development:" -f yellow
-            write-host "        Notepad++       vscode           atom" -f green
-            write-host "        Vim             Eclipse          PyCharm" -f green
-            write-host "        PuTTY           Superputty       TeraTerm" -f green
-            write-host "        Filezilla       WinSCP           mRemoteNG" -f green
-            write-host "        Wireshark       git              Github Desktop" -f green
+            write-host "`t`tDevelopment:" -f Yellow
+            write-host "`t`t`tNotepad++       vscode           atom" -f green
+            write-host "`t`t`tVim             Eclipse          PyCharm" -f green
+            write-host "`t`t`tPuTTY           Superputty       TeraTerm" -f green
+            write-host "`t`t`tFilezilla       WinSCP           mRemoteNG" -f green
+            write-host "`t`t`tWireshark       git              Github Desktop" -f green
             "";
-            write-host "    Social:" -f yellow
-            write-host "        Webex           Zoom           Microsoft Teams" -f green
-            write-host "        Discord         Twitch         Ubisoft-Connect" -f green
-            write-host "        Steam" -f green
+            write-host "`t`tSocial:" -f Yellow
+            write-host "`t`t`tWebex           Zoom           Microsoft Teams" -f green
+            write-host "`t`t`tDiscord         Twitch         Ubisoft-Connect" -f green
+            write-host "`t`t`tSteam" -f green
             "";
-            Write-host "    ** List multiple programs seperated by , (comma) - spaces are allowed." -f yellow;
+            Write-host "    ** List multiple programs seperated by , (comma) - spaces are allowed." -f Yellow;
             "";
             Write-host "Type the programs you would like to be installed on this system" -nonewline; 
             
@@ -867,54 +869,54 @@ Function app_installer {
             foreach ($requested_app in $requested_apps) {
                 if("cancel" -eq "$requested_app"){Write-Output "Skipping this section.."}
                 # Browsers
-                elseif("Firefox" -match "$requested_app"){Write-host "        - installing firefox.." -f yellow -nonewline; choco install firefox -y | out-null;write-host "          [ COMPLETE ]" -f green;} 
-                elseif("Chrome" -match "$requested_app"){Write-host "        - installing Chrome.." -f yellow -nonewline; choco install googlechrome -y | out-null;write-host "           [ COMPLETE ]" -f green;} 
-                elseif("Brave" -match "$requested_app"){Write-host "        - installing Brave.." -f yellow -nonewline; choco install Brave -y | out-null;write-host "            [ COMPLETE ]" -f green;} 
-                elseif("Opera" -match "$requested_app"){Write-host "        - installing Opera.." -f yellow -nonewline; choco install opera -y | out-null;write-host "            [ COMPLETE ]" -f green;} 
-                elseif("Vivaldi" -match "$requested_app"){Write-host "        - installing Vivaldi.." -f yellow -nonewline; choco install Vivaldi -y | out-null;write-host "          [ COMPLETE ]" -f green;} 
+                elseif("Firefox" -match "$requested_app"){Write-host "        - installing firefox.." -f Yellow -nonewline; choco install firefox -y | out-null;write-host "          [ COMPLETE ]" -f green;} 
+                elseif("Chrome" -match "$requested_app"){Write-host "        - installing Chrome.." -f Yellow -nonewline; choco install googlechrome -y | out-null;write-host "           [ COMPLETE ]" -f green;} 
+                elseif("Brave" -match "$requested_app"){Write-host "        - installing Brave.." -f Yellow -nonewline; choco install Brave -y | out-null;write-host "            [ COMPLETE ]" -f green;} 
+                elseif("Opera" -match "$requested_app"){Write-host "        - installing Opera.." -f Yellow -nonewline; choco install opera -y | out-null;write-host "            [ COMPLETE ]" -f green;} 
+                elseif("Vivaldi" -match "$requested_app"){Write-host "        - installing Vivaldi.." -f Yellow -nonewline; choco install Vivaldi -y | out-null;write-host "          [ COMPLETE ]" -f green;} 
                 # Tools
-                elseif("Dropbox" -match "$requested_app"){Write-host "        - installing Dropbox.." -f yellow -nonewline; choco install dropbox -y | out-null;write-host "          [ COMPLETE ]" -f green;} 
-                elseif("Google Drive" -match "$requested_app"){Write-host "        - installing Google Drive.." -f yellow -nonewline; choco install googledrive -y | out-null;write-host "     [ COMPLETE ]" -f green;} 
-                elseif("TeamViewer" -match "$requested_app"){Write-host "        - installing TeamViewer.." -f yellow -nonewline; choco install TeamViewer -y | out-null;write-host "       [ COMPLETE ]" -f green;} 
-                elseif("7-zip" -match "$requested_app"){Write-host "        - installing 7-Zip.." -f yellow -nonewline; choco install 7Zip -y | out-null;write-host "            [ COMPLETE ]" -f green;} 
-                elseif("winrar" -match "$requested_app"){Write-host "        - installing Winrar.." -f yellow -nonewline; choco install winrar -y | out-null;write-host "           [ COMPLETE ]" -f green;} 
-                elseif("Greenshot" -match "$requested_app"){Write-host "        - installing Greenshot.." -f yellow -nonewline; choco install Greenshot -y | out-null;write-host "        [ COMPLETE ]" -f green;} 
-                elseif("ShareX" -match "$requested_app"){Write-host "        - installing Sharex.." -f yellow -nonewline; choco install Sharex -y | out-null;write-host "           [ COMPLETE ]" -f green;} 
-                elseif("Gimp" -match "$requested_app"){Write-host "        - installing Gimp.." -f yellow -nonewline; choco install Gimp -y | out-null;write-host "             [ COMPLETE ]" -f green;} 
-                elseif("Visual studio++" -match "$requested_app"){Write-host "        - installing Visual studio++.." -f yellow -nonewline; choco install vcredist140 -y | out-null;write-host "  [ COMPLETE ]" -f green;} 
+                elseif("Dropbox" -match "$requested_app"){Write-host "        - installing Dropbox.." -f Yellow -nonewline; choco install dropbox -y | out-null;write-host "          [ COMPLETE ]" -f green;} 
+                elseif("Google Drive" -match "$requested_app"){Write-host "        - installing Google Drive.." -f Yellow -nonewline; choco install googledrive -y | out-null;write-host "     [ COMPLETE ]" -f green;} 
+                elseif("TeamViewer" -match "$requested_app"){Write-host "        - installing TeamViewer.." -f Yellow -nonewline; choco install TeamViewer -y | out-null;write-host "       [ COMPLETE ]" -f green;} 
+                elseif("7-zip" -match "$requested_app"){Write-host "        - installing 7-Zip.." -f Yellow -nonewline; choco install 7Zip -y | out-null;write-host "            [ COMPLETE ]" -f green;} 
+                elseif("winrar" -match "$requested_app"){Write-host "        - installing Winrar.." -f Yellow -nonewline; choco install winrar -y | out-null;write-host "           [ COMPLETE ]" -f green;} 
+                elseif("Greenshot" -match "$requested_app"){Write-host "        - installing Greenshot.." -f Yellow -nonewline; choco install Greenshot -y | out-null;write-host "        [ COMPLETE ]" -f green;} 
+                elseif("ShareX" -match "$requested_app"){Write-host "        - installing Sharex.." -f Yellow -nonewline; choco install Sharex -y | out-null;write-host "           [ COMPLETE ]" -f green;} 
+                elseif("Gimp" -match "$requested_app"){Write-host "        - installing Gimp.." -f Yellow -nonewline; choco install Gimp -y | out-null;write-host "             [ COMPLETE ]" -f green;} 
+                elseif("Visual studio++" -match "$requested_app"){Write-host "        - installing Visual studio++.." -f Yellow -nonewline; choco install vcredist140 -y | out-null;write-host "  [ COMPLETE ]" -f green;} 
                 # Media Player
-                elseif("spotify" -match "$requested_app"){Write-host "        - installing spotify.." -f yellow -nonewline; choco install spotify -y | out-null;write-host "          [ COMPLETE ]" -f green;}  
-                elseif("VLC" -match "$requested_app"){Write-host "        - installing VLC.." -f yellow -nonewline; choco install VLC -y | out-null;write-host "              [ COMPLETE ]" -f green;}  
-                elseif("itunes" -match "$requested_app"){Write-host "        - installing itunes.." -f yellow -nonewline; choco install itunes -y | out-null;write-host "           [ COMPLETE ]" -f green;}  
-                elseif("Winamp" -match "$requested_app"){Write-host "        - installing Winamp.." -f yellow -nonewline; choco install Winamp -y | out-null;write-host "           [ COMPLETE ]" -f green;}  
-                elseif("foobar2000" -match "$requested_app"){Write-host "        - installing foobar2000.." -f yellow -nonewline; choco install foobar2000 -y | out-null;write-host "       [ COMPLETE ]" -f green;}  
-                elseif("K-lite" -match "$requested_app"){Write-host "        - installing K-Lite.." -f yellow -nonewline; choco install k-litecodecpackfull -y | out-null;write-host "           [ COMPLETE ]" -f green;}  
-                elseif("MPC-HC" -match "$requested_app"){Write-host "        - installing MPC-HC.." -f yellow -nonewline; choco install MPC-HC -y | out-null;write-host "           [ COMPLETE ]" -f green;}  
-                elseif("popcorn" -match "$requested_app"){Write-host "        - installing Popcorntime.." -f yellow -nonewline; choco install popcorntime -y | out-null;write-host "      [ COMPLETE ]" -f green;}  
+                elseif("spotify" -match "$requested_app"){Write-host "        - installing spotify.." -f Yellow -nonewline; choco install spotify -y | out-null;write-host "          [ COMPLETE ]" -f green;}  
+                elseif("VLC" -match "$requested_app"){Write-host "        - installing VLC.." -f Yellow -nonewline; choco install VLC -y | out-null;write-host "              [ COMPLETE ]" -f green;}  
+                elseif("itunes" -match "$requested_app"){Write-host "        - installing itunes.." -f Yellow -nonewline; choco install itunes -y | out-null;write-host "           [ COMPLETE ]" -f green;}  
+                elseif("Winamp" -match "$requested_app"){Write-host "        - installing Winamp.." -f Yellow -nonewline; choco install Winamp -y | out-null;write-host "           [ COMPLETE ]" -f green;}  
+                elseif("foobar2000" -match "$requested_app"){Write-host "        - installing foobar2000.." -f Yellow -nonewline; choco install foobar2000 -y | out-null;write-host "       [ COMPLETE ]" -f green;}  
+                elseif("K-lite" -match "$requested_app"){Write-host "        - installing K-Lite.." -f Yellow -nonewline; choco install k-litecodecpackfull -y | out-null;write-host "           [ COMPLETE ]" -f green;}  
+                elseif("MPC-HC" -match "$requested_app"){Write-host "        - installing MPC-HC.." -f Yellow -nonewline; choco install MPC-HC -y | out-null;write-host "           [ COMPLETE ]" -f green;}  
+                elseif("popcorn" -match "$requested_app"){Write-host "        - installing Popcorntime.." -f Yellow -nonewline; choco install popcorntime -y | out-null;write-host "      [ COMPLETE ]" -f green;}  
                 # Development
-                elseif("notepad++" -match "$requested_app"){Write-host "        - installing Notepad++.." -f yellow -nonewline; choco install notepadplusplus -y | out-null;write-host "        [ COMPLETE ]" -f green;}  
-                elseif("vscode" -match "$requested_app"){Write-host "        - installing vscode.." -f yellow -nonewline; choco install vscode -y | out-null;write-host "           [ COMPLETE ]" -f green;}  
-                elseif("atom" -match "$requested_app"){Write-host "        - installing atom.." -f yellow -nonewline; choco install atom -y | out-null;write-host "             [ COMPLETE ]" -f green;}  
-                elseif("vim" -match "$requested_app"){Write-host "        - installing vim.." -f yellow -nonewline; choco install vim -y | out-null;write-host "              [ COMPLETE ]" -f green;} 
-                elseif("Eclipse" -match "$requested_app"){Write-host "        - installing Eclipse.." -f yellow -nonewline; choco install Eclipse -y | out-null;write-host "          [ COMPLETE ]" -f green;} 
-                elseif("PyCharm" -match "$requested_app"){Write-host "        - installing PyCharm.." -f yellow -nonewline; choco install PyCharm -y | out-null;write-host "          [ COMPLETE ]" -f green;} 
-                elseif("putty" -match "$requested_app"){Write-host "        - installing putty.." -f yellow -nonewline; choco install PyCharm -y | out-null;write-host "            [ COMPLETE ]" -f green;} 
-                elseif("superputty" -match "$requested_app"){Write-host "        - installing superputty.." -f yellow -nonewline; choco install superputty -y | out-null;write-host "       [ COMPLETE ]" -f green;} 
-                elseif("teraterm" -match "$requested_app"){Write-host "        - installing teraterm.." -f yellow -nonewline; choco install teraterm -y | out-null;write-host "         [ COMPLETE ]" -f green;} 
-                elseif("Filezilla" -match "$requested_app"){Write-host "        - installing Filezilla.." -f yellow -nonewline; choco install Filezilla -y | out-null;write-host "        [ COMPLETE ]" -f green;} 
-                elseif("WinSCP" -match "$requested_app"){Write-host "        - installing WinSCP.." -f yellow -nonewline; choco install WinSCP -y | out-null;write-host "           [ COMPLETE ]" -f green;} 
-                elseif("mremoteng" -match "$requested_app"){Write-host "        - installing MRemoteNG.." -f yellow -nonewline; choco install mremoteng -y | out-null;write-host "        [ COMPLETE ]" -f green;} 
-                elseif("wireshark" -match "$requested_app"){Write-host "        - installing Wireshark.." -f yellow -nonewline; choco install wireshark -y | out-null;write-host "        [ COMPLETE ]" -f green;} 
-                elseif("git" -match "$requested_app"){Write-host "        - installing git.." -f yellow -nonewline; choco install git.install -y | out-null;write-host "              [ COMPLETE ]" -f green;}
-                elseif("GithubDesktop" -match "$requested_app"){Write-host "        - installing Github Desktop.." -f yellow -nonewline; choco install github-desktop -y | out-null;write-host "   [ COMPLETE ]" -f green;}
+                elseif("notepad++" -match "$requested_app"){Write-host "        - installing Notepad++.." -f Yellow -nonewline; choco install notepadplusplus -y | out-null;write-host "        [ COMPLETE ]" -f green;}  
+                elseif("vscode" -match "$requested_app"){Write-host "        - installing vscode.." -f Yellow -nonewline; choco install vscode -y | out-null;write-host "           [ COMPLETE ]" -f green;}  
+                elseif("atom" -match "$requested_app"){Write-host "        - installing atom.." -f Yellow -nonewline; choco install atom -y | out-null;write-host "             [ COMPLETE ]" -f green;}  
+                elseif("vim" -match "$requested_app"){Write-host "        - installing vim.." -f Yellow -nonewline; choco install vim -y | out-null;write-host "              [ COMPLETE ]" -f green;} 
+                elseif("Eclipse" -match "$requested_app"){Write-host "        - installing Eclipse.." -f Yellow -nonewline; choco install Eclipse -y | out-null;write-host "          [ COMPLETE ]" -f green;} 
+                elseif("PyCharm" -match "$requested_app"){Write-host "        - installing PyCharm.." -f Yellow -nonewline; choco install PyCharm -y | out-null;write-host "          [ COMPLETE ]" -f green;} 
+                elseif("putty" -match "$requested_app"){Write-host "        - installing putty.." -f Yellow -nonewline; choco install PyCharm -y | out-null;write-host "            [ COMPLETE ]" -f green;} 
+                elseif("superputty" -match "$requested_app"){Write-host "        - installing superputty.." -f Yellow -nonewline; choco install superputty -y | out-null;write-host "       [ COMPLETE ]" -f green;} 
+                elseif("teraterm" -match "$requested_app"){Write-host "        - installing teraterm.." -f Yellow -nonewline; choco install teraterm -y | out-null;write-host "         [ COMPLETE ]" -f green;} 
+                elseif("Filezilla" -match "$requested_app"){Write-host "        - installing Filezilla.." -f Yellow -nonewline; choco install Filezilla -y | out-null;write-host "        [ COMPLETE ]" -f green;} 
+                elseif("WinSCP" -match "$requested_app"){Write-host "        - installing WinSCP.." -f Yellow -nonewline; choco install WinSCP -y | out-null;write-host "           [ COMPLETE ]" -f green;} 
+                elseif("mremoteng" -match "$requested_app"){Write-host "        - installing MRemoteNG.." -f Yellow -nonewline; choco install mremoteng -y | out-null;write-host "        [ COMPLETE ]" -f green;} 
+                elseif("wireshark" -match "$requested_app"){Write-host "        - installing Wireshark.." -f Yellow -nonewline; choco install wireshark -y | out-null;write-host "        [ COMPLETE ]" -f green;} 
+                elseif("git" -match "$requested_app"){Write-host "        - installing git.." -f Yellow -nonewline; choco install git.install -y | out-null;write-host "              [ COMPLETE ]" -f green;}
+                elseif("GithubDesktop" -match "$requested_app"){Write-host "        - installing Github Desktop.." -f Yellow -nonewline; choco install github-desktop -y | out-null;write-host "   [ COMPLETE ]" -f green;}
                 # Social
-                elseif("Microsoft Teams" -match "$requested_app"){Write-host "        - installing Microsoft Teams.." -f yellow -nonewline; choco install microsoft-teams -y | out-null;write-host "  [ COMPLETE ]" -f green;} 
-                elseif("Zoom" -match "$requested_app"){Write-host "        - installing Zoom.." -f yellow -nonewline; choco install Zoom -y | out-null;write-host "             [ COMPLETE ]" -f green;} 
-                elseif("Webex" -match "$requested_app"){Write-host "        - installing Webex.." -f yellow -nonewline; choco install webex-teams -y | out-null;choco install webex-meetings -y | out-null;  write-host "            [ COMPLETE ]" -f green;}
-                elseif("Discord" -match "$requested_app"){Write-host "        - installing Discord.." -f yellow -nonewline; choco install Discord -y | out-null;Write-host "          [ COMPLETE ]" -f green;}
-                elseif("Twitch" -match "$requested_app"){Write-host "        - installing Twitch.." -f yellow -nonewline; choco install Twitch -y | out-null;Write-host "           [ COMPLETE ]" -f green;}
-                elseif("Steam" -match "$requested_app"){Write-host "        - installing Steam.." -f yellow -nonewline; choco install Steam -y | out-null;  write-host "            [ COMPLETE ]" -f green;}
-                elseif("Ubisoft Connect" -match "$requested_app"){Write-host "        - installing Ubisoft Connect.." -f yellow -nonewline; choco install ubisoft-connect -y | out-null;write-host "  [ COMPLETE ]" -f green;}
+                elseif("Microsoft Teams" -match "$requested_app"){Write-host "        - installing Microsoft Teams.." -f Yellow -nonewline; choco install microsoft-teams -y | out-null;write-host "  [ COMPLETE ]" -f green;} 
+                elseif("Zoom" -match "$requested_app"){Write-host "        - installing Zoom.." -f Yellow -nonewline; choco install Zoom -y | out-null;write-host "             [ COMPLETE ]" -f green;} 
+                elseif("Webex" -match "$requested_app"){Write-host "        - installing Webex.." -f Yellow -nonewline; choco install webex-teams -y | out-null;choco install webex-meetings -y | out-null;  write-host "            [ COMPLETE ]" -f green;}
+                elseif("Discord" -match "$requested_app"){Write-host "        - installing Discord.." -f Yellow -nonewline; choco install Discord -y | out-null;Write-host "          [ COMPLETE ]" -f green;}
+                elseif("Twitch" -match "$requested_app"){Write-host "        - installing Twitch.." -f Yellow -nonewline; choco install Twitch -y | out-null;Write-host "           [ COMPLETE ]" -f green;}
+                elseif("Steam" -match "$requested_app"){Write-host "        - installing Steam.." -f Yellow -nonewline; choco install Steam -y | out-null;  write-host "            [ COMPLETE ]" -f green;}
+                elseif("Ubisoft Connect" -match "$requested_app"){Write-host "        - installing Ubisoft Connect.." -f Yellow -nonewline; choco install ubisoft-connect -y | out-null;write-host "  [ COMPLETE ]" -f green;}
             }
     # STEP 3 - app-updater
      
@@ -924,7 +926,7 @@ Function app_installer {
     
     
                 Do {
-                    Write-Host "        - Would you like to install auto-updater? (y/n)" -f yellow -nonewline; ;
+                    Write-Host "        - Would you like to install auto-updater? (y/n)" -f Yellow -nonewline; ;
                     $answer = Read-Host " " 
                     Switch ($answer) { 
                         Y {   
@@ -976,7 +978,7 @@ if ($admin_permissions_check) {
 
     do {
         Write-host $intro -f Yellow 
-        Write-host "Please select one of the following options:" -f yellow
+        Write-host "Please select one of the following options:" -f Yellow
         Write-host ""; Write-host "";
         Write-host "        [1] - All"
         Write-host "        [2] - Bloatware removal"
@@ -986,7 +988,7 @@ if ($admin_permissions_check) {
         "";
         Write-host "        [0] - Exit"
         Write-host ""; Write-host "";
-        Write-Host "Option: " -f yellow -nonewline; ; ;
+        Write-Host "Option: " -f Yellow -nonewline; ; ;
         $option = Read-Host
         Switch ($option) { 
             0 { exit }
