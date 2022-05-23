@@ -800,6 +800,7 @@ $appheader =
                         ./vcredist2012_x64.exe /passive /norestart | Out-Null
                         ./vcredist2013_x64.exe /passive /norestart | Out-Null
                         ./vcredist2015_2017_2019_2022_x64.exe /passive /norestart | Out-Null
+                        
                       }
                     N { Write-Host "            NO. Skipping this step." -f Red } }} 
             While ($answer -notin "y", "n")  
