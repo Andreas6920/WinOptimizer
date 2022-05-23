@@ -753,7 +753,7 @@ Function app_installer {
             "";
             
             Do {
-                Write-Host "`tWould you like to Install Microsoft .NET Framework? (y/n)" -f Yellow -nonewline; ;
+                Write-Host "`tWould you like to Install Microsoft .NET Framework? (y/n)" -f Green -nonewline; ;
                 $answer = Read-Host " " 
                 Switch ($answer) { 
                     Y {
@@ -770,7 +770,7 @@ Function app_installer {
             While ($answer -notin "y", "n")
             
             Do {
-                Write-Host "`tWould you like to install all Microsoft Visual C++ Redistributable versions? (y/n)" -f Yellow -nonewline; ;
+                Write-Host "`tWould you like to install all Microsoft Visual C++ Redistributable versions? (y/n)" -f Green -nonewline; ;
                 $answer = Read-Host " " 
                 Switch ($answer) { 
                     Y {
@@ -830,9 +830,8 @@ Function app_installer {
             .\choco-install.ps1
             Write-host "`t`t`t- Installation complete.." -f Yellow}
         else { Write-host "`t`t- Installer found. Skipping installation." -f Yellow }
-            Clear-host
 
-            Write-host $appheader -f Yellow 
+            Write-host "DESKTOP APPLICATIONS:" -f Green;""; 
 
             write-host "`t`tBROWSER:" -f Yellow
             write-host "`t`t`tChrome        Firefox      Opera" -f Green
@@ -841,7 +840,7 @@ Function app_installer {
             write-host "`t`tTOOLS:" -f Yellow
             write-host "`t`t`tDropbox       Google Drive    Teamviewer" -f Green
             write-host "`t`t`t7-zip         Winrar          Greenshot" -f Green
-            write-host "`t`t`tShareX        Gimp            Visual studio++" -f Green
+            write-host "`t`t`tShareX        Gimp            Adobe Acrobat Reader" -f Green
             "";
             write-host "`t`tMEDIA PLAYER:" -f Yellow
             write-host "`t`t`tSpotify       VLC           Itunes" -f Green
@@ -883,7 +882,7 @@ Function app_installer {
                 elseif("Greenshot" -match "$requested_app"){Write-host "        - installing Greenshot.." -f Yellow -nonewline; choco install Greenshot -y | out-null;write-host "        [ COMPLETE ]" -f Green;} 
                 elseif("ShareX" -match "$requested_app"){Write-host "        - installing Sharex.." -f Yellow -nonewline; choco install Sharex -y | out-null;write-host "           [ COMPLETE ]" -f Green;} 
                 elseif("Gimp" -match "$requested_app"){Write-host "        - installing Gimp.." -f Yellow -nonewline; choco install Gimp -y | out-null;write-host "             [ COMPLETE ]" -f Green;} 
-                elseif("Visual studio++" -match "$requested_app"){Write-host "        - installing Visual studio++.." -f Yellow -nonewline; choco install vcredist140 -y | out-null;write-host "  [ COMPLETE ]" -f Green;} 
+                elseif("Visual studio++" -match "$requested_app"){Write-host "        - installing Adobe Acrobat Reader.." -f Yellow -nonewline; choco install adobereader -y | out-null;write-host "  [ COMPLETE ]" -f Green;} 
                 # Media Player
                 elseif("spotify" -match "$requested_app"){Write-host "        - installing spotify.." -f Yellow -nonewline; choco install spotify -y | out-null;write-host "          [ COMPLETE ]" -f Green;}  
                 elseif("VLC" -match "$requested_app"){Write-host "        - installing VLC.." -f Yellow -nonewline; choco install VLC -y | out-null;write-host "              [ COMPLETE ]" -f Green;}  
@@ -918,38 +917,33 @@ Function app_installer {
                 elseif("Steam" -match "$requested_app"){Write-host "        - installing Steam.." -f Yellow -nonewline; choco install Steam -y | out-null;  write-host "            [ COMPLETE ]" -f Green;}
                 elseif("Ubisoft Connect" -match "$requested_app"){Write-host "        - installing Ubisoft Connect.." -f Yellow -nonewline; choco install ubisoft-connect -y | out-null;write-host "  [ COMPLETE ]" -f Green;}
             }
-    # STEP 3 - app-updater
-     
-    
-
-    start-process powershell -argument "-ep bypass -windowstyle Hidden -file `"C:\test\1.ps1`""
     
     
-                Do {
-                    Write-Host "        - Would you like to install auto-updater? (y/n)" -f Yellow -nonewline; ;
-                    $answer = Read-Host " " 
-                    Switch ($answer) { 
-                        Y {   
-                                if ((Get-Childitem -Path $env:ProgramData).Name  -match "Chocolatey"){
-                                #create update file
-                                write-host "        - Downloading updating script." -f Green
-                                $filepath = "$env:ProgramData\chocolatey\app-updater.ps1"
-                                Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/app-updater/app-updater.ps1" -OutFile $filepath -UseBasicParsing
+            Do {
+                Write-Host "`tWould you like to install auto-updater? (y/n)" -f Green -nonewline; ;
+                $answer = Read-Host " " 
+                Switch ($answer) { 
+                    Y {   
+                            if ((Get-Childitem -Path $env:ProgramData).Name  -match "Chocolatey"){
+                            #create update file
+                            write-host "        - Downloading updating script." -f Green
+                            $filepath = "$env:ProgramData\chocolatey\app-updater.ps1"
+                            Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/app-updater/app-updater.ps1" -OutFile $filepath -UseBasicParsing
 
-                                
-                                # Create scheduled job
-                                write-host "        - scheduling update routine." -f Green
-                                $name = 'winoptimizer-app-Updater'
-                                $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-nop -W hidden -noni -ep bypass -file $filepath"
-                                $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM"-LogonType ServiceAccount -RunLevel Highest
-                                $trigger= New-ScheduledTaskTrigger -At 12:00 -Daily
-                                $settings = New-ScheduledTaskSettingsSet -RunOnlyIfNetworkAvailable -DontStopIfGoingOnBatteries -RunOnlyIfIdle -DontStopOnIdleEnd -IdleDuration 00:05:00 -IdleWaitTimeout 03:00:00
+                            
+                            # Create scheduled job
+                            write-host "        - scheduling update routine." -f Green
+                            $name = 'winoptimizer-app-Updater'
+                            $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-nop -W hidden -noni -ep bypass -file $filepath"
+                            $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM"-LogonType ServiceAccount -RunLevel Highest
+                            $trigger= New-ScheduledTaskTrigger -At 12:00 -Daily
+                            $settings = New-ScheduledTaskSettingsSet -RunOnlyIfNetworkAvailable -DontStopIfGoingOnBatteries -RunOnlyIfIdle -DontStopOnIdleEnd -IdleDuration 00:05:00 -IdleWaitTimeout 03:00:00
 
-                                Register-ScheduledTask -TaskName $Name -Taskpath "\Microsoft\Windows\Winoptimizer\" -Settings $settings -Principal $principal -Action $action -Trigger $trigger -Force | Out-Null
-                                } else{Write-host "Chocolatey is not installed on this system." -f red}                                                    
-                        }
-                        N { Write-Host "        - NO. Skipping this step." -f Red }}
-                    } While ($answer -notin "y", "n")
+                            Register-ScheduledTask -TaskName $Name -Taskpath "\Microsoft\Windows\Winoptimizer\" -Settings $settings -Principal $principal -Action $action -Trigger $trigger -Force | Out-Null
+                            } else{Write-host "Chocolatey is not installed on this system." -f red}                                                    
+                    }
+                    N { Write-Host "        - NO. Skipping this step." -f Red }}
+                } While ($answer -notin "y", "n")
 
 
 
