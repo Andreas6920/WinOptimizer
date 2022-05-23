@@ -753,14 +753,14 @@ Function app_installer {
             "";
             
             Do {
-                Write-Host "Would you like to Install Microsoft .NET Framework? (y/n)" -f yellow -nonewline; ;
+                Write-Host "`tWould you like to Install Microsoft .NET Framework? (y/n)" -f yellow -nonewline; ;
                 $answer = Read-Host " " 
                 Switch ($answer) { 
                     Y {
-                        Write-Host "`t- Download.." -f yellow 
+                        Write-Host "`t`t- Download.." -f yellow 
                         iwr -useb 'https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/other/Dotnetinstaller.ps1' -OutFile "$($env:ProgramData)\visualplusplus.ps1"
                         Start-Sleep -S 3
-                        Write-Host "`t- Installing.." -f yellow 
+                        Write-Host "`t`t- Installing.." -f yellow 
                         start-process powershell -argument "-ep bypass -windowstyle Hidden -file `"$($env:ProgramData)\visualplusplus.ps1`""
                         Start-Sleep -S 3
                         Remove-item "$($env:ProgramData)\visualplusplus.ps1" | Out-Null
@@ -770,7 +770,7 @@ Function app_installer {
             While ($answer -notin "y", "n")
             
             Do {
-                Write-Host "Would you like to install all Microsoft Visual C++ Redistributable versions? (y/n)" -f yellow -nonewline; ;
+                Write-Host "`tWould you like to install all Microsoft Visual C++ Redistributable versions? (y/n)" -f yellow -nonewline; ;
                 $answer = Read-Host " " 
                 Switch ($answer) { 
                     Y {
@@ -784,15 +784,15 @@ Function app_installer {
                             if(!(test-path $path)){New-Item $path -ItemType Directory -ea SilentlyContinue | Out-Null}
                         $FileDestination = "$($env:TMP)\Visual\drivers.zip"
                         
-                        Write-Host "`t- Download.." -f yellow
+                        Write-Host "`t`t- Download.." -f yellow
                         $link =  "https://drive.google.com/uc?export=download&confirm=uc-download-link&id=1mHvNVA_pI0XnWyjRDNee0vhQxLp6agp_"
                         (New-Object net.webclient).Downloadfile($link, $FileDestination)
                     
-                        Write-Host "`t- Extracting.." -f yellow
+                        Write-Host "`t`t- Extracting.." -f yellow
                         Expand-Archive $FileDestination -DestinationPath $path | Out-Null; 
                         start-sleep -s 5
                     
-                        Write-Host "`t- Installing.." -f yellow
+                        Write-Host "`t`t- Installing.." -f yellow
                         Set-Location $path
                         ./vcredist2005_x64.exe /q | Out-Null
                         ./vcredist2008_x64.exe /qb | Out-Null
