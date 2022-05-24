@@ -655,7 +655,7 @@ Function settings_customize {
                     Install-WindowsFeature -Name "Hyper-V" -IncludeManagementTools -WarningAction SilentlyContinue | Out-Null}
                 Else { Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Hyper-V-All" -NoRestart -WarningAction SilentlyContinue | Out-Null }
                 $ProgressPreference = "Continue" #unhide progressbar 
-                Write-Host `t`t- Installation complete. Restart PC to take effect." -f Green
+                Write-Host "`t`t- Installation complete. Restart PC to take effect." -f Green;
             }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
