@@ -19,8 +19,7 @@
         # Get the specific driver download link from microsoft's official github page
         $link = "https://github.com/"+(Invoke-WebRequest -Uri 'https://github.com/microsoft/dotnet/tree/master/releases'  | Select-Object -ExpandProperty Links | Where-Object innerHTML -match $latest.Trim()).href
         $link = (Invoke-WebRequest -Uri $link | Select-Object -ExpandProperty Links | Where-Object innerHTML -match "Download").href
-
-        # Download
+        # Download installation file
         $path = "$($env:USERPROFILE)\Desktop\"+"Dotnet.exe"   
         (New-Object net.webclient).Downloadfile($link, $path)
 

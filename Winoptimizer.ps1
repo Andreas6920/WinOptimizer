@@ -4,166 +4,180 @@ Clear-Host
 
 #Functions
 Function remove_bloatware {
-    Write-host "  REMOVING MICROSOFT BLOAT" -f Green
-    #Cleaning Apps and Features
-        Write-host "      CLEANING - Apps and Features" -f Green
-        start-sleep 5 
-        $ProgressPreference = "SilentlyContinue" #hide progressbar
-
-        Write-host "        - Removing bloated Microsoft apps, games, tools etc.." -f Yellow
+    Write-host "REMOVING MICROSOFT BLOAT" -f Green;"";
+    # Clean Apps and features
+    Write-host "`tCleaning Bloatware:" -f Green
+    start-sleep -s 5
+        
+        $ProgressPreference = "SilentlyContinue" #hide progressbar      
         start-sleep 3
         $Bloatware = @(		
-            # Microsoft Bloat ##
-            "Microsoft.ZuneMusic"
-            "Microsoft.MicrosoftSolitaireCollection"
-            "Microsoft.MicrosoftOfficeHub"
-            "Microsoft.Microsoft3DViewer"
-            "Microsoft.MicrosoftStickyNotes"
+            ## Microsoft Bloat ##
+            "*Mixed*"
+            "*autodesksketch*"
+            "*feedback*"
+            "*maps*"
+            "*officehub*"
+            "*oneconnect*"
+            "*plex*"
+            "*print3d*"
+            "*windowscommunicationsapps*"
+            "Microsoft.3DBuilder"
             "Microsoft.Getstarted"
+            "Microsoft.Microsoft3DViewer"
+            "Microsoft.MicrosoftOfficeHub"
+            "Microsoft.MicrosoftSolitaireCollection"
+            "Microsoft.MicrosoftStickyNotes"
+            "Microsoft.Music.Preview"
             "Microsoft.Office.OneNote"
             "Microsoft.People"
-            "Microsoft.3DBuilder"
-            "*officehub*"
-            "*feedback*"
-            "Microsoft.Music.Preview"
             "Microsoft.WindowsMaps"
-            "*windowscommunicationsapps*"
-            "*autodesksketch*"
-            "*plex*"
-            "*maps*"
-            "*print3d*"
-            "*Paint3D*"
-            "*Mixed*"
-            "*oneconnect*"
+            "Microsoft.ZuneMusic"
                                                 
             ## Xbox Bloat ##
-            "Microsoft.XboxGameCallableUI"
-            "Microsoft.XboxSpeechToTextOverlay"
-            "Microsoft.XboxGameOverlay"
-            "Microsoft.XboxIdentityProvider"
-            "Microsoft.XboxGameCallableUI"
-            "Microsoft.XboxGamingOverlay"
-            "Microsoft.XboxApp"
             "Microsoft.Xbox.TCUI"
+            "Microsoft.XboxApp"
+            "Microsoft.XboxGameCallableUI"
+            "Microsoft.XboxGameCallableUI"
+            "Microsoft.XboxGameOverlay"
+            "Microsoft.XboxGamingOverlay"
+            "Microsoft.XboxIdentityProvider"
+            "Microsoft.XboxSpeechToTextOverlay"
                                                 
             ## Bing Bloat ##
-            "Microsoft.BingTravel"
-            "Microsoft.BingHealthAndFitness"
-            "Microsoft.BingFoodAndDrink"
-            "Microsoft.BingWeather"
-            "Microsoft.BingNews"
-            "Microsoft.BingFinance"
-            "Microsoft.BingSports"
-            "Microsoft.Bing*"
             "*Bing*"
+            "Microsoft.Bing*"
+            "Microsoft.BingFinance"
+            "Microsoft.BingFoodAndDrink"
+            "Microsoft.BingHealthAndFitness"
+            "Microsoft.BingNews"
+            "Microsoft.BingSports"
+            "Microsoft.BingTravel"
+            "Microsoft.BingWeather"
 
             ## Games ##
-            "*disney*"
-            "*candycrush*"
-            "*minecraft*"
-            "*bubblewitch*"
-            "*empires*"
             "*Royal Revolt*"
+            "*bubblewitch*"
+            "*candycrush*"
+            "*disney*"
+            "*empires*"
+            "*minecraft*"
                                 
             ## Other crap ##
-            "*Skype*"
-            "*Facebook*"
-            "*Twitter*"
-            "*Spotify*"
-            "*EclipseManager*"
             "*ActiproSoftwareLLC*"
             "*AdobeSystemsIncorporated.AdobePhotoshopExpress*"
             "*Duolingo-LearnLanguagesforFree*"
-            "*PandoraMediaInc*"
-            "*Wunderlist*"
+            "*EclipseManager*"
+            "*Facebook*"
             "*Flipboard*"
-        )
+            "*PandoraMediaInc*"
+            "*Skype*"
+            "*Spotify*"
+            "*Twitter*"
+            "*Wunderlist*")
+
         foreach ($Bloat in $Bloatware) {
-            $bloat_output = Get-AppxPackage | Where-Object Name -Like $Bloat | Select-Object -Property Name; #Write-Host "        - Removing: $bloat_output"
-            if ($bloat_output -ne $null) { Write-host "        - Bloat app found! Removing: " -f Yellow -nonewline; ; write-host "$bloat_output".Split(".")[1].Split("}")[0] -f Yellow }
-            Get-AppxPackage -Name $Bloat | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null
-            Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Out-Null
-        }
-        Write-host "        - CLEANED - Apps and Features" -f Yellow; $ProgressPreference = "Continue" #unhide progressbar
-        start-sleep 5    
-        Write-host "      CLEANING - Task Scheduler" -f Green
+        $bloat_output = Get-AppxPackage | Where-Object Name -Like $Bloat | Select-Object -Property Name;
+        if ($bloat_output -ne $null) { Write-host "`t`t- Removing: " -f Yellow -nonewline; ; write-host "$bloat_output".Split(".")[1].Split("}")[0] -f Yellow }
+        Get-AppxPackage -Name $Bloat | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null
+        Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Out-Null}
+        $ProgressPreference = "Continue" #unhide progressbar
+        write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
+        
+        
+    # Clean Task Scheduler
+        Write-host "`tCleaning Scheduled tasks:" -f Green
+        start-sleep -s 5
         $Bloatschedules = @(
-                "XblGameSaveTaskLogon"
-                "XblGameSaveTask"
-                "Consolidator"
-                "UsbCeip"
-                "DmClient"
-                "DmClientOnScenarioDownload"
-                )
+            "AitAgent" 
+            "AnalyzeSystem" 
+            "Automatic App Update" 
+            "BthSQM" 
+            "Consolidator"
+            "Consolidator" 
+            "CreateObjectTask" 
+            "Diagnostics" 
+            "DmClient"
+            "DmClientOnScenarioDownload"
+            "DsSvcCleanup" 
+            "EnableLicenseAcquisition" 
+            "FamilySafetyMonitor" 
+            "FamilySafetyMonitorToastTask" 
+            "FamilySafetyRefresh" 
+            "FamilySafetyRefreshTask" 
+            "FamilySafetyUpload" 
+            "File History (maintenance mode)" 
+            "GatherNetworkInfo" 
+            "KernelCeipTask" 
+            "License Validation" 
+            "LicenseAcquisition" 
+            "LoginCheck" 
+            "Microsoft Compatibility Appraiser" 
+            "Microsoft-Windows-DiskDiagnosticDataCollector" 
+            "ProgramDataUpdater" 
+            "Proxy" 
+            "QueueReporting" 
+            "RecommendedTroubleshootingScanner" 
+            "Registration" 
+            "Scheduled" 
+            "SmartScreenSpecific" 
+            "Sqm-Tasks" 
+            "StartupAppTask" 
+            "TempSignedLicenseExchange" 
+            "Uploader" 
+            "UsbCeip"
+            "UsbCeip" 
+            "WinSAT" 
+            "XblGameSaveTask")
+
             foreach ($BloatSchedule in $BloatSchedules) {
             if ((Get-ScheduledTask | Where-Object state -ne Disabled | Where-Object TaskName -like $BloatSchedule)){
-            Write-host "        - Bloat found in Task Scheduler! Disabling: $BloatSchedule" -f Yellow
+            Write-host "`t`t- Disabling: $BloatSchedule" -f Yellow
             Get-ScheduledTask | Where-Object Taskname -eq $BloatSchedule | Disable-ScheduledTask | Out-Null}}
-            Write-host "        - CLEANED - Task Scheduler" -f Yellow;
+            write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
             
         
         
-    #Unpin start menu
-        Write-host "      CLEANING - Start Menu" -f Green
+    # Clean start menu
+        Write-host "`tCleaning Start Menu:" -f Green
+        start-sleep -s 5
+    
+        # Prepare
+        $link = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/StartMenuLayout.xml"
+        $layoutFile = "$($env:SystemRoot)\StartMenuLayout.xml"
+        $keys = "HKLM:\Software\Policies\Microsoft\Windows\Explorer","HKCU:\Software\Policies\Microsoft\Windows\Explorer"; 
+            
+        # Download blank Start Menu file
+        Write-Host "`t`t- Downloading Start Menu file..." -f Yellow;
+        iwr -useb $link -OutFile $layoutFile; Start-Sleep -S 3
+                        
+        # Unlock start menu, disable pinning, replace with blank file
+        Write-Host "`t`t- Unlocking and replacing current file..." -f Yellow;
+        $keys | % { if(!(test-path $_)){ New-Item -Path $_ -Force | Out-Null; Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 1; Set-ItemProperty -Path $_ -Name "StartLayoutFile" -Value $layoutFile } }
+        Write-host "`t`t- Restarting explorer..." -f Yellow
+        Stop-Process -name explorer -Force; Start-Sleep -s 5
 
-    $START_MENU_LAYOUT = @"
-<LayoutModificationTemplate xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" Version="1" xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification">
-    <LayoutOptions StartTileGroupCellWidth="6" />
-    <DefaultLayoutOverride>
-        <StartLayoutCollection>
-            <defaultlayout:StartLayout GroupCellWidth="6" />
-        </StartLayoutCollection>
-    </DefaultLayoutOverride>
-</LayoutModificationTemplate>
-"@
+        # Enable pinning
+        Write-host "`t`t- Fixing pinning..." -f Yellow
+        $keys | % { Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 0 }
+        Write-host "`t`t- Restarting explorer..." -f Yellow
+        Stop-Process -name explorer -Force; Start-Sleep -s 5
+
+        # Save menu to all users
+        write-host "`t`t- Save changes to all users.." -f Yellow
+        Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
+
+        # Clean up after script
+        Remove-Item $layoutFile
+        write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
     
 
-        $layoutFile = "$env:SystemRoot\StartMenuLayout.xml"
-                
-        start-sleep 5
-        #Delete layout file if it already exists
-        Write-Host "        - Removing current Start Menu..." -f Yellow
-        If (Test-Path $layoutFile) {
-            Remove-Item $layoutFile
-        }
-
-        #Creates the blank layout file
-        Write-host "        - Creates and applying a new blank start menu..." -f Yellow
-        $START_MENU_LAYOUT | Out-File $layoutFile -Encoding ASCII
-        $regAliases = @("HKLM", "HKCU")
-
-        #Assign the start layout and force it to apply with "LockedStartLayout" at both the machine and user level
-        foreach ($regAlias in $regAliases) {
-            $basePath = $regAlias + ":\Software\Policies\Microsoft\Windows"
-            $keyPath = $basePath + "\Explorer" 
-            IF (!(Test-Path -Path $keyPath)) { 
-                New-Item -Path $basePath -Name "Explorer" | Out-Null
-            }
-            Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 1
-            Set-ItemProperty -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile
-        }
-
-        #Restart Explorer, open the start menu (necessary to load the new layout), and give it a few seconds to process
-        Write-host "        - Restarting explorer..." -f Yellow
-        Stop-Process -name explorer -Force
-        Start-Sleep -s 5
-
-        #Enable the ability to pin items again by disabling "LockedStartLayout"
-        foreach ($regAlias in $regAliases) {
-            $basePath = $regAlias + ":\Software\Policies\Microsoft\Windows"
-            $keyPath = $basePath + "\Explorer" 
-            Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 0
-        }
-        Stop-Process -name explorer
-        write-host "        - Save changes to all users.." -f Yellow
-        Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
-        Remove-Item $layoutFile
-        write-host "        - CLEANED - Start Menu" -f Yellow
         
-    #Clean Taskbar
-        Write-host "      CLEANING - Taskbar" -f Green
+    # Clean Taskbar
+        Write-host "`tCleaning Taskbar:" -f Green
         start-sleep -s 5
-        write-host "        - Changing keys.." -f Yellow
+        
+        write-host "`t`t- Changing keys.." -f Yellow
         Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesChanges -Value 3 -Type Dword -Force | Out-Null
         Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesRemovedChanges -Value 32 -Type Dword -Force | Out-Null
         Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesVersion -Value 3 -Type Dword -Force | Out-Null
@@ -172,22 +186,33 @@ Function remove_bloatware {
         Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Search -Name SearchboxTaskbarMode -Value 0 -Type Dword | Out-Null
         set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowTaskViewButton -Type DWord -Value 0 | Out-Null
 
-        write-host "        - Removing shortcuts.." -f Yellow
+        write-host "`t`t- Removing shortcuts.." -f Yellow
         Remove-Item -Path "$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*" -Recurse -Force | Out-Null
         Stop-Process -name explorer
         start-sleep -s 5
         #Start-Process explorer
-        write-host "        - CLEANED - Taskbar" -f Yellow
+        write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
 
-    # Remove Windows pre-installed bloat printers (Fax, PDF, OneNote) These are almost never used.
-            If (!(Test-Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private")) {
-            New-Item -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Force | Out-Null
-            }
-            Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type DWord -Value 0
-            Get-Printer | Where-Object Name -cMatch "OneNote for Windows 10|Microsoft XPS Document Writer|Microsoft Print to PDF|Fax" | Remove-Printer 
+        
+    # Cleaning printers
+        Write-host "`tCleaning Printers:" -f Green
+        start-sleep -s 5    
+        
+        write-host "`t`t- Disabling auto-install printers from network.." -f Yellow
+        If (!(Test-Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private")) {
+        New-Item -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Force | Out-Null}
+        Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type DWord -Value 0
+        
+        write-host "`t`t- Removing bloat printers:" -f Yellow
+        $Bloatprinters = "Fax","OneNote for Windows 10","Microsoft XPS Document Writer", "Microsoft Print to PDF" 
+        $Bloatprinters | % {if(Get-Printer | Where-Object Name -cMatch $_){write-host "`t`t`t- Uninstalling: $_" -f Yellow; Remove-Printer $_; Start-Sleep -s 2}}
+        write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
+
+
+
             
     #END
-        write-host "      COMPLETE - BLOAT REMOVAL" -f Green
+        write-host "`tBloat Remover Complete. Your system is now clean." -f Green
         start-sleep 10
                 
 }
@@ -296,49 +321,6 @@ Function settings_privacy {
          write-host "`t`t`t- Blocking tracking service: $trackingservice" -f Yellow
          Get-Service | Where-Object name -eq $trackingservice | Set-Service -StartupType Disabled}}
          write-host "`t`t`t- Service scan complete" -f Yellow
-
-    #Disabling Scheduled tasks that logs your activity
-        Write-host "`t`tBLOCKING - scheduled taks" -f Green
-        write-host "`t`t`t- Disabling all the jobs in the background" -f Yellow
-        Start-Job -Name "Disabling scheduled tasks" -ScriptBlock {
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\AppID\" -TaskName "SmartScreenSpecific" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Application Experience\" -TaskName "AitAgent" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Application Experience\" -TaskName "Microsoft Compatibility Appraiser" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Application Experience\" -TaskName "ProgramDataUpdater" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Application Experience\" -TaskName "StartupAppTask" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Autochk\" -Taskname "Proxy" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\CloudExperienceHost\" -TaskName "CreateObjectTask" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Customer Experience Improvement Program\" -TaskName "BthSQM" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Customer Experience Improvement Program\" -TaskName "Consolidator" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Customer Experience Improvement Program\" -TaskName "KernelCeipTask" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Customer Experience Improvement Program\" -TaskName "Uploader" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Customer Experience Improvement Program\" -TaskName "UsbCeip" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\DiskDiagnostic\" -TaskName "Microsoft-Windows-DiskDiagnosticDataCollector" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\DiskFootprint\" -TaskName "Diagnostics" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\FileHistory\" -Taskname "File History (maintenance mode)" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Maintenance\" -TaskName "WinSAT" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\PI\" -TaskName "Sqm-Tasks" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Power Efficiency Diagnostics\" -TaskName "AnalyzeSystem" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Shell\" -TaskName "FamilySafetyMonitor" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Shell\" -TaskName "FamilySafetyRefresh" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Shell\" -TaskName "FamilySafetyUpload" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Windows Error Reporting\" -TaskName "QueueReporting" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\WindowsUpdate\" -TaskName "Automatic App Update" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\License Manager\" -TaskName "TempSignedLicenseExchange" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Clip\" -TaskName "License Validation" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\ApplicationData\" -TaskName "DsSvcCleanup" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Power Efficiency Diagnostics\" -TaskName "AnalyzeSystem" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\PushToInstall\" -TaskName "LoginCheck" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\PushToInstall\" -TaskName "Registration" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Shell\" -TaskName "FamilySafetyMonitor" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Shell\" -TaskName "FamilySafetyMonitorToastTask" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Shell\" -TaskName "FamilySafetyRefreshTask" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Subscription\" -TaskName "EnableLicenseAcquisition" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Subscription\" -TaskName "LicenseAcquisition" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Diagnosis\" -TaskName "RecommendedTroubleshootingScanner" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\Diagnosis\" -TaskName "Scheduled" | Out-Null
-                Disable-ScheduledTask -TaskPath "\Microsoft\Windows\NetTrace\" -TaskName "GatherNetworkInfo" | Out-Null
-        } | Out-Null | Wait-Job
 
     # Adding entries to hosts file
         Write-host "`t`tBLOCKING - Tracking domains (This may take a while).." -f Green
@@ -959,7 +941,7 @@ $intro =
 | |/ |/ / / / / / /_/ / /_/ / /_/ / / / / / / / / /_/  __/ /    
 |__/|__/_/_/ /_/\____/ .___/\__/_/_/ /_/ /_/_/ /___/\___/_/     
                     /_/                                         
-Version 2.2
+Version 2.4
 Creator: Andreas6920 | https://github.com/Andreas6920/
                                                                                                                                                     
  "
