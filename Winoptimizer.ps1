@@ -479,11 +479,11 @@ Function settings_customize {
     
     # Remove 
     Do {
-        Write-Host "        - Would you like to remove Cortana? (y/n)" -f Yellow -nonewline; ;
+        Write-Host "`t- Would you like to remove Cortana? (y/n)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
-                Write-Host "            YES. Removing Cortana" -f Green
+                Write-Host "`t`t- YES. Remove Cortana" -f Green
                 $ProgressPreference = "SilentlyContinue" #hide progressbar
                 Get-AppxPackage -name *Microsoft.549981C3F5F10* | Remove-AppxPackage
                 If (!(Test-Path "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
@@ -494,204 +494,204 @@ Function settings_customize {
                 Stop-Process -name explorer
                 Start-Sleep -s 2
             }
-            N { Write-Host "            NO. Skipping this step." -f Red } 
+            N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
     } While ($answer -notin "y", "n")     
     
     
     # Remove login screensaver
     Do {
-        Write-Host "        - Disable LockScreen ScreenSaver? To prevent missing first character(y/n)" -f Yellow -nonewline; ;
+        Write-Host "`t- Disable LockScreen ScreenSaver? To prevent missing first character(y/n)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
-                Write-Host "            YES. Screen saver is disabled." -f Green
+                Write-Host "`t`t- YES. Disable screen saver." -f Green
                 If (!(Test-Path HKLM:\Software\Policies\Microsoft\Windows\Personalization)) {
                     New-Item -Path HKLM:\Software\Policies\Microsoft\Windows -Name Personalization | Out-Null
                 }
                 Set-ItemProperty -Path HKLM:\Software\Policies\Microsoft\Windows\Personalization -Name NoLockScreen -Type DWord -Value 1
             }
-            N { Write-Host "            NO. Skipping this step." -f Red } 
+            N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
     } While ($answer -notin "y", "n")        
 
     # Taskbar: Hide Searchbox
     Do {
-        Write-Host "        - Hide Searchbox in the taskbar? (y/n)" -f Yellow -nonewline; ;
+        Write-Host "`t- Hide Searchbox in the taskbar? (y/n)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
-                Write-Host "            YES. Getting rid of the search box." -f Green
+                Write-Host "`t`t- YES. Disable searchbox." -f Green
                 New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name SearchboxTaskbarMode -Value 0 -Type Dword -Force | Out-Null
             }
-            N { Write-Host "            NO. Skipping this step." -f Red } 
+            N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
     } While ($answer -notin "y", "n")
         
     # Taskbar: Hide task view button
     Do {
-        Write-Host "        - Hide task view button? (y/n)" -f Yellow -nonewline; ;
+        Write-Host "`t- Hide task view button? (y/n)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
-                Write-Host "            YES. task view button will be hidden." -f Green
+                Write-Host "`t`t- YES. Disable task view button." -f Green
                 If ((Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\MultiTaskingView\")) {
                     Remove-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\MultiTaskingView\" -Force | Out-Null
                 }
                 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type DWord -Value 0
             }
-            N { Write-Host "            NO. Skipping this step." -f Red } 
+            N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
     } While ($answer -notin "y", "n")
 
     # Show file extensions
     Do {
-        Write-Host "        - Show known filetype extensions? (y/n)" -f Yellow -nonewline; ;
+        Write-Host "`t- Show known filetype extensions? (y/n)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
-                Write-Host "            YES. file extensions will be shown" -f Green
+                Write-Host "`t`t- YES. Show file extensions." -f Green
                 If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
                     New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null
                 }
                 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 0
             }
-            N { Write-Host "            NO. Skipping this step." -f Red } 
+            N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
     } While ($answer -notin "y", "n")            
             
     # Show hidden files
     Do {
-        Write-Host "        - Show hidden files? (y/n)" -f Yellow -nonewline; ;
+        Write-Host "`t- Show hidden files? (y/n)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
-                Write-Host "            YES. file extensions will be shown" -f Green
+                Write-Host "`t`t- YES. Show hidden files." -f Green
                 If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
                     New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null
                 }
                 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type DWord -Value 1 
             }
-            N { Write-Host "            NO. Skipping this step." -f Red } 
+            N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
     } While ($answer -notin "y", "n")     
 
     # Enable Windows Dark Mode
     Do {
-        Write-Host "        - Enable Dark Mode (y/n)" -f Yellow -nonewline; ;
+        Write-Host "`t- Enable Dark Mode (y/n)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
-                Write-Host "            YES. Enabling Dark Mode for Windows" -f Green
+                Write-Host "`t`t- YES. Enabling Dark Mode" -f Green
                 New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name AppsUseLightTheme -Value 0 -Type Dword -Force | Out-Null
                 New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name SystemUsesLightTheme -Value 0 -Type Dword -Force | Out-Null 
             }
-            N { Write-Host "            NO. Skipping this step." -f Red } 
+            N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
     } While ($answer -notin "y", "n")               
           
     # Change Explorer to "This PC"
     Do {
-        Write-Host "        - Change Explorer to 'This PC'? (y/n)" -f Yellow -nonewline; ;
+        Write-Host "`t- Change Explorer to 'This PC'? (y/n)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
-                Write-Host "            YES. Explorer is changed." -f Green
+                Write-Host "`t`t- YES. Explorer is changed." -f Green
                 Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name LaunchTo -Type DWord -Value 1
             }
-            N { Write-Host "            NO. Skipping this step." -f Red } 
+            N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
     } While ($answer -notin "y", "n")  
         
     # Start Menu: Disable Bing Search Results
     Do {
-        Write-Host "        - Disable Bing Search Results in StartMenu? (y/n)" -f Yellow -nonewline; ;
+        Write-Host "`t- Disable Bing Search Results in StartMenu? (y/n)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
-                Write-Host "            YES. Bing is removed." -f Green
+                Write-Host "`t`t- YES. Bing is being removed." -f Green
                 Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" -Name BingSearchEnabled -Type DWord -Value 0
             }
-            N { Write-Host "            NO. Skipping this step." -f Red } 
+            N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
     } While ($answer -notin "y", "n")  
 
     # Remove 3D objects
     Do {
-        Write-Host "        - Remove '3D Objects' shortcuts? (y/n)" -f Yellow -nonewline; ;
+        Write-Host "`t- Remove '3D Objects' shortcuts? (y/n)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
-                Write-Host "            YES. Removing '3D Objects' shortcuts" -f Green
+                Write-Host "`t`t- YES. Removing '3D Objects'" -f Green
                 $3Dlocation32bit = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}"
                 $3Dlocation64bit = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A"
                 If((test-path $3Dlocation32bit )){remove-item $3Dlocation32bit}
                 If((test-path $3Dlocation64bit )){remove-item $3Dlocation64bit}
             }
-            N { Write-Host "            NO. 3D Objects will remain listed in your explorer" -f Red } 
+            N { Write-Host "`t`t- NO. 3D Objects will remain listed in your explorer" -f Red } 
         }   
     } While ($answer -notin "y", "n")  
 
     # Install Hyper-V
     Do {
-        Write-Host "        - Install Hyper-V? (y/n)" -f Yellow -nonewline; ;
+        Write-Host "`t- Install Hyper-V? (y/n)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
-                Write-Host "            YES. This may take a while.." -f Green
+                Write-Host "`t`t- YES. This may take a while.." -f Green
                 $ProgressPreference = "SilentlyContinue" #hide progressbar
                 if (((Get-WmiObject -class Win32_OperatingSystem).Caption) -match "Home"){$dst = "$env:TMP\install-hyper-v"
-                    write-host "                Windows Home detected, additional script is needed!" -f Green
+                    write-host "`t`t- Windows Home detected, additional script is needed!" -f Green
                     $file = "install.bat"
                     md "$env:TMP\install-hyper-v" -Force | out-null
                     New-Item "$dst\$file" -Force | out-null
                     $domain = Invoke-WebRequest -Uri 'https://gist.githubusercontent.com/samuel-fonseca/662a620ae32aca254ea7730be5ff7145/raw/a1de2537d5b0613e29c9ca3b9bc0ec67ff1e29a2/Hyper-V-Enabler.bat'  -UseBasicParsing
                     $domain = $domain.content; Start-sleep 1
-                    write-host "                Downloading script..." -f Green
+                    write-host "`t`t- Downloading script..." -f Green
                     Set-content "$dst\$file" $domain; Start-Sleep -S 1
-                    write-host "                Opening CMD..." -f Green
+                    write-host "`t`t- Opening CMD..." -f Green
                     start cmd -Verb RunAs -ArgumentList "/c","$dst/$file" -wait}
                 elseIf ((Get-WmiObject -Class "Win32_OperatingSystem").Caption -like "*Server*") {
                     Install-WindowsFeature -Name "Hyper-V" -IncludeManagementTools -WarningAction SilentlyContinue | Out-Null}
                 Else { Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Hyper-V-All" -NoRestart -WarningAction SilentlyContinue | Out-Null }
                 $ProgressPreference = "Continue" #unhide progressbar 
-                Write-Host "            Installation complete. Restart PC to take effect." -f Green
+                Write-Host `t`t- Installation complete. Restart PC to take effect." -f Green
             }
-            N { Write-Host "            NO. Skipping this step." -f Red } 
+            N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
     } While ($answer -notin "y", "n")  
 
     # Install Linux Sub-system
     Do {
-        Write-Host "        - Install Linux Sub-system? (y/n)" -f Yellow -nonewline; ;
+        Write-Host "`t- Install Linux Sub-system? (y/n)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
-                Write-Host "            YES. Linux-subsystem is installing.." -f Green
+                Write-Host "`t`t- YES. Linux-subsystem is installing.." -f Green
                 If ([System.Environment]::OSVersion.Version.Build -ge 14393) {
                     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" -Name "AllowDevelopmentWithoutDevLicense" -Type DWord -Value 1
                     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" -Name "AllowAllTrustedApps" -Type DWord -Value 1
                 }
                 Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-Subsystem-Linux" -NoRestart -WarningAction SilentlyContinue | Out-Null 
-                Write-Host "            Installation complete. Restart PC to take effect." -f Green 
+                Write-Host "`t`t- Installation complete. Restart PC to take effect." -f Green 
             }
-            N { Write-Host "            NO. Skipping this step." -f Red } 
+            N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
     } While ($answer -notin "y", "n")         
 
     Do {
-        Write-Host "        - Removing extra fax and printer? (XPS, Fax, PDF, OneNote)" -f Yellow -nonewline; ;
+        Write-Host "`t- Removing extra fax and printer? (XPS, Fax, PDF, OneNote)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
-                Write-Host "            YES. Removing printers.." -f Green
+                Write-Host "`t`t- YES. Removing printers.." -f Green
                 If (!(Test-Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private")) {
                 New-Item -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Force | Out-Null
                 }
                 Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type DWord -Value 0
                 Get-Printer | Where-Object Name -cMatch "OneNote for Windows 10|Microsoft XPS Document Writer|Microsoft Print to PDF|Fax" | Remove-Printer
             }
-            N { Write-Host "            NO. Skipping this step." -f Red } 
+            N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
     } While ($answer -notin "y", "n")    
 
@@ -908,13 +908,12 @@ Function app_installer {
                     Y {   
                             if ((Get-Childitem -Path $env:ProgramData).Name  -match "Chocolatey"){
                             #create update file
-                            write-host "        - Downloading updating script." -f Green
+                            write-host "`t`t- Downloading updating script." -f Yellow
                             $filepath = "$env:ProgramData\chocolatey\app-updater.ps1"
                             Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/app-updater/app-updater.ps1" -OutFile $filepath -UseBasicParsing
-
                             
                             # Create scheduled job
-                            write-host "        - scheduling update routine." -f Green
+                            write-host "`t`t- scheduling update routine." -f Yellow
                             $name = 'winoptimizer-app-Updater'
                             $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-nop -W hidden -noni -ep bypass -file $filepath"
                             $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM"-LogonType ServiceAccount -RunLevel Highest
@@ -922,9 +921,9 @@ Function app_installer {
                             $settings = New-ScheduledTaskSettingsSet -RunOnlyIfNetworkAvailable -DontStopIfGoingOnBatteries -RunOnlyIfIdle -DontStopOnIdleEnd -IdleDuration 00:05:00 -IdleWaitTimeout 03:00:00
 
                             Register-ScheduledTask -TaskName $Name -Taskpath "\Microsoft\Windows\Winoptimizer\" -Settings $settings -Principal $principal -Action $action -Trigger $trigger -Force | Out-Null
-                            } else{Write-host "Chocolatey is not installed on this system." -f red}                                                    
+                            } else{Write-host "`t`t- Chocolatey is not installed on this system." -f red}                                                    
                     }
-                    N { Write-Host "        - NO. Skipping this step." -f Red }}
+                    N { Write-Host "`t`t- NO. Skipping this step." -f Red }}
                 } While ($answer -notin "y", "n")
 
 

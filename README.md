@@ -22,7 +22,7 @@
    * Install Hyper–V, Linux<br>
  * <b>Appinstaller</b><br>
    * All-in-one .NET Framework installer<br>
-   * All-in-One Microsoft Visual C++ installer<br>
+   * All-in-one Microsoft Visual C++ installer<br>
    * Bulk install apps silently in the background<br>
    * Auto app updater, will update all apps automatically when you enjoying lunch.<br>
    * Microsoft Office installation in the background<br>
