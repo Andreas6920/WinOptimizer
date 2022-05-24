@@ -7,10 +7,11 @@
         Set-ItemProperty -Path  "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize"  -Value 1
 
     #Version 3.5 (Version 2.0 and 3.0 included)
+            Start-Job -Name "Install .NET Framework 3.5" -ScriptBlock {
             If (!(Test-Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Servicing)) {
-            New-Item -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Servicing | Out-Null}
+            New-Item -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Servicing | Out-Null}    
             Set-ItemProperty -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Servicing -Name RepairContentServerSource -Type DWord -Value 2
-            Enable-WindowsOptionalFeature -Online -FeatureName "NetFx3" | Out-Null
+            Enable-WindowsOptionalFeature -Online -FeatureName "NetFx3" | Out-Null}
 
     # Latest
         # Gather download link
@@ -25,7 +26,7 @@
         (New-Object net.webclient).Downloadfile($link, $path)
 
         # Install
-        Start-Job -Name "Install $latest" -ScriptBlock {
-        Start-Process $path -ArgumentList "/quiet /norestart"} | wait-job
-        remove-item $path
+        $job = "Install $latest"
+        Start-Job -Name $job -ScriptBlock {Start-Process $path -ArgumentList "/quiet /norestart"}
+        Wait-Job -Name $job -timeout 120 | Out-Null; Remove-Item $path
     
