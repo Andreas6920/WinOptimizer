@@ -190,7 +190,6 @@ Function remove_bloatware {
         Remove-Item -Path "$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*" -Recurse -Force | Out-Null
         Stop-Process -name explorer
         start-sleep -s 5
-        #Start-Process explorer
         write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
 
         
