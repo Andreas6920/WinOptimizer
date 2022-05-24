@@ -1,5 +1,5 @@
 # WinOptimizer
- Optimize your windows machine by removing bloat (like Xbox, Minecraft, bing, ads), optimize your privacy settings, install apps and even enable hidden features!
+ Optimize your windows system by removing bloat (like Xbox, Minecraft, bing, ads), optimize your privacy settings, install apps and even enable hidden features!
 
 ## Modules
  * <b>Cleaning Windows 10 from bloat</b><br>
@@ -21,8 +21,11 @@
    * Show filetype, hidden files<br>
    * Install Hyper–V, Linux<br>
  * <b>Appinstaller</b><br>
-   * Bulk install apps silently<br>
+   * All-in-one .NET Framework installer<br>
+   * All-in-One Microsoft Visual C++ installer<br>
+   * Bulk install apps silently in the background<br>
    * Auto app updater, will update all apps automatically when you enjoying lunch.<br>
+   * Microsoft Office installation in the background<br>
 ## Install
 open powershell <b>AS ADMIN</b> and run:
 ```
