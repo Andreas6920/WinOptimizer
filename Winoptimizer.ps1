@@ -5,6 +5,8 @@ Clear-Host
 #Functions
 Function remove_bloatware {
     Write-host "REMOVING MICROSOFT BLOAT" -f Green;"";
+    
+    
     # Clean Apps and features
     Write-host "`tCleaning Bloatware:" -f Green
     start-sleep -s 5
@@ -135,7 +137,6 @@ Function remove_bloatware {
             Write-host "`t`t- Disabling: $BloatSchedule" -f Yellow
             Get-ScheduledTask | Where-Object Taskname -eq $BloatSchedule | Disable-ScheduledTask | Out-Null}}
             write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
-            
         
         
     # Clean start menu
@@ -170,7 +171,6 @@ Function remove_bloatware {
         # Clean up after script
         Remove-Item $layoutFile
         write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
-    
 
         
     # Clean Taskbar
@@ -203,14 +203,17 @@ Function remove_bloatware {
         New-Item -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Force | Out-Null}
         Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type DWord -Value 0
         
+        write-host "`t`t- Cleaning spooler" -f Yellow
+        Stop-Service "Spooler" | out-null; sleep -s 3
+        Remove-Item "$env:SystemRoot\System32\spool\PRINTERS\*.*" -Force | Out-Null
+        Start-Service "Spooler"
+
         write-host "`t`t- Removing bloat printers:" -f Yellow
         $Bloatprinters = "Fax","OneNote for Windows 10","Microsoft XPS Document Writer", "Microsoft Print to PDF" 
         $Bloatprinters | % {if(Get-Printer | Where-Object Name -cMatch $_){write-host "`t`t`t- Uninstalling: $_" -f Yellow; Remove-Printer $_; Start-Sleep -s 2}}
         write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
 
-
-
-            
+        
     #END
         write-host "`tBloat Remover Complete. Your system is now clean." -f Green
         start-sleep 10
@@ -679,22 +682,38 @@ Function settings_customize {
         }   
     } While ($answer -notin "y", "n")         
 
+    # Windows Terminal
     Do {
-        Write-Host "`t- Removing extra fax and printer? (XPS, Fax, PDF, OneNote)" -f Yellow -nonewline; ;
+        Write-Host "`t- Install Windows Terminal? (y/n)" -f Yellow -nonewline; ;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
-                Write-Host "`t`t- YES. Removing printers.." -f Green
-                If (!(Test-Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private")) {
-                New-Item -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Force | Out-Null
-                }
-                Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type DWord -Value 0
-                Get-Printer | Where-Object Name -cMatch "OneNote for Windows 10|Microsoft XPS Document Writer|Microsoft Print to PDF|Fax" | Remove-Printer
+                Write-Host "`t`t- YES. Install windows Terminal.." -f Green
+                $link = "https://github.com"+((iwr -useb 'https://github.com/microsoft/terminal/releases/latest').Links | ? href -match 'Win10.*.msixbundle$').href
+                $file = $($env:TMP)+"\"+(Split-Path $link -Leaf)
+                (New-Object net.webclient).Downloadfile("$link", "$file"); Add-AppxPackage $file; Remove-Item $file
             }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
-    } While ($answer -notin "y", "n")    
+    } While ($answer -notin "y", "n")      
 
+    # Windows Terminal
+    Do {
+        Write-Host "`t- Install Powershell Core? (y/n)" -f Yellow -nonewline; ;
+        $answer = Read-Host " " 
+        Switch ($answer) { 
+            Y {
+                $link = "https://github.com"+((iwr -useb 'https://github.com/PowerShell/powershell/releases/latest/').Links | ? href -match 'win-x64.msi').href
+                $file = $($env:TMP)+"\"+(Split-Path $link -Leaf)
+                (New-Object net.webclient).Downloadfile("$link", "$file"); Start-Sleep -s 3; start $file -ArgumentList "/quiet /passive"
+              }
+            N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
+        }   
+    } While ($answer -notin "y", "n")      
+
+
+
+    
 
     # This module is complete, refreshing explorer.    
     Stop-Process -ProcessName explorer
@@ -940,7 +959,7 @@ $intro =
 | |/ |/ / / / / / /_/ / /_/ / /_/ / / / / / / / / /_/  __/ /    
 |__/|__/_/_/ /_/\____/ .___/\__/_/_/ /_/ /_/_/ /___/\___/_/     
                     /_/                                         
-Version 2.4
+Version 2.5
 Creator: Andreas6920 | https://github.com/Andreas6920/
                                                                                                                                                     
  "

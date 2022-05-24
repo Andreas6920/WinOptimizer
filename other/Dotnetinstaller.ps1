@@ -25,6 +25,6 @@
 
         # Install
         $job = "Install $latest"
-        Start-Job -Name $job -ScriptBlock {Start-Process $path -ArgumentList "/quiet /norestart"}
+        Start-Job -Name $job -ScriptBlock {Start-Process "$($env:USERPROFILE)\Desktop\"+"Dotnet.exe" -ArgumentList "/quiet /norestart"}
         Wait-Job -Name $job -timeout 120 | Out-Null; Remove-Item $path
     
