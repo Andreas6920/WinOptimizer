@@ -1,7 +1,7 @@
 
 Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
 Install-Module -Name BurntToast -Force
-$Logolink = "https://i.ibb.co/j82ZkYK/Microsoft.png"
+$Logolink = "https://i.ibb.co/sKKh6CP/Microsoft-1.png"
 $Logo = "$($env:ProgramData)\Microsoft.png"
 (New-Object net.webclient).Downloadfile($logolink, $logo )
 
