@@ -11,78 +11,77 @@ Function remove_bloatware {
     Write-host "`tCleaning Bloatware:" -f Green
     start-sleep -s 5
         
-        $ProgressPreference = "SilentlyContinue" #hide progressbar      
-        start-sleep 3
-        $Bloatware = @(		
-            ## Microsoft Bloat ##
-            "*Mixed*"
-            "*autodesksketch*"
-            "*feedback*"
-            "*maps*"
-            "*officehub*"
-            "*oneconnect*"
-            "*plex*"
-            "*print3d*"
-            "*windowscommunicationsapps*"
-            "Microsoft.3DBuilder"
-            "Microsoft.Getstarted"
-            "Microsoft.Microsoft3DViewer"
-            "Microsoft.MicrosoftOfficeHub"
-            "Microsoft.MicrosoftSolitaireCollection"
-            "Microsoft.MicrosoftStickyNotes"
-            "Microsoft.Music.Preview"
-            "Microsoft.Office.OneNote"
-            "Microsoft.People"
-            "Microsoft.WindowsMaps"
-            "Microsoft.ZuneMusic"
-                                                
-            ## Xbox Bloat ##
-            "Microsoft.Xbox.TCUI"
-            "Microsoft.XboxApp"
-            "Microsoft.XboxGameCallableUI"
-            "Microsoft.XboxGameCallableUI"
-            "Microsoft.XboxGameOverlay"
-            "Microsoft.XboxGamingOverlay"
-            "Microsoft.XboxIdentityProvider"
-            "Microsoft.XboxSpeechToTextOverlay"
-                                                
-            ## Bing Bloat ##
-            "*Bing*"
-            "Microsoft.Bing*"
-            "Microsoft.BingFinance"
-            "Microsoft.BingFoodAndDrink"
-            "Microsoft.BingHealthAndFitness"
-            "Microsoft.BingNews"
-            "Microsoft.BingSports"
-            "Microsoft.BingTravel"
-            "Microsoft.BingWeather"
+            
+    $Bloatware = @(		
+        ## Microsoft Bloat ##
+        "*autodesksketch*"
+        "*oneconnect*"
+        "*plex*"
+        "*print3d*"
+        "Microsoft.3DBuilder"
+        "Microsoft.Getstarted"
+        "Microsoft.Microsoft3DViewer"
+        "Microsoft.MicrosoftOfficeHub"
+        "Microsoft.MicrosoftOfficeHub"
+        "Microsoft.MicrosoftSolitaireCollection"
+        "Microsoft.MicrosoftStickyNotes"
+        "Microsoft.MixedReality.Portal"
+        "Microsoft.Music.Preview"
+        "Microsoft.Office.OneNote"
+        "Microsoft.People"
+        "Microsoft.WindowsFeedbackHub"
+        "Microsoft.WindowsMaps"
+        "Microsoft.WindowsMaps"
+        "Microsoft.ZuneMusic"
+        "Microsoft.windowscommunicationsapps"
+                                            
+        ## Xbox Bloat ##
+        "Microsoft.Xbox.TCUI"
+        "Microsoft.XboxApp"
+        "Microsoft.XboxGameCallableUI"
+        "Microsoft.XboxGameCallableUI"
+        "Microsoft.XboxGameOverlay"
+        "Microsoft.XboxGamingOverlay"
+        "Microsoft.XboxIdentityProvider"
+        "Microsoft.XboxSpeechToTextOverlay"
+                                            
+        ## Bing Bloat ##
+        "*Bing*"
+        "Microsoft.Bing*"
+        "Microsoft.BingFinance"
+        "Microsoft.BingFoodAndDrink"
+        "Microsoft.BingHealthAndFitness"
+        "Microsoft.BingNews"
+        "Microsoft.BingSports"
+        "Microsoft.BingTravel"
+        "Microsoft.BingWeather"
 
-            ## Games ##
-            "*Royal Revolt*"
-            "*bubblewitch*"
-            "*candycrush*"
-            "*disney*"
-            "*empires*"
-            "*minecraft*"
-                                
-            ## Other crap ##
-            "*ActiproSoftwareLLC*"
-            "*AdobeSystemsIncorporated.AdobePhotoshopExpress*"
-            "*Duolingo-LearnLanguagesforFree*"
-            "*EclipseManager*"
-            "*Facebook*"
-            "*Flipboard*"
-            "*PandoraMediaInc*"
-            "*Skype*"
-            "*Spotify*"
-            "*Twitter*"
-            "*Wunderlist*")
+        ## Games ##
+        "*Royal Revolt*"
+        "*bubblewitch*"
+        "*candycrush*"
+        "*disney*"
+        "*empires*"
+        "*minecraft*"
+                            
+        ## Other crap ##
+        "*ActiproSoftwareLLC*"
+        "*AdobeSystemsIncorporated.AdobePhotoshopExpress*"
+        "*Duolingo-LearnLanguagesforFree*"
+        "*EclipseManager*"
+        "*Facebook*"
+        "*Flipboard*"
+        "*PandoraMediaInc*"
+        "*Skype*"
+        "*Spotify*"
+        "*Twitter*"
+        "*Wunderlist*")
 
+        $ProgressPreference = "SilentlyContinue" # hide progressba
         foreach ($Bloat in $Bloatware) {
-        $bloat_output = Get-AppxPackage | Where-Object Name -Like $Bloat | Select-Object -Property Name;
-        if ($bloat_output -ne $null) { Write-host "`t`t- Removing: " -f Yellow -nonewline; ; write-host "$bloat_output".Split(".")[1].Split("}")[0] -f Yellow }
-        Get-AppxPackage -Name $Bloat | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null
-        Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Out-Null}
+            $bloat_name = (Get-AppxPackage | Where-Object Name -Like $Bloat).Name
+            if (Get-AppxPackage | Where-Object Name -Like $Bloat){Write-host "`t`t- Removing: " -f Yellow -nonewline; ; write-host "$bloat_name".Split(".")[1].Split("}")[0] -f Yellow; Get-AppxPackage | Where-Object Name -Like $Bloat | Out-Null}
+            if (Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat){Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Out-Null}}
         $ProgressPreference = "Continue" #unhide progressbar
         write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
         
