@@ -82,8 +82,39 @@ Function remove_bloatware {
                 if (Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat){Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Out-Null}}
             $ProgressPreference = "Continue" #unhide progressbar
             write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
-        
-        
+
+
+
+    # Disabling services
+        Write-host "`tCleaning Startup services:" -f Green
+        Start-Sleep -s 5
+        $services = @(
+            "diagnosticshub.standardcollector.service" # Microsoft (R) Diagnostics Hub Standard Collector Service
+            "DiagTrack"                                # Diagnostics Tracking Service
+            "dmwappushservice"                         # WAP Push Message Routing Service (see known issues)
+            "lfsvc"                                    # Geolocation Service
+            "MapsBroker"                               # Downloaded Maps Manager
+            "ndu"                                      # Windows Network Data Usage Monitor
+            "NetTcpPortSharing"                        # Net.Tcp Port Sharing Service
+            "RemoteAccess"                             # Routing and Remote Access
+            "RemoteRegistry"                           # Remote Registry
+            "SharedAccess"                             # Internet Connection Sharing (ICS)
+            "TrkWks"                                   # Distributed Link Tracking Client
+            "WbioSrvc"                                 # Windows Biometric Service (required for Fingerprint reader / facial detection)
+            "WMPNetworkSvc"                            # Windows Media Player Network Sharing Service
+            "XblAuthManager"                           # Xbox Live Auth Manager
+            "XblGameSave"                              # Xbox Live Game Save Service
+            "XboxNetApiSvc"                            # Xbox Live Networking Service
+            )
+
+         foreach ($service in $services) {
+         if((Get-Service -Name $service | Where-Object Starttype -ne Disabled)){
+         write-host "`t`t- Disabling: $service" -f Yellow
+         Get-Service | Where-Object name -eq $service | Set-Service -StartupType Disabled}}
+         write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
+
+
+
     # Clean Task Scheduler
         Write-host "`tCleaning Scheduled tasks:" -f Green
         Start-Sleep -s 5
@@ -135,79 +166,80 @@ Function remove_bloatware {
             Get-ScheduledTask | Where-Object Taskname -eq $BloatSchedule | Disable-ScheduledTask | Out-Null}}
             write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
         
-        
+
+            
     # Clean start menu
         Write-host "`tCleaning Start Menu:" -f Green
         Start-Sleep -s 5
     
-        # Prepare
-        $link = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/StartMenuLayout.xml"
-        $layoutFile = "$($env:SystemRoot)\StartMenuLayout.xml"
-        $keys = "HKLM:\Software\Policies\Microsoft\Windows\Explorer","HKCU:\Software\Policies\Microsoft\Windows\Explorer"; 
-            
-        # Download blank Start Menu file
-        Write-Host "`t`t- Downloading Start Menu file..." -f Yellow;
-        iwr -useb $link -OutFile $layoutFile; Start-Sleep -S 3
-                        
-        # Unlock start menu, disable pinning, replace with blank file
-        Write-Host "`t`t- Unlocking and replacing current file..." -f Yellow;
-        $keys | % { if(!(test-path $_)){ New-Item -Path $_ -Force | Out-Null; Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 1; Set-ItemProperty -Path $_ -Name "StartLayoutFile" -Value $layoutFile } }
-        Write-host "`t`t- Restarting explorer..." -f Yellow
-        Stop-Process -name explorer -Force; Start-Sleep -s 5
+            # Prepare
+            $link = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/StartMenuLayout.xml"
+            $layoutFile = "$($env:SystemRoot)\StartMenuLayout.xml"
+            $keys = "HKLM:\Software\Policies\Microsoft\Windows\Explorer","HKCU:\Software\Policies\Microsoft\Windows\Explorer"; 
+                
+            # Download blank Start Menu file
+            Write-Host "`t`t- Downloading Start Menu file..." -f Yellow;
+            iwr -useb $link -OutFile $layoutFile; Start-Sleep -S 3
+                            
+            # Unlock start menu, disable pinning, replace with blank file
+            Write-Host "`t`t- Unlocking and replacing current file..." -f Yellow;
+            $keys | % { if(!(test-path $_)){ New-Item -Path $_ -Force | Out-Null; Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 1; Set-ItemProperty -Path $_ -Name "StartLayoutFile" -Value $layoutFile } }
+            Write-host "`t`t- Restarting explorer..." -f Yellow
+            Stop-Process -name explorer -Force; Start-Sleep -s 5
 
-        # Enable pinning
-        Write-host "`t`t- Fixing pinning..." -f Yellow
-        $keys | % { Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 0 }
-        Write-host "`t`t- Restarting explorer..." -f Yellow
-        Stop-Process -name explorer -Force; Start-Sleep -s 5
+            # Enable pinning
+            Write-host "`t`t- Fixing pinning..." -f Yellow
+            $keys | % { Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 0 }
+            Write-host "`t`t- Restarting explorer..." -f Yellow
+            Stop-Process -name explorer -Force; Start-Sleep -s 5
 
-        # Save menu to all users
-        write-host "`t`t- Save changes to all users.." -f Yellow
-        Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
+            # Save menu to all users
+            write-host "`t`t- Save changes to all users.." -f Yellow
+            Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
 
-        # Clean up after script
-        Remove-Item $layoutFile
-        write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
+            # Clean up after script
+            Remove-Item $layoutFile
+            write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
 
         
     # Clean Taskbar
         Write-host "`tCleaning Taskbar:" -f Green
         Start-Sleep -s 5
         
-        write-host "`t`t- Changing keys.." -f Yellow
-        Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesChanges -Value 3 -Type Dword -Force | Out-Null
-        Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesRemovedChanges -Value 32 -Type Dword -Force | Out-Null
-        Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesVersion -Value 3 -Type Dword -Force | Out-Null
-        Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name Favorites -Value ([byte[]](0xFF)) -Force | Out-Null
-        Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowCortanaButton -Type DWord -Value 0 | Out-Null
-        Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Search -Name SearchboxTaskbarMode -Value 0 -Type Dword | Out-Null
-        set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowTaskViewButton -Type DWord -Value 0 | Out-Null
+            write-host "`t`t- Changing keys.." -f Yellow
+            Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesChanges -Value 3 -Type Dword -Force | Out-Null
+            Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesRemovedChanges -Value 32 -Type Dword -Force | Out-Null
+            Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesVersion -Value 3 -Type Dword -Force | Out-Null
+            Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name Favorites -Value ([byte[]](0xFF)) -Force | Out-Null
+            Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowCortanaButton -Type DWord -Value 0 | Out-Null
+            Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Search -Name SearchboxTaskbarMode -Value 0 -Type Dword | Out-Null
+            set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowTaskViewButton -Type DWord -Value 0 | Out-Null
 
-        write-host "`t`t- Removing shortcuts.." -f Yellow
-        Remove-Item -Path "$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*" -Recurse -Force | Out-Null
-        Stop-Process -name explorer
-        Start-Sleep -s 5
-        write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
+            write-host "`t`t- Removing shortcuts.." -f Yellow
+            Remove-Item -Path "$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*" -Recurse -Force | Out-Null
+            Stop-Process -name explorer
+            Start-Sleep -s 5
+            write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
 
         
     # Cleaning printers
         Write-host "`tCleaning Printers:" -f Green
         Start-Sleep -s 5    
         
-        write-host "`t`t- Disabling auto-install printers from network.." -f Yellow
-        If (!(Test-Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private")) {
-        New-Item -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Force | Out-Null}
-        Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type DWord -Value 0
-        
-        write-host "`t`t- Cleaning spooler" -f Yellow
-        Stop-Service "Spooler" | out-null; sleep -s 3
-        Remove-Item "$env:SystemRoot\System32\spool\PRINTERS\*.*" -Force | Out-Null
-        Start-Service "Spooler"
+            write-host "`t`t- Disabling auto-install printers from network.." -f Yellow
+            If (!(Test-Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private")) {
+            New-Item -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Force | Out-Null}
+            Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type DWord -Value 0
+            
+            write-host "`t`t- Cleaning spooler" -f Yellow
+            Stop-Service "Spooler" | out-null; sleep -s 3
+            Remove-Item "$env:SystemRoot\System32\spool\PRINTERS\*.*" -Force | Out-Null
+            Start-Service "Spooler"
 
-        write-host "`t`t- Removing bloat printers:" -f Yellow
-        $Bloatprinters = "Fax","OneNote for Windows 10","Microsoft XPS Document Writer", "Microsoft Print to PDF" 
-        $Bloatprinters | % {if(Get-Printer | Where-Object Name -cMatch $_){write-host "`t`t`t- Uninstalling: $_" -f Yellow; Remove-Printer $_; Start-Sleep -s 2}}
-        write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
+            write-host "`t`t- Removing bloat printers:" -f Yellow
+            $Bloatprinters = "Fax","OneNote for Windows 10","Microsoft XPS Document Writer", "Microsoft Print to PDF" 
+            $Bloatprinters | % {if(Get-Printer | Where-Object Name -cMatch $_){write-host "`t`t`t- Uninstalling: $_" -f Yellow; Remove-Printer $_; Start-Sleep -s 2}}
+            write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
 
         
     #End of function
@@ -226,24 +258,21 @@ Function settings_privacy {
     # Disable Advertising ID
         Write-host "`t`t`t- Disabling advertising ID." -f Yellow
         If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo")) {
-            New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Force | Out-Null
-        }
+            New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Force | Out-Null}
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Type DWord -Value 0
         Start-Sleep -s 2
       
     # Disable let websites provide locally relevant content by accessing language list
         Write-host "`t`t`t- Disabling location tracking." -f Yellow
         If (!(Test-Path "HKCU:\Control Panel\International\User Profile")) {
-            New-Item -Path "HKCU:\Control Panel\International\User Profile" -Force | Out-Null
-        }
+            New-Item -Path "HKCU:\Control Panel\International\User Profile" -Force | Out-Null}
         Set-ItemProperty -Path  "HKCU:\Control Panel\International\User Profile" -Name "HttpAcceptLanguageOptOut"  -Value 1
         Start-Sleep -s 2
       
     # Disable Show me suggested content in the Settings app
         Write-host "`t`t`t- Disabling personalized content suggestions." -f Yellow
         If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager")) {
-            New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Force | Out-Null
-        }
+            New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Force | Out-Null}
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338393Enabled" -Type DWord -Value 0
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353694Enabled" -Type DWord -Value 0
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353696Enabled" -Type DWord -Value 0
@@ -254,8 +283,7 @@ Function settings_privacy {
         $ProgressPreference = "SilentlyContinue"
         Get-AppxPackage -name *Microsoft.549981C3F5F10* | Remove-AppxPackage
         If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
-            New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null
-        }
+            New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null}
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Type DWord -Value 0
         $ProgressPreference = "Continue"
         Stop-Process -name explorer
@@ -264,16 +292,14 @@ Function settings_privacy {
     # Disable Online Speech Recognition
         Write-host "`t`t`t- Disabling Online Speech Recognition." -f Yellow
         If (!(Test-Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy")) {
-            New-Item -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Force | Out-Null
-        }
+            New-Item -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Force | Out-Null}
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "HasAccepted" -Type DWord -Value 0
         Start-Sleep -s 2
     
     # Hiding personal information from lock screen
         Write-host "`t`t`t- Disabling sign-in screen notifications." -f Yellow
         If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\System")) {
-            New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Force | Out-Null
-        }
+            New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Force | Out-Null}
         Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "DontDisplayLockedUserID" -Type DWord -Value 0
         Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "DontDisplayLastUsername" -Type DWord -Value 0
         Start-Sleep -s 2
@@ -281,45 +307,23 @@ Function settings_privacy {
     # Disable diagnostic data collection
         Write-host "`t`t`t- Disabling diagnostic data collection" -f Yellow
         If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection")) {
-            New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Force | Out-Null
-        }
+            New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Force | Out-Null}
         Set-ItemProperty -Path  "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry"  -Value 0
         Start-Sleep -s 2
     
     # Disable App Launch Tracking
         Write-host "`t`t`t- Disabling App Launch Tracking." -f Yellow
         If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
-            New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null
-        }
+            New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null}
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "Start_TrackProgs" -Type DWord -Value 0
         Start-Sleep -s 2
 
     # Disable "tailored expirence"
         Write-host "`t`t`t- Disable tailored expirience." -f Yellow        
         If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy")) {   
-            New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Force | Out-Null
-        }
+            New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Force | Out-Null}
         Set-ItemProperty -Path  "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Name "TailoredExperiencesWithDiagnosticDataEnabled"  -Value 0
         Start-Sleep -s 2
-
-    # Disabling services
-        Write-host "`t`tBLOCKING - Tracking startup services" -f Green
-        $trackingservices = @(
-        "diagnosticshub.standardcollector.service" # Microsoft (R) Diagnostics Hub Standard Collector Service
-        "DiagTrack"                                # Diagnostics Tracking Service
-        "dmwappushservice"                         # WAP Push Message Routing Service (see known issues)
-        "lfsvc"                                    # Geolocation Service
-        "TrkWks"                                   # Distributed Link Tracking Client
-        "XblAuthManager"                           # Xbox Live Auth Manager
-        "XblGameSave"                              # Xbox Live Game Save Service
-        "XboxNetApiSvc"                            # Xbox Live Networking Service
-                             )
-
-         foreach ($trackingservice in $trackingservices) {
-         if((Get-Service -Name $trackingservice | Where-Object Starttype -ne Disabled)){
-         write-host "`t`t`t- Blocking tracking service: $trackingservice" -f Yellow
-         Get-Service | Where-Object name -eq $trackingservice | Set-Service -StartupType Disabled}}
-         write-host "`t`t`t- Service scan complete" -f Yellow
 
     # Adding entries to hosts file
         Write-host "`t`tBLOCKING - Tracking domains (This may take a while).." -f Green
@@ -701,7 +705,7 @@ Function settings_customize {
             Y {
                 $link = "https://github.com"+((iwr -useb 'https://github.com/PowerShell/powershell/releases/latest/').Links | ? href -match 'win-x64.msi').href
                 $file = $($env:TMP)+"\"+(Split-Path $link -Leaf)
-                (New-Object net.webclient).Downloadfile("$link", "$file"); Start-Sleep -s 3; start $file -ArgumentList "/quiet /passive"
+                (New-Object net.webclient).Downloadfile("$link", "$file"); Start-Sleep -s 3; Start-Process $file -ArgumentList "/quiet /passive"
               }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
@@ -955,7 +959,7 @@ $intro =
 | |/ |/ / / / / / /_/ / /_/ / /_/ / / / / / / / / /_/  __/ /    
 |__/|__/_/_/ /_/\____/ .___/\__/_/_/ /_/ /_/_/ /___/\___/_/     
                     /_/                                         
-Version 2.5
+Version 2.6
 Creator: Andreas6920 | https://github.com/Andreas6920/
                                                                                                                                                     
  "
