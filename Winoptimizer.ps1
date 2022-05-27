@@ -5,90 +5,88 @@ Clear-Host
 #Functions
 Function remove_bloatware {
     Write-host "REMOVING MICROSOFT BLOAT" -f Green;"";
-    
+    Start-Sleep -s 3
     
     # Clean Apps and features
-    Write-host "`tCleaning Bloatware:" -f Green
-    start-sleep -s 5
-        
-            
-    $Bloatware = @(		
-        ## Microsoft Bloat ##
-        "*autodesksketch*"
-        "*oneconnect*"
-        "*plex*"
-        "*print3d*"
-        "Microsoft.3DBuilder"
-        "Microsoft.Getstarted"
-        "Microsoft.Microsoft3DViewer"
-        "Microsoft.MicrosoftOfficeHub"
-        "Microsoft.MicrosoftOfficeHub"
-        "Microsoft.MicrosoftSolitaireCollection"
-        "Microsoft.MicrosoftStickyNotes"
-        "Microsoft.MixedReality.Portal"
-        "Microsoft.Music.Preview"
-        "Microsoft.Office.OneNote"
-        "Microsoft.People"
-        "Microsoft.WindowsFeedbackHub"
-        "Microsoft.WindowsMaps"
-        "Microsoft.WindowsMaps"
-        "Microsoft.ZuneMusic"
-        "Microsoft.windowscommunicationsapps"
-                                            
-        ## Xbox Bloat ##
-        "Microsoft.Xbox.TCUI"
-        "Microsoft.XboxApp"
-        "Microsoft.XboxGameCallableUI"
-        "Microsoft.XboxGameCallableUI"
-        "Microsoft.XboxGameOverlay"
-        "Microsoft.XboxGamingOverlay"
-        "Microsoft.XboxIdentityProvider"
-        "Microsoft.XboxSpeechToTextOverlay"
-                                            
-        ## Bing Bloat ##
-        "*Bing*"
-        "Microsoft.Bing*"
-        "Microsoft.BingFinance"
-        "Microsoft.BingFoodAndDrink"
-        "Microsoft.BingHealthAndFitness"
-        "Microsoft.BingNews"
-        "Microsoft.BingSports"
-        "Microsoft.BingTravel"
-        "Microsoft.BingWeather"
+        Write-host "`tCleaning Bloatware:" -f Green
+        Start-Sleep -s 5
+        $Bloatware = @(		
+            ## Microsoft Bloat ##
+            "*autodesksketch*"
+            "*oneconnect*"
+            "*plex*"
+            "*print3d*"
+            "Microsoft.3DBuilder"
+            "Microsoft.Getstarted"
+            "Microsoft.Microsoft3DViewer"
+            "Microsoft.MicrosoftOfficeHub"
+            "Microsoft.MicrosoftOfficeHub"
+            "Microsoft.MicrosoftSolitaireCollection"
+            "Microsoft.MicrosoftStickyNotes"
+            "Microsoft.MixedReality.Portal"
+            "Microsoft.Music.Preview"
+            "Microsoft.Office.OneNote"
+            "Microsoft.People"
+            "Microsoft.WindowsFeedbackHub"
+            "Microsoft.WindowsMaps"
+            "Microsoft.WindowsMaps"
+            "Microsoft.ZuneMusic"
+            "Microsoft.windowscommunicationsapps"
+                                                
+            ## Xbox Bloat ##
+            "Microsoft.Xbox.TCUI"
+            "Microsoft.XboxApp"
+            "Microsoft.XboxGameCallableUI"
+            "Microsoft.XboxGameCallableUI"
+            "Microsoft.XboxGameOverlay"
+            "Microsoft.XboxGamingOverlay"
+            "Microsoft.XboxIdentityProvider"
+            "Microsoft.XboxSpeechToTextOverlay"
+                                                
+            ## Bing Bloat ##
+            "*Bing*"
+            "Microsoft.Bing*"
+            "Microsoft.BingFinance"
+            "Microsoft.BingFoodAndDrink"
+            "Microsoft.BingHealthAndFitness"
+            "Microsoft.BingNews"
+            "Microsoft.BingSports"
+            "Microsoft.BingTravel"
+            "Microsoft.BingWeather"
 
-        ## Games ##
-        "*Royal Revolt*"
-        "*bubblewitch*"
-        "*candycrush*"
-        "*disney*"
-        "*empires*"
-        "*minecraft*"
-                            
-        ## Other crap ##
-        "*ActiproSoftwareLLC*"
-        "*AdobeSystemsIncorporated.AdobePhotoshopExpress*"
-        "*Duolingo-LearnLanguagesforFree*"
-        "*EclipseManager*"
-        "*Facebook*"
-        "*Flipboard*"
-        "*PandoraMediaInc*"
-        "*Skype*"
-        "*Spotify*"
-        "*Twitter*"
-        "*Wunderlist*")
+            ## Games ##
+            "*Bubblewitch*"
+            "*Candycrush*"
+            "*Disney*"
+            "*Empires*"
+            "*Minecraft*"
+            "*Royal revolt*"
+                                
+            ## Other crap ##
+            "*ActiproSoftwareLLC*"
+            "*AdobeSystemsIncorporated.AdobePhotoshopExpress*"
+            "*Duolingo-LearnLanguagesforFree*"
+            "*EclipseManager*"
+            "*Facebook*"
+            "*Flipboard*"
+            "*PandoraMediaInc*"
+            "*Skype*"
+            "*Spotify*"
+            "*Twitter*"
+            "*Wunderlist*")
 
-        $ProgressPreference = "SilentlyContinue" # hide progressba
-        foreach ($Bloat in $Bloatware) {
-            $bloat_name = (Get-AppxPackage | Where-Object Name -Like $Bloat).Name
-            if (Get-AppxPackage | Where-Object Name -Like $Bloat){Write-host "`t`t- Removing: " -f Yellow -nonewline; ; write-host "$bloat_name".Split(".")[1].Split("}")[0] -f Yellow; Get-AppxPackage | Where-Object Name -Like $Bloat | Out-Null}
-            if (Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat){Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Out-Null}}
-        $ProgressPreference = "Continue" #unhide progressbar
-        write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
+            $ProgressPreference = "SilentlyContinue" # hide progressbar
+            foreach ($Bloat in $Bloatware) {
+                $bloat_name = (Get-AppxPackage | Where-Object Name -Like $Bloat).Name
+                if (Get-AppxPackage | Where-Object Name -Like $Bloat){Write-host "`t`t- Removing: " -f Yellow -nonewline; ; write-host "$bloat_name".Split(".")[1].Split("}")[0] -f Yellow; Get-AppxPackage | Where-Object Name -Like $Bloat | Out-Null}
+                if (Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat){Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Out-Null}}
+            $ProgressPreference = "Continue" #unhide progressbar
+            write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
         
         
     # Clean Task Scheduler
         Write-host "`tCleaning Scheduled tasks:" -f Green
-        start-sleep -s 5
+        Start-Sleep -s 5
         $Bloatschedules = @(
             "AitAgent" 
             "AnalyzeSystem" 
@@ -140,7 +138,7 @@ Function remove_bloatware {
         
     # Clean start menu
         Write-host "`tCleaning Start Menu:" -f Green
-        start-sleep -s 5
+        Start-Sleep -s 5
     
         # Prepare
         $link = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/StartMenuLayout.xml"
@@ -174,7 +172,7 @@ Function remove_bloatware {
         
     # Clean Taskbar
         Write-host "`tCleaning Taskbar:" -f Green
-        start-sleep -s 5
+        Start-Sleep -s 5
         
         write-host "`t`t- Changing keys.." -f Yellow
         Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesChanges -Value 3 -Type Dword -Force | Out-Null
@@ -188,13 +186,13 @@ Function remove_bloatware {
         write-host "`t`t- Removing shortcuts.." -f Yellow
         Remove-Item -Path "$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*" -Recurse -Force | Out-Null
         Stop-Process -name explorer
-        start-sleep -s 5
+        Start-Sleep -s 5
         write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
 
         
     # Cleaning printers
         Write-host "`tCleaning Printers:" -f Green
-        start-sleep -s 5    
+        Start-Sleep -s 5    
         
         write-host "`t`t- Disabling auto-install printers from network.." -f Yellow
         If (!(Test-Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private")) {
@@ -212,9 +210,9 @@ Function remove_bloatware {
         write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
 
         
-    #END
+    #End of function
         write-host "`tBloat Remover Complete. Your system is now clean." -f Green
-        start-sleep 10
+        Start-Sleep 10
                 
 }
 Function settings_privacy {
@@ -325,7 +323,7 @@ Function settings_privacy {
 
     # Adding entries to hosts file
         Write-host "`t`tBLOCKING - Tracking domains (This may take a while).." -f Green
-        start-sleep -s 3
+        Start-Sleep -s 3
          Write-Host "`t`t`t- Backing up your hostsfile.." -f Yellow
         #Taking backup of current hosts file first
         $hostsfile = "$env:SystemRoot\System32\drivers\etc\hosts"
@@ -364,7 +362,7 @@ Function settings_privacy {
         netsh advfirewall firewall add rule name="Block Microsoft Tracking IP: $ip_entry" dir=out action=block remoteip=$ip_entry enable=yes | Out-Null}
         Write-Progress -Completed -Activity "make progress bar dissapear"
         Write-Host "`t`t`t- Firewall configuration complete." -f Yellow
-        start-sleep 5
+        Start-Sleep 5
 
     # Send Microsoft a request to delete collected data about you.
         
@@ -472,7 +470,7 @@ Function settings_privacy {
                         
             
         write-host "      COMPLETE - PRIVACY OPTIMIZATION" -f Yellow
-        start-sleep 10
+        Start-Sleep 10
     
 }
      
@@ -789,7 +787,7 @@ Function app_installer {
                     
                         Write-Host "`t`t- Extracting.." -f Yellow
                         Expand-Archive $FileDestination -DestinationPath $path | Out-Null; 
-                        start-sleep -s 5
+                        Start-Sleep -s 5
                     
                         Write-Host "`t`t- Installing.." -f Yellow
                         Set-Location $path
