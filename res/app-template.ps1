@@ -7,5 +7,5 @@ $Logo = "$($env:ProgramData)\Microsoft.png"
 
 
 if (!(Test-Path "$($env:ProgramData)\chocolatey\choco.exe")) { 
-New-BurntToastNotification -Applogo $Logo -Text "Windows", 'Preparing installer..'
+New-BurntToastNotification -Applogo $Logo -Text "Microsoft Windows", 'Preparing installer..'
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))}
