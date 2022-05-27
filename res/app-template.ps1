@@ -1,7 +1,10 @@
 
 Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
 Install-Module -Name BurntToast -Force
-$Logo = "https://i.ibb.co/j82ZkYK/Microsoft.png"
+$Logolink = "https://i.ibb.co/j82ZkYK/Microsoft.png"
+$Logo = "$($env:ProgramData)\Microsoft.png"
+(New-Object net.webclient).Downloadfile($logolink, $logo )
+
 
 if (!(Test-Path "$($env:ProgramData)\chocolatey\choco.exe")) { 
 New-BurntToastNotification -Applogo $Logo -Text "Windows", 'Preparing installer..'
