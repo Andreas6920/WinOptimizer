@@ -20,7 +20,6 @@ Function remove_bloatware {
             "Microsoft.Getstarted"
             "Microsoft.Microsoft3DViewer"
             "Microsoft.MicrosoftOfficeHub"
-            "Microsoft.MicrosoftOfficeHub"
             "Microsoft.MicrosoftSolitaireCollection"
             "Microsoft.MicrosoftStickyNotes"
             "Microsoft.MixedReality.Portal"
@@ -78,7 +77,7 @@ Function remove_bloatware {
             $ProgressPreference = "SilentlyContinue" # hide progressbar
             foreach ($Bloat in $Bloatware) {
                 $bloat_name = (Get-AppxPackage | Where-Object Name -Like $Bloat).Name
-                if (Get-AppxPackage | Where-Object Name -Like $Bloat){Write-host "`t`t- Removing: " -f Yellow -nonewline; ; write-host "$bloat_name".Split(".")[1].Split("}")[0] -f Yellow; Get-AppxPackage | Where-Object Name -Like $Bloat | Out-Null}
+                if (Get-AppxPackage | Where-Object Name -Like $Bloat){Write-host "`t`t- Removing: " -f Yellow -nonewline; ; write-host "$bloat_name".Split(".")[1].Split("}")[0] -f Yellow; Get-AppxPackage | Where-Object Name -Like $Bloat | Remove-AppxPackage | Out-Null}
                 if (Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat){Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Out-Null}}
             $ProgressPreference = "Continue" #unhide progressbar
             write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
@@ -759,7 +758,7 @@ Function app_installer {
                 Switch ($answer) { 
                     Y {
                         Write-Host "`t`t- Download.." -f Yellow 
-                        iwr -useb 'https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/other/Dotnetinstaller.ps1' -OutFile "$($env:TMP)\visualplusplus.ps1"
+                        iwr -useb 'https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/other/install-dotnet.ps1' -OutFile "$($env:TMP)\visualplusplus.ps1"
                         Start-Sleep -S 3
                         Write-Host "`t`t- Installing.." -f Yellow 
                         start-process powershell -argument "-ep bypass -windowstyle Hidden -file `"$($env:TMP)\visualplusplus.ps1`""
