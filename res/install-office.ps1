@@ -12,9 +12,10 @@ $version = "REPLACE-ME-FULLNAME"
     $balmsg.ShowBalloonTip(20000)
 
 # Installation
-    Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
     Get-AppxPackage | Where-Object Name -Match "Microsoft.MicrosoftOfficeHub|Microsoft.Office.OneNote" | Remove-AppxPackage;
-    New-BurntToastNotification -Applogo $logo -Text "Microsoft Office", "Program installed! Enjoy."
+    Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+    choco install microsoft-office-deployment /64bit /Product REPLACE-ME-VERSION /language REPLACE-ME-LANGUAGE -y
+    
 
 # Windows notification 2
     Add-Type -AssemblyName System.Windows.Forms
