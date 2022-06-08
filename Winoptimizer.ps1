@@ -1004,7 +1004,7 @@ Function app_installer {
                               # Download template
                               $link = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/install-office.ps1"
                               $officescript = "$($env:ProgramData)\office-script.ps1"
-                              (New-Object net.webclient).Downloadfile($link, $officescript)               
+                              (New-Object net.webclient).Downloadfile($link, $officescript)
                               # Add to script
                               ((Get-Content -path $officescript -Raw) -replace 'REPLACE-ME-FULLNAME', $name ) | Set-Content -Path $officescript;
                               ((Get-Content -path $officescript -Raw) -replace 'REPLACE-ME-VERSION', $ver ) | Set-Content -Path $officescript;
