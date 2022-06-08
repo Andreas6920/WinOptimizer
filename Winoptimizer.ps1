@@ -758,12 +758,12 @@ Function app_installer {
                 Switch ($answer) { 
                     Y {
                         Write-Host "`t`t- Download.." -f Yellow 
-                        iwr -useb 'https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/other/install-dotnet.ps1' -OutFile "$($env:TMP)\visualplusplus.ps1"
+                        iwr -useb 'https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/install-dotnet.ps1' -OutFile "$($env:TMP)\dotnet.ps1"
                         Start-Sleep -S 3
                         Write-Host "`t`t- Installing.." -f Yellow 
-                        start-process powershell -argument "-ep bypass -windowstyle Hidden -file `"$($env:TMP)\visualplusplus.ps1`""
+                        start-process powershell -argument "-ep bypass -windowstyle Hidden -file `"$($env:TMP)\dotnet.ps1`""
                         Start-Sleep -S 3
-                        Remove-item "$($env:TMP)\visualplusplus.ps1" | Out-Null
+                        Remove-item "$($env:TMP)\dotnet.ps1" | Out-Null
                     }
                     N { Write-Host "            NO. Skipping this step." -f Red } 
                 }}
