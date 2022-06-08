@@ -955,22 +955,21 @@ Function app_installer {
                     y {        
               
                         # Choose version
-                              "";
-                              Write-host "`t`tVersion Menu:"
-                              "";
-                              Write-host "`t`t`t - Microsoft 365" -f Yellow
-                              Write-host "`t`t`t - Microsoft Office 2019 Business Retail" -f Yellow
-                              Write-host "`t`t`t - Microsoft Office 2016 Business Retail" -f Yellow
-                              "";"";
-                              DO {                     
-                         
+                            "";
+                            Write-host "`t`tVersion Menu:" -f Green
+                            "";
+                            Write-host "`t`t`t - Microsoft 365" -f Yellow
+                            Write-host "`t`t`t - Microsoft Office 2019 Business Retail" -f Yellow
+                            Write-host "`t`t`t - Microsoft Office 2016 Business Retail" -f Yellow
+                            "";"";
+                            DO {                     
                                 Write-Host "`t`tWhich version would you prefer?" -f Green -nonewline;
                                 $answer2 = Read-host -Prompt " "
-                                if("$answer2" -eq "Cancel"){}                         
+                                if("$answer2" -eq "Cancel"){Write-Host "`tSkipping this section.."}                         
                                 elseif("$answer2" -match "365")       {$ver = "O365BusinessRetail"; $name = "Microsoft 365";}
                                 elseif("$answer2" -match "2019")      {$ver = "HomeBusiness2019Retail"; $name = "Microsoft Office 2019";}
                                 elseif("$answer2" -match "2016")      {$ver = "HomeBusinessRetail"; $name = "Microsoft Office 2016"}}
-                              While($ver -notin "O365BusinessRetail", "HomeBusiness2019Retail","HomeBusinessRetail")     
+                            While($ver -notin "O365BusinessRetail", "HomeBusiness2019Retail","HomeBusinessRetail")     
                       
                         # Choose Language
                               "";
@@ -986,18 +985,19 @@ Function app_installer {
                               Write-host "`t`t`t- Russia" -f Yellow
                               Write-host "`t`t`t- Sweden" -f Yellow
                               "";"";
-                              DO {                     
-                                  $answer3 = Read-host -Prompt "`tEnter your language from above"
-                                  if("$answer3" -eq "Cancel"){Write-Output "Skipping this section.."}                         
-                                  elseif("$answer3" -match "^Eng")   {$lang = "en-us"}
-                                  elseif("$answer3" -match "^Ger")   {$lang = "de-de"}
-                                  elseif("$answer3" -match "^Spa")   {$lang = "es-es"}
-                                  elseif("$answer3" -match "^Dan")   {$lang = "da-dk"}
-                                  elseif("$answer3" -match "^Fra")   {$lang = "fr-fr"}
-                                  elseif("$answer3" -match "^Jap")   {$lang = "ja-jp"}
-                                  elseif("$answer3" -match "^Nor")   {$lang = "nb-no"}
-                                  elseif("$answer3" -match "^Rus")   {$lang = "ru-ru"}
-                                  elseif("$answer3" -match "^Swe")   {$lang = "sv-se"}}
+                              DO {       
+                                Write-Host "`t`tEnter your language from above" -f Green -nonewline;
+                                $answer3 = Read-host -Prompt " "              
+                                if("$answer3" -eq "Cancel"){Write-Host "`tSkipping this section.."}                         
+                                elseif("$answer3" -match "^Eng")   {$lang = "en-us"}
+                                elseif("$answer3" -match "^Ger")   {$lang = "de-de"}
+                                elseif("$answer3" -match "^Spa")   {$lang = "es-es"}
+                                elseif("$answer3" -match "^Dan")   {$lang = "da-dk"}
+                                elseif("$answer3" -match "^Fra")   {$lang = "fr-fr"}
+                                elseif("$answer3" -match "^Jap")   {$lang = "ja-jp"}
+                                elseif("$answer3" -match "^Nor")   {$lang = "nb-no"}
+                                elseif("$answer3" -match "^Rus")   {$lang = "ru-ru"}
+                                elseif("$answer3" -match "^Swe")   {$lang = "sv-se"}}
                               While($lang -notin "en-us", "de-de","es-es","da-dk","fr-fr","ja-jp","nb-no","ru-ru","sv-se")
                           
                         #Installation
