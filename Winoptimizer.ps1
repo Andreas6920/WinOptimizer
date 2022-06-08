@@ -831,7 +831,7 @@ Function app_installer {
             Write-host "`t`t`t- Installation complete.." -f Yellow}
         else { Write-host "`t`t- Installer found. Skipping installation." -f Yellow }
 
-            Write-host "DESKTOP APPLICATIONS:" -f Green;""; 
+            Write-host "`tDesktop Applications:" -f Green;""; 
 
             write-host "`t`tBROWSER:" -f Yellow
             write-host "`t`t`tChrome        Firefox      Opera" -f Green
@@ -1022,8 +1022,6 @@ Function app_installer {
                     n {Write-host "Skipping Microsoft Office Installation."}}}
             
             While ($answer1 -notin "y", "n")
-
-    Clear-Host
 
 
 

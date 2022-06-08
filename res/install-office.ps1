@@ -6,7 +6,7 @@ $version = "REPLACE-ME-FULLNAME"
     $path = (Get-Process -id $pid).Path
     $balmsg.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
     $balmsg.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
-    $balmsg.BalloonTipText = ‘Installing ' + $version + '...'
+    $balmsg.BalloonTipText = 'Installing ' + $version + '...'
     $balmsg.BalloonTipTitle = "Microsoft Office"
     $balmsg.Visible = $true
     $balmsg.ShowBalloonTip(20000)
