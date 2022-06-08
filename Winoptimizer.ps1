@@ -765,7 +765,7 @@ Function app_installer {
                         Start-Sleep -S 3
                         Remove-item "$($env:TMP)\dotnet.ps1" | Out-Null
                     }
-                    N { Write-Host "            NO. Skipping this step." -f Red } 
+                    N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
                 }}
             While ($answer -notin "y", "n")
             
@@ -802,34 +802,28 @@ Function app_installer {
                         ./vcredist2015_2017_2019_2022_x64.exe /passive /norestart | Out-Null
                         
                       }
-                    N { Write-Host "            NO. Skipping this step." -f Red } }} 
+                    N { Write-Host "`t`t- NO. Skipping this step." -f Red } }} 
             While ($answer -notin "y", "n")  
 
 
         #check if chocolatey is installed
         Write-Host "`tApp installer:" -f Green
-        if (!(Test-Path "$($env:ProgramData)\chocolatey\choco.exe")) { 
-            # installing chocolatey
-            Write-host "`t`t- Chocolatey not found on system:" -f Yellow
-            Write-host "`t`t`t- Application not found. Installing:" -f Yellow
-            Write-host "`t`t`t- Preparing system.." -f Yellow
-            Set-ExecutionPolicy Bypass -Scope Process -Force;
-            # Downloading installtion file from original source
-            Write-host "`t`t`t- Downloading script.." -f Yellow
-            (New-Object System.Net.WebClient).DownloadFile("https://chocolatey.org/install.ps1","$env:TMP/choco-install.ps1")
-            # Adding a few lines to make installtion more silent.
-            Write-host "`t`t`t- Preparing script.." -f Yellow
-            $add_line1 = "((Get-Content -path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1 -Raw) -replace '\| write-Output', ' | out-null' ) | Set-Content -Path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1; "
-            $add_line2 = "((Get-Content -path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1 -Raw) -replace 'write-', '#write-' ) | Set-Content -Path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1; "
-            $add_line3 = "((Get-Content -path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1 -Raw) -replace 'function.* #write-', 'function Write-' ) | Set-Content -Path $env:TMP\chocolatey\chocoInstall\tools\chocolateysetup.psm1;"
-            ((Get-Content -path $env:TMP/choco-install.ps1 -Raw) -replace 'write-host', "#write-host" ) | Set-Content -Path $env:TMP/choco-install.ps1
-            ((Get-Content -path $env:TMP/choco-install.ps1 -Raw) -replace '#endregion Download & Extract Chocolatey', "$add_line1`n$add_line2`n$add_line3" ) | Set-Content -Path $env:TMP/choco-install.ps1
-            # Executing installation file.
-            cd $env:TMP
-            Write-host "`t`t`t- Installing.." -f Yellow
-            .\choco-install.ps1
-            Write-host "`t`t`t- Installation complete.." -f Yellow}
-        else { Write-host "`t`t- Installer found. Skipping installation." -f Yellow }
+        function appinstall {
+            param ( [Parameter(Mandatory=$true)]
+                    [string]$Name,
+                    [Parameter(Mandatory=$true)]
+                    [string]$App)
+        
+            If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main")) {New-Item -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Force | Out-Null}
+            Set-ItemProperty -Path  "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize"  -Value 1
+            
+            $code = "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))"
+            $appinstall = "$($env:ProgramData)\Winoptimizer\appinstall.ps1"
+        
+            if(!(test-path $appinstall)){new-item -ItemType Directory ($appinstall | Split-Path) -ea ignore | out-null; New-item $appinstall -ea ignore | out-null;}
+            if(!((get-content $appinstall) -notmatch "https://community.chocolatey.org/install.ps1")){Set-content -Encoding UTF8 -Value $code -Path $appinstall}
+        
+            Add-content -Encoding UTF8 -Value (invoke-webrequest "https://paste.ee/r/XnPJT").Content.replace('REPLACE-ME-NAME', $Name).replace('REPLACE-ME-APP', $App) -Path $appinstall}
 
             Write-host "`tDesktop Applications:" -f Green;""; 
 
@@ -845,19 +839,18 @@ Function app_installer {
             write-host "`t`tMEDIA PLAYER:" -f Yellow
             write-host "`t`t`tSpotify       VLC           Itunes" -f Green
             write-host "`t`t`tWinamp        Foobar2000    K-Lite" -f Green
-            write-host "`t`t`tMPC-HC        Popcorntime         " -f Green
+            write-host "`t`t`tMPC-HC        Popcorntime" -f Green
             "";
             write-host "`t`tDevelopment:" -f Yellow
             write-host "`t`t`tNotepad++       vscode           atom" -f Green
-            write-host "`t`t`tVim             Eclipse          PyCharm" -f Green
+            write-host "`t`t`tVim             Eclipse          git " -f Green
             write-host "`t`t`tPuTTY           Superputty       TeraTerm" -f Green
             write-host "`t`t`tFilezilla       WinSCP           mRemoteNG" -f Green
-            write-host "`t`t`tWireshark       git              Github Desktop" -f Green
+            write-host "`t`t`tWireshark" -f Green
             "";
             write-host "`t`tSocial:" -f Yellow
             write-host "`t`t`tWebex           Zoom           Microsoft Teams" -f Green
             write-host "`t`t`tDiscord         Twitch         Ubisoft-Connect" -f Green
-            write-host "`t`t`tSteam" -f Green
             "";
             Write-host "    ** List multiple programs seperated by , (comma) - spaces are allowed." -f Yellow;
             "";
@@ -868,55 +861,53 @@ Function app_installer {
             foreach ($requested_app in $requested_apps) {
                 if("cancel" -eq "$requested_app"){Write-Output "Skipping this section.."}
                 # Browsers
-                elseif("Firefox" -match "$requested_app"){Write-host "        - installing firefox.." -f Yellow -nonewline; choco install firefox -y | out-null;write-host "          [ COMPLETE ]" -f Green;} 
-                elseif("Chrome" -match "$requested_app"){Write-host "        - installing Chrome.." -f Yellow -nonewline; choco install googlechrome -y | out-null;write-host "           [ COMPLETE ]" -f Green;} 
-                elseif("Brave" -match "$requested_app"){Write-host "        - installing Brave.." -f Yellow -nonewline; choco install Brave -y | out-null;write-host "            [ COMPLETE ]" -f Green;} 
-                elseif("Opera" -match "$requested_app"){Write-host "        - installing Opera.." -f Yellow -nonewline; choco install opera -y | out-null;write-host "            [ COMPLETE ]" -f Green;} 
-                elseif("Vivaldi" -match "$requested_app"){Write-host "        - installing Vivaldi.." -f Yellow -nonewline; choco install Vivaldi -y | out-null;write-host "          [ COMPLETE ]" -f Green;} 
+				    elseif("Firefox" -match "$requested_app"){Appinstall -Name "Mozilla Firefox" -App "firefox"} 
+                    elseif("Chrome" -match "$requested_app"){Appinstall -Name "Google Chrome" -App "googlechrome"} 
+                    elseif("Brave" -match "$requested_app"){Appinstall -Name "Brave Browser" -App "brave"} 
+                    elseif("Opera" -match "$requested_app"){Appinstall -Name "Opera" -App "opera"} 
+                    elseif("Vivaldi" -match "$requested_app"){Appinstall -Name "Vivaldi" -App "vivaldi"} 
                 # Tools
-                elseif("Dropbox" -match "$requested_app"){Write-host "        - installing Dropbox.." -f Yellow -nonewline; choco install dropbox -y | out-null;write-host "          [ COMPLETE ]" -f Green;} 
-                elseif("Google Drive" -match "$requested_app"){Write-host "        - installing Google Drive.." -f Yellow -nonewline; choco install googledrive -y | out-null;write-host "     [ COMPLETE ]" -f Green;} 
-                elseif("TeamViewer" -match "$requested_app"){Write-host "        - installing TeamViewer.." -f Yellow -nonewline; choco install TeamViewer -y | out-null;write-host "       [ COMPLETE ]" -f Green;} 
-                elseif("7-zip" -match "$requested_app"){Write-host "        - installing 7-Zip.." -f Yellow -nonewline; choco install 7Zip -y | out-null;write-host "            [ COMPLETE ]" -f Green;} 
-                elseif("winrar" -match "$requested_app"){Write-host "        - installing Winrar.." -f Yellow -nonewline; choco install winrar -y | out-null;write-host "           [ COMPLETE ]" -f Green;} 
-                elseif("Greenshot" -match "$requested_app"){Write-host "        - installing Greenshot.." -f Yellow -nonewline; choco install Greenshot -y | out-null;write-host "        [ COMPLETE ]" -f Green;} 
-                elseif("ShareX" -match "$requested_app"){Write-host "        - installing Sharex.." -f Yellow -nonewline; choco install Sharex -y | out-null;write-host "           [ COMPLETE ]" -f Green;} 
-                elseif("Gimp" -match "$requested_app"){Write-host "        - installing Gimp.." -f Yellow -nonewline; choco install Gimp -y | out-null;write-host "             [ COMPLETE ]" -f Green;} 
-                elseif("Adobe" -match "$requested_app"){Write-host "        - installing Adobe Acrobat Reader.." -f Yellow -nonewline; choco install adobereader -y | out-null;write-host "  [ COMPLETE ]" -f Green;} 
+                    elseif("Dropbox" -match "$requested_app"){Appinstall -Name "Dropbox" -App "dropbox"} 
+                    elseif("Google Drive" -match "$requested_app"){Appinstall -Name "Google Drive" -App "googledrive"} 
+                    elseif("TeamViewer" -match "$requested_app"){Appinstall -Name "TeamViewer" -App "teamviewer"} 
+                    elseif("7-zip" -match "$requested_app"){Appinstall -Name "7-Zip" -App "7Zip"} 
+                    elseif("winrar" -match "$requested_app"){Appinstall -Name "Winrar" -App "winrar"} 
+                    elseif("Greenshot" -match "$requested_app"){Appinstall -Name "Greenshot" -App "greenshot"} 
+                    elseif("ShareX" -match "$requested_app"){Appinstall -Name "ShareX" -App "sharex"} 
+                    elseif("Gimp" -match "$requested_app"){Appinstall -Name "Gimp" -App "gimp"} 
+                    elseif("Adobe" -match "$requested_app"){Appinstall -Name "Adobe Acrobat Reader" -App "adobereader"} 
                 # Media Player
-                elseif("spotify" -match "$requested_app"){Write-host "        - installing spotify.." -f Yellow -nonewline; choco install spotify -y | out-null;write-host "          [ COMPLETE ]" -f Green;}  
-                elseif("VLC" -match "$requested_app"){Write-host "        - installing VLC.." -f Yellow -nonewline; choco install VLC -y | out-null;write-host "              [ COMPLETE ]" -f Green;}  
-                elseif("itunes" -match "$requested_app"){Write-host "        - installing itunes.." -f Yellow -nonewline; choco install itunes -y | out-null;write-host "           [ COMPLETE ]" -f Green;}  
-                elseif("Winamp" -match "$requested_app"){Write-host "        - installing Winamp.." -f Yellow -nonewline; choco install Winamp -y | out-null;write-host "           [ COMPLETE ]" -f Green;}  
-                elseif("foobar2000" -match "$requested_app"){Write-host "        - installing foobar2000.." -f Yellow -nonewline; choco install foobar2000 -y | out-null;write-host "       [ COMPLETE ]" -f Green;}  
-                elseif("K-lite" -match "$requested_app"){Write-host "        - installing K-Lite.." -f Yellow -nonewline; choco install k-litecodecpackfull -y | out-null;write-host "           [ COMPLETE ]" -f Green;}  
-                elseif("MPC-HC" -match "$requested_app"){Write-host "        - installing MPC-HC.." -f Yellow -nonewline; choco install MPC-HC -y | out-null;write-host "           [ COMPLETE ]" -f Green;}  
-                elseif("popcorn" -match "$requested_app"){Write-host "        - installing Popcorntime.." -f Yellow -nonewline; choco install popcorntime -y | out-null;write-host "      [ COMPLETE ]" -f Green;}  
+                    elseif("spotify" -match "$requested_app"){Appinstall -Name "Spotify" -App "Spotify"}  
+                    elseif("VLC" -match "$requested_app"){Appinstall -Name "VLC" -App "VLC"}  
+                    elseif("itunes" -match "$requested_app"){Appinstall -Name "iTunes" -App "itunes"}  
+                    elseif("Winamp" -match "$requested_app"){Appinstall -Name "Winamp" -App "Winamp"}  
+                    elseif("foobar2000" -match "$requested_app"){Appinstall -Name "foobar2000" -App "foobar2000"}  
+                    elseif("K-lite" -match "$requested_app"){Appinstall -Name "K-lite" -App "k-litecodecpackfull"}  
+                    elseif("MPC-HC" -match "$requested_app"){Appinstall -Name "MPC-HC" -App "MPC-HC"}  
+                    elseif("popcorn" -match "$requested_app"){Appinstall -Name "Popcorntime" -App "popcorntime"}  
                 # Development
-                elseif("notepad++" -match "$requested_app"){Write-host "        - installing Notepad++.." -f Yellow -nonewline; choco install notepadplusplus -y | out-null;write-host "        [ COMPLETE ]" -f Green;}  
-                elseif("vscode" -match "$requested_app"){Write-host "        - installing vscode.." -f Yellow -nonewline; choco install vscode -y | out-null;write-host "           [ COMPLETE ]" -f Green;}  
-                elseif("atom" -match "$requested_app"){Write-host "        - installing atom.." -f Yellow -nonewline; choco install atom -y | out-null;write-host "             [ COMPLETE ]" -f Green;}  
-                elseif("vim" -match "$requested_app"){Write-host "        - installing vim.." -f Yellow -nonewline; choco install vim -y | out-null;write-host "              [ COMPLETE ]" -f Green;} 
-                elseif("Eclipse" -match "$requested_app"){Write-host "        - installing Eclipse.." -f Yellow -nonewline; choco install Eclipse -y | out-null;write-host "          [ COMPLETE ]" -f Green;} 
-                elseif("PyCharm" -match "$requested_app"){Write-host "        - installing PyCharm.." -f Yellow -nonewline; choco install PyCharm -y | out-null;write-host "          [ COMPLETE ]" -f Green;} 
-                elseif("putty" -match "$requested_app"){Write-host "        - installing putty.." -f Yellow -nonewline; choco install PyCharm -y | out-null;write-host "            [ COMPLETE ]" -f Green;} 
-                elseif("superputty" -match "$requested_app"){Write-host "        - installing superputty.." -f Yellow -nonewline; choco install superputty -y | out-null;write-host "       [ COMPLETE ]" -f Green;} 
-                elseif("teraterm" -match "$requested_app"){Write-host "        - installing teraterm.." -f Yellow -nonewline; choco install teraterm -y | out-null;write-host "         [ COMPLETE ]" -f Green;} 
-                elseif("Filezilla" -match "$requested_app"){Write-host "        - installing Filezilla.." -f Yellow -nonewline; choco install Filezilla -y | out-null;write-host "        [ COMPLETE ]" -f Green;} 
-                elseif("WinSCP" -match "$requested_app"){Write-host "        - installing WinSCP.." -f Yellow -nonewline; choco install WinSCP -y | out-null;write-host "           [ COMPLETE ]" -f Green;} 
-                elseif("mremoteng" -match "$requested_app"){Write-host "        - installing MRemoteNG.." -f Yellow -nonewline; choco install mremoteng -y | out-null;write-host "        [ COMPLETE ]" -f Green;} 
-                elseif("wireshark" -match "$requested_app"){Write-host "        - installing Wireshark.." -f Yellow -nonewline; choco install wireshark -y | out-null;write-host "        [ COMPLETE ]" -f Green;} 
-                elseif("git" -match "$requested_app"){Write-host "        - installing git.." -f Yellow -nonewline; choco install git.install -y | out-null;write-host "              [ COMPLETE ]" -f Green;}
-                elseif("GithubDesktop" -match "$requested_app"){Write-host "        - installing Github Desktop.." -f Yellow -nonewline; choco install github-desktop -y | out-null;write-host "   [ COMPLETE ]" -f Green;}
+                    elseif("notepad++" -match "$requested_app"){Appinstall -Name "Notepad++" -App "notepadplusplus"}  
+                    elseif("vscode" -match "$requested_app"){Appinstall -Name "Visual Studio Code" -App "vscode"}  
+                    elseif("atom" -match "$requested_app"){Appinstall -Name "atom" -App "atom"}  
+                    elseif("vim" -match "$requested_app"){Appinstall -Name "vim" -App "vim"} 
+                    elseif("Eclipse" -match "$requested_app"){Appinstall -Name "Eclipse" -App "Eclipse"} 
+                    elseif("putty" -match "$requested_app"){Appinstall -Name "PuTTY" -App "putty"} 
+                    elseif("superputty" -match "$requested_app"){Appinstall -Name "SuperPutty" -App "superputty"} 
+                    elseif("teraterm" -match "$requested_app"){Appinstall -Name "Tera Term" -App "teraterm"} 
+                    elseif("Filezilla" -match "$requested_app"){Appinstall -Name "Filezilla" -App "filezilla"} 
+                    elseif("WinSCP" -match "$requested_app"){Appinstall -Name "WinSCP" -App "WinSCP"} 
+                    elseif("mremoteng" -match "$requested_app"){Appinstall -Name "MremoteNG" -App "mremoteng"} 
+                    elseif("wireshark" -match "$requested_app"){Appinstall -Name "Wireshark" -App "wireshark"} 
+                    elseif("git" -match "$requested_app"){Appinstall -Name "git" -App "git"}
                 # Social
-                elseif("Microsoft Teams" -match "$requested_app"){Write-host "        - installing Microsoft Teams.." -f Yellow -nonewline; choco install microsoft-teams -y | out-null;write-host "  [ COMPLETE ]" -f Green;} 
-                elseif("Zoom" -match "$requested_app"){Write-host "        - installing Zoom.." -f Yellow -nonewline; choco install Zoom -y | out-null;write-host "             [ COMPLETE ]" -f Green;} 
-                elseif("Webex" -match "$requested_app"){Write-host "        - installing Webex.." -f Yellow -nonewline; choco install webex-teams -y | out-null;choco install webex-meetings -y | out-null;  write-host "            [ COMPLETE ]" -f Green;}
-                elseif("Discord" -match "$requested_app"){Write-host "        - installing Discord.." -f Yellow -nonewline; choco install Discord -y | out-null;Write-host "          [ COMPLETE ]" -f Green;}
-                elseif("Twitch" -match "$requested_app"){Write-host "        - installing Twitch.." -f Yellow -nonewline; choco install Twitch -y | out-null;Write-host "           [ COMPLETE ]" -f Green;}
-                elseif("Steam" -match "$requested_app"){Write-host "        - installing Steam.." -f Yellow -nonewline; choco install Steam -y | out-null;  write-host "            [ COMPLETE ]" -f Green;}
-                elseif("Ubisoft Connect" -match "$requested_app"){Write-host "        - installing Ubisoft Connect.." -f Yellow -nonewline; choco install ubisoft-connect -y | out-null;write-host "  [ COMPLETE ]" -f Green;}
+                    elseif("Microsoft Teams" -match "$requested_app"){Appinstall -Name "Microsoft Teams" -App "microsoft-teams"} 
+                    elseif("Zoom" -match "$requested_app"){Appinstall -Name "Zoom" -App "zoom"} 
+                    elseif("Webex" -match "$requested_app"){Appinstall -Name "Webex" -App "webex"}
+                    elseif("Twitch" -match "$requested_app"){Appinstall -Name "Twitch" -App "twitch"}
+                    elseif("Ubisoft Connect" -match "$requested_app"){Appinstall -Name "Ubisoft Connect" -App "ubisoft-connect"}
             }
+
+            Start-Process PowerShell -argument "-Ep bypass -Windowstyle hidden -file `"""$($env:ProgramData)\Winoptimizer\appinstall.ps1""`""
     
     
             Do {
@@ -961,7 +952,7 @@ Function app_installer {
                             Write-host "`t`t`t - Microsoft 365" -f Yellow
                             Write-host "`t`t`t - Microsoft Office 2019 Business Retail" -f Yellow
                             Write-host "`t`t`t - Microsoft Office 2016 Business Retail" -f Yellow
-                            "";"";
+                            "";
                             DO {                     
                                 Write-Host "`t`tWhich version would you prefer?" -f Green -nonewline;
                                 $answer2 = Read-host -Prompt " "
@@ -984,7 +975,7 @@ Function app_installer {
                               Write-host "`t`t`t- Norwegian" -f Yellow
                               Write-host "`t`t`t- Russia" -f Yellow
                               Write-host "`t`t`t- Sweden" -f Yellow
-                              "";"";
+                              "";
                               DO {       
                                 Write-Host "`t`tEnter your language from above" -f Green -nonewline;
                                 $answer3 = Read-host -Prompt " "              
@@ -1019,7 +1010,7 @@ Function app_installer {
                                        
                        
                        
-                    n {Write-host "Skipping Microsoft Office Installation."}}}
+                    n {Write-host "`t`t- NO. Skipping this step."}}}
             
             While ($answer1 -notin "y", "n")
 
