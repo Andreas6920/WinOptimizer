@@ -974,17 +974,17 @@ Function app_installer {
                       
                         # Choose Language
                               "";
-                              Write-host "Language Menu:"
+                              Write-host "`t`tLanguage Menu:" -f Green
                               "";
-                              Write-host "`t - English (United States)"
-                              Write-host "`t - German"
-                              Write-host "`t - Spanish"
-                              Write-host "`t - Danish"
-                              Write-host "`t - France"
-                              Write-host "`t - Japanese"
-                              Write-host "`t - Norwegian"
-                              Write-host "`t - Russia"
-                              Write-host "`t - Sweden"
+                              Write-host "`t`t`t- English (United States)" -f Yellow
+                              Write-host "`t`t`t- German" -f Yellow
+                              Write-host "`t`t`t- Spanish" -f Yellow
+                              Write-host "`t`t`t- Danish" -f Yellow
+                              Write-host "`t`t`t- France" -f Yellow
+                              Write-host "`t`t`t- Japanese" -f Yellow
+                              Write-host "`t`t`t- Norwegian" -f Yellow
+                              Write-host "`t`t`t- Russia" -f Yellow
+                              Write-host "`t`t`t- Sweden" -f Yellow
                               "";"";
                               DO {                     
                                   $answer3 = Read-host -Prompt "`tEnter your language from above"
@@ -1000,18 +1000,19 @@ Function app_installer {
                                   elseif("$answer3" -match "^Swe")   {$lang = "sv-se"}}
                               While($lang -notin "en-us", "de-de","es-es","da-dk","fr-fr","ja-jp","nb-no","ru-ru","sv-se")
                           
-                        # Download and customize script
-                              # Download template
-                              $link = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/install-office.ps1"
-                              $officescript = "$($env:ProgramData)\office-script.ps1"
-                              (New-Object net.webclient).Downloadfile($link, $officescript)
-                              # Add to script
-                              ((Get-Content -path $officescript -Raw) -replace 'REPLACE-ME-FULLNAME', $name ) | Set-Content -Path $officescript;
-                              ((Get-Content -path $officescript -Raw) -replace 'REPLACE-ME-VERSION', $ver ) | Set-Content -Path $officescript;
-                              ((Get-Content -path $officescript -Raw) -replace 'REPLACE-ME-LANGUAGE', $lang ) | Set-Content -Path $officescript;
-                              # Execute script
-                              write-host "`tInstallation is running in the background."
-                              Start-Process PowerShell -argument "-Ep bypass -Windowstyle hidden -file `"$officescript`""
+                        #Installation
+                            # Download modify and exeute script
+                                # Download
+                                    $link = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/install-office.ps1"
+                                    $officescript = "$($env:ProgramData)\office-script.ps1"
+                                    (New-Object net.webclient).Downloadfile($link, $officescript)   
+                                # Modify
+                                    ((Get-Content -path $officescript -Raw) -replace 'REPLACE-ME-FULLNAME', $name ) | Set-Content -Path $officescript;
+                                    ((Get-Content -path $officescript -Raw) -replace 'REPLACE-ME-VERSION', $ver ) | Set-Content -Path $officescript;
+                                    ((Get-Content -path $officescript -Raw) -replace 'REPLACE-ME-LANGUAGE', $lang ) | Set-Content -Path $officescript;
+                                # Execute
+                                    write-host "`tInstallation is running in the background."
+                                    Start-Process PowerShell -argument "-Ep bypass -Windowstyle hidden -file `"$officescript`""
                               
                           }
               
