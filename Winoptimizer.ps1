@@ -967,9 +967,9 @@ Function app_installer {
                                 Write-Host "`t`tWhich version would you prefer?" -f Green -nonewline;
                                 $answer2 = Read-host -Prompt " "
                                 if("$answer2" -eq "Cancel"){}                         
-                                elseif("$answer2" -match "365")       {$ver = "O365BusinessRetail"}
-                                elseif("$answer2" -match "2019")      {$ver = "HomeBusiness2019Retail"}
-                                elseif("$answer2" -match "2016")      {$ver = "HomeBusinessRetail"}}
+                                elseif("$answer2" -match "365")       {$ver = "O365BusinessRetail"; $name = "Microsoft 365";}
+                                elseif("$answer2" -match "2019")      {$ver = "HomeBusiness2019Retail"; $name = "Microsoft Office 2019";}
+                                elseif("$answer2" -match "2016")      {$ver = "HomeBusinessRetail"; $name = "Microsoft Office 2016"}}
                               While($ver -notin "O365BusinessRetail", "HomeBusiness2019Retail","HomeBusinessRetail")     
                       
                         # Choose Language
@@ -1006,6 +1006,7 @@ Function app_installer {
                               $officescript = "$($env:ProgramData)\office-script.ps1"
                               (New-Object net.webclient).Downloadfile($link, $officescript)               
                               # Add to script
+                              ((Get-Content -path $officescript -Raw) -replace 'REPLACE-ME-FULLNAME', $name ) | Set-Content -Path $officescript;
                               ((Get-Content -path $officescript -Raw) -replace 'REPLACE-ME-VERSION', $ver ) | Set-Content -Path $officescript;
                               ((Get-Content -path $officescript -Raw) -replace 'REPLACE-ME-LANGUAGE', $lang ) | Set-Content -Path $officescript;
 
