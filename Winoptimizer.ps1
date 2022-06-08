@@ -1009,7 +1009,6 @@ Function app_installer {
                               ((Get-Content -path $officescript -Raw) -replace 'REPLACE-ME-FULLNAME', $name ) | Set-Content -Path $officescript;
                               ((Get-Content -path $officescript -Raw) -replace 'REPLACE-ME-VERSION', $ver ) | Set-Content -Path $officescript;
                               ((Get-Content -path $officescript -Raw) -replace 'REPLACE-ME-LANGUAGE', $lang ) | Set-Content -Path $officescript;
-
                               # Execute script
                               write-host "`tInstallation is running in the background."
                               Start-Process PowerShell -argument "-Ep bypass -Windowstyle hidden -file `"$officescript`""
