@@ -956,16 +956,16 @@ Function app_installer {
               
                         # Choose version
                               "";
-                              Write-host "Version Menu:"
+                              Write-host "`t`tVersion Menu:"
                               "";
-                              Write-host "`t - Microsoft 365"
-                              Write-host "`t - Microsoft Office 2019 Business Retail"
-                              Write-host "`t - Microsoft Office 2016 Business Retail"
+                              Write-host "`t`t`t - Microsoft 365" -f Yellow
+                              Write-host "`t`t`t - Microsoft Office 2019 Business Retail" -f Yellow
+                              Write-host "`t`t`t - Microsoft Office 2016 Business Retail" -f Yellow
                               "";"";
                               DO {                     
                          
-              
-                                $answer2 = Read-host -Prompt "`tWhich version would you prefer?"
+                                Write-Host "`t`tWhich version would you prefer?" -f Green -nonewline;
+                                $answer2 = Read-host -Prompt " "
                                 if("$answer2" -eq "Cancel"){}                         
                                 elseif("$answer2" -match "365")       {$ver = "O365BusinessRetail"}
                                 elseif("$answer2" -match "2019")      {$ver = "HomeBusiness2019Retail"}
