@@ -13,5 +13,5 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 
 Get-AppxPackage | Where-Object Name -Match "Microsoft.MicrosoftOfficeHub|Microsoft.Office.OneNote" | Remove-AppxPackage;
 New-BurntToastNotification -Applogo $logo -Text "Microsoft Office", "Office is being installed."
-choco install microsoft-office-deployment /Product REPLACE-ME-VERSION /Language REPLACE-ME-LANGUAGE
+choco install microsoft-office-deployment /64bit /Product REPLACE-ME-VERSION /Language REPLACE-ME-LANGUAGE -y
 New-BurntToastNotification -Applogo $logo -Text "Microsoft Office", "Program installed! Enjoy."

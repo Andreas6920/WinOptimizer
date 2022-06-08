@@ -1006,7 +1006,8 @@ Function app_installer {
                               $officescript = "$($env:ProgramData)\office-script.ps1"
                               (New-Object net.webclient).Downloadfile($link, $officescript)               
                               # Add to script
-                              
+                              ((Get-Content -path $officescript -Raw) -replace 'REPLACE-ME-VERSION', $ver ) | Set-Content -Path $officescript;
+                              ((Get-Content -path $officescript -Raw) -replace 'REPLACE-ME-LANGUAGE', $lang ) | Set-Content -Path $officescript;
 
                               # Execute script
                               write-host "`tInstallation is running in the background."
@@ -1037,7 +1038,7 @@ $intro =
 | |/ |/ / / / / / /_/ / /_/ / /_/ / / / / / / / / /_/  __/ /    
 |__/|__/_/_/ /_/\____/ .___/\__/_/_/ /_/ /_/_/ /___/\___/_/     
                     /_/                                         
-Version 2.6
+Version 2.7
 Creator: Andreas6920 | https://github.com/Andreas6920/
                                                                                                                                                     
  "
