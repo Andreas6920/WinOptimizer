@@ -11,9 +11,10 @@ $version = "REPLACE-ME-FULLNAME"
     $balmsg.Visible = $true
     $balmsg.ShowBalloonTip(20000)
 
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-Get-AppxPackage | Where-Object Name -Match "Microsoft.MicrosoftOfficeHub|Microsoft.Office.OneNote" | Remove-AppxPackage;
-New-BurntToastNotification -Applogo $logo -Text "Microsoft Office", "Program installed! Enjoy."
+# Installation
+    Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+    Get-AppxPackage | Where-Object Name -Match "Microsoft.MicrosoftOfficeHub|Microsoft.Office.OneNote" | Remove-AppxPackage;
+    New-BurntToastNotification -Applogo $logo -Text "Microsoft Office", "Program installed! Enjoy."
 
 # Windows notification 2
     Add-Type -AssemblyName System.Windows.Forms
