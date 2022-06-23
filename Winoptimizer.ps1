@@ -907,6 +907,75 @@ Function app_installer {
                     elseif("Ubisoft Connect" -match "$requested_app"){Appinstall -Name "Ubisoft Connect" -App "ubisoft-connect"}
             }
 
+            DO {
+                Write-Host "`tWould you like to Install Microsoft Office? (y/n)" -f Green -nonewline;
+                $answer1 = Read-host " " 
+                    Switch ($answer1) { 
+              
+                    y {        
+              
+                        # Choose version
+                            "";
+                            Write-host "`t`tVersion Menu:" -f Green
+                            "";
+                            Write-host "`t`t`t - Microsoft 365" -f Yellow
+                            Write-host "`t`t`t - Microsoft Office 2019 Business Retail" -f Yellow
+                            Write-host "`t`t`t - Microsoft Office 2016 Business Retail" -f Yellow
+                            "";
+                            DO {                     
+                                Write-Host "`t`tWhich version would you prefer?" -f Green -nonewline;
+                                $answer2 = Read-host " "
+                                if("$answer2" -eq "Cancel"){Write-Host "`tSkipping this section.."}                         
+                                elseif("$answer2" -match "365")       {$ver = "O365BusinessRetail"; $name = "Microsoft 365";}
+                                elseif("$answer2" -match "2019")      {$ver = "HomeBusiness2019Retail"; $name = "Microsoft Office 2019";}
+                                elseif("$answer2" -match "2016")      {$ver = "HomeBusinessRetail"; $name = "Microsoft Office 2016"}}
+                            While($ver -notin "O365BusinessRetail", "HomeBusiness2019Retail","HomeBusinessRetail")     
+                      
+                        # Choose Language
+                              "";
+                              Write-host "`t`tLanguage Menu:" -f Green
+                              "";
+                              Write-host "`t`t`t- English (United States)" -f Yellow
+                              Write-host "`t`t`t- German" -f Yellow
+                              Write-host "`t`t`t- Spanish" -f Yellow
+                              Write-host "`t`t`t- Danish" -f Yellow
+                              Write-host "`t`t`t- France" -f Yellow
+                              Write-host "`t`t`t- Japanese" -f Yellow
+                              Write-host "`t`t`t- Norwegian" -f Yellow
+                              Write-host "`t`t`t- Russia" -f Yellow
+                              Write-host "`t`t`t- Sweden" -f Yellow
+                              "";
+                              DO {       
+                                Write-Host "`t`tEnter your language from above" -f Green -nonewline;
+                                $answer3 = Read-host " "              
+                                if("$answer3" -eq "Cancel"){Write-Host "`tSkipping this section.."}                         
+                                elseif("$answer3" -match "^Eng")   {$lang = "en-us"}
+                                elseif("$answer3" -match "^Ger")   {$lang = "de-de"}
+                                elseif("$answer3" -match "^Spa")   {$lang = "es-es"}
+                                elseif("$answer3" -match "^Dan")   {$lang = "da-dk"}
+                                elseif("$answer3" -match "^Fra")   {$lang = "fr-fr"}
+                                elseif("$answer3" -match "^Jap")   {$lang = "ja-jp"}
+                                elseif("$answer3" -match "^Nor")   {$lang = "nb-no"}
+                                elseif("$answer3" -match "^Rus")   {$lang = "ru-ru"}
+                                elseif("$answer3" -match "^Swe")   {$lang = "sv-se"}}
+                              While($lang -notin "en-us", "de-de","es-es","da-dk","fr-fr","ja-jp","nb-no","ru-ru","sv-se")
+                          
+                        #Installation
+                            # Modify install script
+                                # Download
+                                    $link = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/install-office.ps1"
+                                    $appinstall = "$($env:ProgramData)\Winoptimizer\appinstall.ps1"
+                                    if(!(test-path $appinstall)){new-item -ItemType Directory ($appinstall | Split-Path) -ea ignore | out-null; New-item $appinstall -ea ignore | out-null;}
+                                    Add-content -Encoding UTF8 -Value (invoke-webrequest $link).Content.replace('REPLACE-ME-FULLNAME', $Name).replace('REPLACE-ME-VERSION', $ver).replace('REPLACE-ME-LANGUAGE', $lang) -Path $appinstall
+                          }
+              
+                                       
+                       
+                       
+                    n {Write-host "`t`t- NO. Skipping this step."}}}
+            
+                While ($answer1 -notin "y", "n")
+
             Start-Process PowerShell -argument "-Ep bypass -Windowstyle hidden -file `"""$($env:ProgramData)\Winoptimizer\appinstall.ps1""`""
     
     
@@ -938,81 +1007,7 @@ Function app_installer {
             
  
 
-            DO {
-                Write-Host "`tWould you like to Install Microsoft Office? (y/n)" -f Green -nonewline;
-                $answer1 = Read-host -Prompt " " 
-                    Switch ($answer1) { 
-              
-                    y {        
-              
-                        # Choose version
-                            "";
-                            Write-host "`t`tVersion Menu:" -f Green
-                            "";
-                            Write-host "`t`t`t - Microsoft 365" -f Yellow
-                            Write-host "`t`t`t - Microsoft Office 2019 Business Retail" -f Yellow
-                            Write-host "`t`t`t - Microsoft Office 2016 Business Retail" -f Yellow
-                            "";
-                            DO {                     
-                                Write-Host "`t`tWhich version would you prefer?" -f Green -nonewline;
-                                $answer2 = Read-host -Prompt " "
-                                if("$answer2" -eq "Cancel"){Write-Host "`tSkipping this section.."}                         
-                                elseif("$answer2" -match "365")       {$ver = "O365BusinessRetail"; $name = "Microsoft 365";}
-                                elseif("$answer2" -match "2019")      {$ver = "HomeBusiness2019Retail"; $name = "Microsoft Office 2019";}
-                                elseif("$answer2" -match "2016")      {$ver = "HomeBusinessRetail"; $name = "Microsoft Office 2016"}}
-                            While($ver -notin "O365BusinessRetail", "HomeBusiness2019Retail","HomeBusinessRetail")     
-                      
-                        # Choose Language
-                              "";
-                              Write-host "`t`tLanguage Menu:" -f Green
-                              "";
-                              Write-host "`t`t`t- English (United States)" -f Yellow
-                              Write-host "`t`t`t- German" -f Yellow
-                              Write-host "`t`t`t- Spanish" -f Yellow
-                              Write-host "`t`t`t- Danish" -f Yellow
-                              Write-host "`t`t`t- France" -f Yellow
-                              Write-host "`t`t`t- Japanese" -f Yellow
-                              Write-host "`t`t`t- Norwegian" -f Yellow
-                              Write-host "`t`t`t- Russia" -f Yellow
-                              Write-host "`t`t`t- Sweden" -f Yellow
-                              "";
-                              DO {       
-                                Write-Host "`t`tEnter your language from above" -f Green -nonewline;
-                                $answer3 = Read-host -Prompt " "              
-                                if("$answer3" -eq "Cancel"){Write-Host "`tSkipping this section.."}                         
-                                elseif("$answer3" -match "^Eng")   {$lang = "en-us"}
-                                elseif("$answer3" -match "^Ger")   {$lang = "de-de"}
-                                elseif("$answer3" -match "^Spa")   {$lang = "es-es"}
-                                elseif("$answer3" -match "^Dan")   {$lang = "da-dk"}
-                                elseif("$answer3" -match "^Fra")   {$lang = "fr-fr"}
-                                elseif("$answer3" -match "^Jap")   {$lang = "ja-jp"}
-                                elseif("$answer3" -match "^Nor")   {$lang = "nb-no"}
-                                elseif("$answer3" -match "^Rus")   {$lang = "ru-ru"}
-                                elseif("$answer3" -match "^Swe")   {$lang = "sv-se"}}
-                              While($lang -notin "en-us", "de-de","es-es","da-dk","fr-fr","ja-jp","nb-no","ru-ru","sv-se")
-                          
-                        #Installation
-                            # Download modify and exeute script
-                                # Download
-                                    $link = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/install-office.ps1"
-                                    $officescript = "$($env:ProgramData)\office-script.ps1"
-                                    (New-Object net.webclient).Downloadfile($link, $officescript)   
-                                # Modify
-                                    ((Get-Content -path $officescript -Raw) -replace 'REPLACE-ME-FULLNAME', $name ) | Set-Content -Path $officescript;
-                                    ((Get-Content -path $officescript -Raw) -replace 'REPLACE-ME-VERSION', $ver ) | Set-Content -Path $officescript;
-                                    ((Get-Content -path $officescript -Raw) -replace 'REPLACE-ME-LANGUAGE', $lang ) | Set-Content -Path $officescript;
-                                # Execute
-                                    write-host "`tInstallation is running in the background."
-                                    Start-Process PowerShell -argument "-Ep bypass -Windowstyle hidden -file `"$officescript`""
-                              
-                          }
-              
-                                       
-                       
-                       
-                    n {Write-host "`t`t- NO. Skipping this step."}}}
-            
-            While ($answer1 -notin "y", "n")
+
 
 
 
