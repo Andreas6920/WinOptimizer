@@ -4,7 +4,7 @@ Clear-Host
 
 #Functions
 
-function block_input{
+Function block_input{
     $code = @"
 [DllImport("user32.dll")]
 public static extern bool BlockInput(bool fBlockIt);
@@ -13,7 +13,7 @@ public static extern bool BlockInput(bool fBlockIt);
     $userInput::BlockInput($true)
     }
 
-function allow_input{
+Function allow_input{
     $code = @"
 [DllImport("user32.dll")]
 public static extern bool BlockInput(bool fBlockIt);
@@ -23,15 +23,11 @@ public static extern bool BlockInput(bool fBlockIt);
     }
 
 Function restart-explorer{
-    block_input | Out-Null
-    $windowname = $Host.UI.RawUI.WindowTitle
-    $key = New-Object -com Wscript.Shell
-    Stop-Process -Name "Explorer"; Start-Sleep -s 2
-    $key.AppActivate("$windowname") | Out-Null
-    Start-Sleep -s 1
-    allow_input | Out-Null}
-
-
+taskkill /IM explorer.exe /F | Out-Null
+start explorer | Out-Null
+$windowname = $Host.UI.RawUI.WindowTitle
+Add-Type -AssemblyName Microsoft.VisualBasic
+[Microsoft.VisualBasic.Interaction]::AppActivate($windowname)}
 
 Function remove_bloatware {
     Write-host "REMOVING MICROSOFT BLOAT" -f Green;"";
@@ -285,6 +281,7 @@ Function remove_bloatware {
         Start-Sleep 10
                 
 }
+
 Function settings_privacy {
       
     Write-host "`tENHANCE WINDOWS PRIVACY" -f Green
@@ -546,6 +543,12 @@ Function settings_customize {
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
     } While ($answer -notin "y", "n")     
+
+
+    $windowname = $Host.UI.RawUI.WindowTitle
+
+
+    $excelpid = (Get-Process | Where-Object { $_.MainWindowHandle -eq $excel.Hwnd }).Id
     
     
     # Remove login screensaver
