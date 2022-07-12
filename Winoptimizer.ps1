@@ -1,14 +1,38 @@
-﻿asdsadasdsadsasadasdasdasdasdsadsad<#      
-        Customize windows - Verify hyper-v installation
-        Customize windows - Windows terminal need Microsoft.VCLibs.140.00.UWPDesktop
-        
-        
-#>
-#clean terminal before run
+﻿#clean terminal before run
 Clear-Host
 
 
 #Functions
+
+function block_input{
+    $code = @"
+[DllImport("user32.dll")]
+public static extern bool BlockInput(bool fBlockIt);
+"@
+    $userInput = Add-Type -MemberDefinition $code -Name UserInput -Namespace UserInput -PassThru
+    $userInput::BlockInput($true)
+    }
+
+function allow_input{
+    $code = @"
+[DllImport("user32.dll")]
+public static extern bool BlockInput(bool fBlockIt);
+"@
+    $userInput = Add-Type -MemberDefinition $code -Name UserInput -Namespace UserInput -PassThru
+    $userInput::BlockInput($false)
+    }
+
+Function restart-explorer{
+    block_input | Out-Null
+    $windowname = $Host.UI.RawUI.WindowTitle
+    $key = New-Object -com Wscript.Shell
+    Stop-Process -Name "Explorer"; Start-Sleep -s 2
+    $key.AppActivate("$windowname") | Out-Null
+    Start-Sleep -s 1
+    allow_input | Out-Null}
+
+
+
 Function remove_bloatware {
     Write-host "REMOVING MICROSOFT BLOAT" -f Green;"";
     Start-Sleep -s 3
@@ -90,7 +114,7 @@ Function remove_bloatware {
             $ProgressPreference = "SilentlyContinue" # hide progressbar
             foreach ($Bloat in $Bloatware) {
                 $bloat_name = (Get-AppxPackage | Where-Object Name -Like $Bloat).Name
-                if (Get-AppxPackage | Where-Object Name -Like $Bloat){Write-host "`t`t- Removing: " -f Yellow -nonewline; ; write-host "$bloat_name".Split(".")[1].Split("}")[0].Replace('Microsoft','') -f Yellow; Get-AppxPackage | Where-Object Name -Like $Bloat | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null}
+                if (Get-AppxPackage | Where-Object Name -Like $Bloat){Write-host "`t`t- Removing: " -f Yellow -nonewline; write-host "$bloat_name".Split(".")[1].Split("}")[0].Replace('Microsoft','') -f Yellow; Get-AppxPackage | Where-Object Name -Like $Bloat | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null}
                 Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online | Out-Null} 
             $ProgressPreference = "Continue" #unhide progressbar
             write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
@@ -198,22 +222,14 @@ Function remove_bloatware {
             $keys | % { if(!(test-path $_)){ New-Item -Path $_ -Force | Out-Null; Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 1; Set-ItemProperty -Path $_ -Name "StartLayoutFile" -Value $layoutFile } }
             
             # Restart explorer
-            Write-host "`t`t- Restarting explorer..." -f Yellow
-            $windowname = $Host.UI.RawUI.WindowTitle
-            $key = New-Object -com Wscript.Shell
-            Stop-Process -Name "Explorer"; Start-Sleep -s 2
-            $key.AppActivate("$windowname") | Out-Null
+            restart-explorer
 
             # Enable pinning
             Write-host "`t`t- Fixing pinning..." -f Yellow
             $keys | % { Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 0 }
             
             #Restart explorer
-            Write-host "`t`t- Restarting explorer..." -f Yellow
-            $windowname = $Host.UI.RawUI.WindowTitle
-            $key = New-Object -com Wscript.Shell
-            Stop-Process -Name "Explorer"; Start-Sleep -s 2
-            $key.AppActivate("$windowname") | Out-Null
+            restart-explorer
 
             # Save menu to all users
             write-host "`t`t- Save changes to all users.." -f Yellow
@@ -393,23 +409,6 @@ Function settings_privacy {
     # Send Microsoft a request to delete collected data about you.
         
         #lock keyboard and mouse to avoid disruption while navigating in GUI.
-        function block_input{
-            $code = @"
-        [DllImport("user32.dll")]
-        public static extern bool BlockInput(bool fBlockIt);
-"@
-            $userInput = Add-Type -MemberDefinition $code -Name UserInput -Namespace UserInput -PassThru
-            $userInput::BlockInput($true)
-            }
-    
-        function allow_input{
-            $code = @"
-        [DllImport("user32.dll")]
-        public static extern bool BlockInput(bool fBlockIt);
-"@
-            $userInput = Add-Type -MemberDefinition $code -Name UserInput -Namespace UserInput -PassThru
-            $userInput::BlockInput($false)
-            }
     
         
         block_input | Out-Null
@@ -517,20 +516,18 @@ Function settings_privacy {
             Write-host "        - Patching Bad Metldown (CVE-2017-5754)." -f yellow
             Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name FeatureSettingsOverrideMask -Type DWORD -Value 3 -Force -ea SilentlyContinue | Out-Null
             Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Virtualization" -Name MinVmVersionForCpuBasedMitigations -Type String -Value "1.0" -Force -ea SilentlyContinue | Out-Null
-                        
             
-        write-host "      COMPLETE - PRIVACY OPTIMIZATION" -f Yellow
-        Start-Sleep 10
-        write-host "      COMPLETE - PRIVACY OPTIMIZATION" -f yellow
-        start-sleep 10
+        #End of function
+            write-host "`tPrivacy optimizer complete. Your system is now optimzed." -f Green
+            Start-Sleep 10
     
 }
      
 Function settings_customize {
     
-    # Remove 
+    # Remove Cortana
     Do {
-        Write-Host "`t- Would you like to remove Cortana? (y/n)" -f Yellow -nonewline; ;
+        Write-Host "`t- Would you like to remove Cortana? (y/n)" -f Yellow -nonewline;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
@@ -544,10 +541,7 @@ Function settings_customize {
                 $ProgressPreference = "Continue" # unhide progressbar
                 
                 #Restart explorer
-                $windowname = $Host.UI.RawUI.WindowTitle
-                $key = New-Object -com Wscript.Shell
-                Stop-Process -Name "Explorer"; Start-Sleep -s 2
-                $key.AppActivate("$windowname") | Out-Null
+                restart-explorer
             }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
@@ -556,7 +550,7 @@ Function settings_customize {
     
     # Remove login screensaver
     Do {
-        Write-Host "`t- Disable LockScreen ScreenSaver? To prevent missing first character(y/n)" -f Yellow -nonewline; ;
+        Write-Host "`t- Disable LockScreen ScreenSaver? To prevent missing first character (y/n)" -f Yellow -nonewline;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
@@ -571,7 +565,7 @@ Function settings_customize {
 
     # Taskbar: Hide Searchbox
     Do {
-        Write-Host "`t- Hide Searchbox in the taskbar? (y/n)" -f Yellow -nonewline; ;
+        Write-Host "`t- Hide Searchbox in the taskbar? (y/n)" -f Yellow -nonewline;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
@@ -580,10 +574,7 @@ Function settings_customize {
                 New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name SearchboxTaskbarMode -Value 0 -Type Dword -Force | Out-Null
                 
                 #Restart explorer
-                $windowname = $Host.UI.RawUI.WindowTitle
-                $key = New-Object -com Wscript.Shell
-                Stop-Process -Name "Explorer"; Start-Sleep -s 2
-                $key.AppActivate("$windowname") | Out-Null
+                restart-explorer
             }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
@@ -591,7 +582,7 @@ Function settings_customize {
         
     # Taskbar: Hide task view button
     Do {
-        Write-Host "`t- Hide task view button? (y/n)" -f Yellow -nonewline; ;
+        Write-Host "`t- Hide task view button? (y/n)" -f Yellow -nonewline;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
@@ -603,10 +594,7 @@ Function settings_customize {
                 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type DWord -Value 0
 
                 #Restart explorer
-                $windowname = $Host.UI.RawUI.WindowTitle
-                $key = New-Object -com Wscript.Shell
-                Stop-Process -Name "Explorer"; Start-Sleep -s 2
-                $key.AppActivate("$windowname") | Out-Null
+                restart-explorer
             }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
@@ -614,14 +602,13 @@ Function settings_customize {
 
     # Show file extensions
     Do {
-        Write-Host "`t- Show known filetype extensions? (y/n)" -f Yellow -nonewline; ;
+        Write-Host "`t- Show known filetype extensions? (y/n)" -f Yellow -nonewline;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
                 Write-Host "`t`t- YES. Show file extensions." -f Green
                 If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
-                    New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null
-                }
+                    New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null }
                 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 0
             }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
@@ -630,14 +617,13 @@ Function settings_customize {
             
     # Show hidden files
     Do {
-        Write-Host "`t- Show hidden files? (y/n)" -f Yellow -nonewline; ;
+        Write-Host "`t- Show hidden files? (y/n)" -f Yellow -nonewline;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
                 Write-Host "`t`t- YES. Show hidden files." -f Green
                 If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
-                    New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null
-                }
+                    New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null}
                 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type DWord -Value 1 
             }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
@@ -646,7 +632,7 @@ Function settings_customize {
 
     # Enable Windows Dark Mode
     Do {
-        Write-Host "`t- Enable Dark Mode (y/n)" -f Yellow -nonewline; ;
+        Write-Host "`t- Enable Dark Mode (y/n)" -f Yellow -nonewline;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
@@ -660,7 +646,7 @@ Function settings_customize {
           
     # Change Explorer to "This PC"
     Do {
-        Write-Host "`t- Change Explorer to 'This PC'? (y/n)" -f Yellow -nonewline; ;
+        Write-Host "`t- Change Explorer to 'This PC'? (y/n)" -f Yellow -nonewline;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
@@ -673,7 +659,7 @@ Function settings_customize {
         
     # Start Menu: Disable Bing Search Results
     Do {
-        Write-Host "`t- Disable Bing Search Results in StartMenu? (y/n)" -f Yellow -nonewline; ;
+        Write-Host "`t- Disable Bing Search Results in StartMenu? (y/n)" -f Yellow -nonewline;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
@@ -686,7 +672,7 @@ Function settings_customize {
 
     # Remove 3D objects
     Do {
-        Write-Host "`t- Remove '3D Objects' shortcuts? (y/n)" -f Yellow -nonewline; ;
+        Write-Host "`t- Remove '3D Objects' shortcuts? (y/n)" -f Yellow -nonewline;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
@@ -702,11 +688,11 @@ Function settings_customize {
 
     # Install Hyper-V
     Do {
-        Write-Host "`t- Install Hyper-V? (y/n)" -f Yellow -nonewline; ;
+        Write-Host "`t- Install Hyper-V? (y/n)" -f Yellow -nonewline;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
-                Write-Host "`t`t- YES. This may take a while.." -f Green
+                Write-Host "`t`t- YES. Installing Hyper-V.. (this may take a while)" -f Green
                 $ProgressPreference = "SilentlyContinue" #hide progressbar
                 if (((Get-WmiObject -class Win32_OperatingSystem).Caption) -match "Home"){$dst = "$env:TMP\install-hyper-v"
                     write-host "`t`t- Windows Home detected, additional script is needed!" -f Green
@@ -722,26 +708,34 @@ Function settings_customize {
                 elseIf ((Get-WmiObject -Class "Win32_OperatingSystem").Caption -like "*Server*") {
                     Install-WindowsFeature -Name "Hyper-V" -IncludeManagementTools -WarningAction SilentlyContinue | Out-Null}
                 Else { Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Hyper-V-All" -NoRestart -WarningAction SilentlyContinue | Out-Null }
-                $ProgressPreference = "Continue" #unhide progressbar 
+                $ProgressPreference = "Continue" #unhide progressbar
                 Write-Host "`t`t- Installation complete. Restart PC to take effect." -f Green;
             }
-            N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
+            N { Write-Host "`t`t- NO. Skipping this step." -f Yellow -nonewline;} 
         }   
     } While ($answer -notin "y", "n")  
 
     # Install Linux Sub-system
     Do {
-        Write-Host "`t- Install Linux Sub-system? (y/n)" -f Yellow -nonewline; ;
+        Write-Host "`t- Install Linux Sub-system? (y/n)" -f Yellow -nonewline;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
-                Write-Host "`t`t- YES. Linux-subsystem is installing.." -f Green
+                Write-Host "`t`t- YES. Installing Linux sub-system.. (this may take a while)" -f Green
+                $ProgressPreference = "SilentlyContinue" #hide progressbar
+                # Enable Feature
                 If ([System.Environment]::OSVersion.Version.Build -ge 14393) {
                     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" -Name "AllowDevelopmentWithoutDevLicense" -Type DWord -Value 1
-                    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" -Name "AllowAllTrustedApps" -Type DWord -Value 1
-                }
+                    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" -Name "AllowAllTrustedApps" -Type DWord -Value 1}
                 Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-Subsystem-Linux" -NoRestart -WarningAction SilentlyContinue | Out-Null 
-                Write-Host "`t`t- Installation complete. Restart PC to take effect." -f Green 
+                
+                # Download / Install Ubuntu
+                $link = "https://wsldownload.azureedge.net/Ubuntu_2004.2020.424.0_x64.appx"
+                $file = $($env:TMP)+"\"+(Split-Path $link -Leaf)
+                (New-Object net.webclient).Downloadfile("$link", "$file")
+                Add-AppxPackage $file; Start-Sleep -S 3; Remove-item $file
+                $ProgressPreference = "Continue" #unhide progressbar
+                Write-Host "`t`t- Installation complete." -f Green;
             }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
@@ -749,41 +743,52 @@ Function settings_customize {
 
     # Windows Terminal
     Do {
-        Write-Host "`t- Install Windows Terminal? (y/n)" -f Yellow -nonewline; ;
+        Write-Host "`t- Install Windows Terminal? (y/n)" -f Yellow -nonewline; 
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
-                Write-Host "`t`t- YES. Install windows Terminal.." -f Green
-                $link = "https://github.com"+((iwr -useb 'https://github.com/microsoft/terminal/releases/latest').Links | ? href -match 'Win10.*.msixbundle$').href
+                
+                Write-Host "`t`t- YES. Installing Windows Terminal.." -f Green
+                $ProgressPreference = "SilentlyContinue" #hide progressbar
+                
+                # Install VClibs
+                $link = "https://github.com/M1k3G0/Win10_LTSC_VP9_Installer/raw/master/Microsoft.VCLibs.140.00.UWPDesktop_14.0.30704.0_x64__8wekyb3d8bbwe.Appx"
                 $file = $($env:TMP)+"\"+(Split-Path $link -Leaf)
                 (New-Object net.webclient).Downloadfile("$link", "$file"); Add-AppxPackage $file; Remove-Item $file
+
+                # Install terminal
+                $link = "https://github.com"+((iwr -useb 'https://github.com/microsoft/terminal/releases/latest').Links | ? href -match 'Win10.*.msixbundle$').href
+                $file = $($env:TMP)+"\"+(Split-Path $link -Leaf)
+                (New-Object net.webclient).Downloadfile("$link", "$file"); Start-Sleep -S 3; Add-AppxPackage $file; Remove-Item $file
+
+                # Restart explorer
+                restart-explorer
+                
             }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
     } While ($answer -notin "y", "n")      
 
-    # Windows Terminal
+    # Powershell Core
     Do {
-        Write-Host "`t- Install Powershell Core? (y/n)" -f Yellow -nonewline; ;
+        Write-Host "`t- Install Powershell Core? (y/n)" -f Yellow -nonewline;
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
+                Write-Host "`t`t- YES. Installing PowerShell Core.." -f Green
                 $link = "https://github.com"+((iwr -useb 'https://github.com/PowerShell/powershell/releases/latest/').Links | ? href -match 'win-x64.msi').href
                 $file = $($env:TMP)+"\"+(Split-Path $link -Leaf)
                 (New-Object net.webclient).Downloadfile("$link", "$file"); Start-Sleep -s 3; Start-Process $file -ArgumentList "/quiet /passive"
+                $windowname = $Host.UI.RawUI.WindowTitle; $key = New-Object -com Wscript.Shell; Start-Sleep -S 1; $key.AppActivate("$windowname") | Out-Null
               }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
-    } While ($answer -notin "y", "n")      
-
-
-
+    } While ($answer -notin "y", "n")
     
+    #End of function
+    write-host "`tWindows customizer completed. Your system is now customized." -f Green
+    Start-Sleep 10
 
-    # This module is complete, refreshing explorer.    
-    Stop-Process -ProcessName explorer
-                       
-       
 }
 
 Function app_installer {
@@ -819,7 +824,7 @@ Function app_installer {
             "";
             
             Do {
-                Write-Host "`tWould you like to Install Microsoft .NET Framework? (y/n)" -f Green -nonewline; ;
+                Write-Host "`tWould you like to Install Microsoft .NET Framework? (y/n)" -f Green -nonewline;
                 $answer = Read-Host " " 
                 Switch ($answer) { 
                     Y {
@@ -836,7 +841,7 @@ Function app_installer {
             While ($answer -notin "y", "n")
             
             Do {
-                Write-Host "`tWould you like to install all Microsoft Visual C++ Redistributable versions? (y/n)" -f Green -nonewline; ;
+                Write-Host "`tWould you like to install all Microsoft Visual C++ Redistributable versions? (y/n)" -f Green -nonewline;
                 $answer = Read-Host " " 
                 Switch ($answer) { 
                     Y {
@@ -920,7 +925,7 @@ Function app_installer {
             "";
             Write-host "    ** List multiple programs seperated by , (comma) - spaces are allowed." -f Yellow;
             "";
-            Write-host "Type the programs you would like to be installed on this system" -nonewline; 
+            Write-host "Type the programs you would like to be installed on this system" -nonewline;
             
 
             $requested_apps = (Read-Host " ").Split(",") | Foreach-object { $_ -replace ' ',''}
@@ -1070,7 +1075,9 @@ Function app_installer {
 
             
  
-
+    #End of function
+    write-host "`tApp installer completed. Enjoy your freshly installed applications." -f Green
+    Start-Sleep 10
 
 
 
@@ -1087,7 +1094,7 @@ $intro =
 | |/ |/ / / / / / /_/ / /_/ / /_/ / / / / / / / / /_/  __/ /    
 |__/|__/_/_/ /_/\____/ .___/\__/_/_/ /_/ /_/_/ /___/\___/_/     
                     /_/                                         
-Version 2.7
+Version 2.8
 Creator: Andreas6920 | https://github.com/Andreas6920/
                                                                                                                                                     
  "
@@ -1110,7 +1117,7 @@ if ($admin_permissions_check) {
         "";
         Write-host "        [0] - Exit"
         Write-host ""; Write-host "";
-        Write-Host "Option: " -f Yellow -nonewline; ; ;
+        Write-Host "Option: " -f Yellow -nonewline; ;
         $option = Read-Host
         Switch ($option) { 
             0 { exit }
