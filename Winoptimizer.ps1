@@ -752,7 +752,7 @@ Function settings_customize {
                 $ProgressPreference = "SilentlyContinue" #hide progressbar
                 
                 # Install VClibs
-                $link = "https://github.com/M1k3G0/Win10_LTSC_VP9_Installer/raw/master/Microsoft.VCLibs.140.00.UWPDesktop_14.0.30704.0_x64__8wekyb3d8bbwe.Appx"
+                $link = "https://github.com/Andreas6920/WinOptimizer/raw/main/res/Microsoft.VCLibs.140.00.UWPDesktop_14.0.30704.0_x64__8wekyb3d8bbwe.Appx"
                 $file = $($env:TMP)+"\"+(Split-Path $link -Leaf)
                 (New-Object net.webclient).Downloadfile("$link", "$file"); Add-AppxPackage $file; Remove-Item $file
 
@@ -894,7 +894,7 @@ Function app_installer {
             if(!(test-path $appinstall)){new-item -ItemType Directory ($appinstall | Split-Path) -ea ignore | out-null; New-item $appinstall -ea ignore | out-null;}
             if(!((get-content $appinstall) -notmatch "https://community.chocolatey.org/install.ps1")){Set-content -Encoding UTF8 -Value $code -Path $appinstall}
         
-            Add-content -Encoding UTF8 -Value (invoke-webrequest "https://paste.ee/r/XnPJT").Content.replace('REPLACE-ME-NAME', $Name).replace('REPLACE-ME-APP', $App) -Path $appinstall}
+            Add-content -Encoding UTF8 -Value (invoke-webrequest "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/app-template.ps1").Content.replace('REPLACE-ME-NAME', $Name).replace('REPLACE-ME-APP', $App) -Path $appinstall}
 
             Write-host "`tDesktop Applications:" -f Green;""; 
 
