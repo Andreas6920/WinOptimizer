@@ -1,4 +1,10 @@
-﻿#clean terminal before run
+﻿asdsadasdsadsasadasdasdasdasdsadsad<#      
+        Customize windows - Verify hyper-v installation
+        Customize windows - Windows terminal need Microsoft.VCLibs.140.00.UWPDesktop
+        
+        
+#>
+#clean terminal before run
 Clear-Host
 
 
@@ -190,14 +196,24 @@ Function remove_bloatware {
             # Unlock start menu, disable pinning, replace with blank file
             Write-Host "`t`t- Unlocking and replacing current file..." -f Yellow;
             $keys | % { if(!(test-path $_)){ New-Item -Path $_ -Force | Out-Null; Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 1; Set-ItemProperty -Path $_ -Name "StartLayoutFile" -Value $layoutFile } }
+            
+            # Restart explorer
             Write-host "`t`t- Restarting explorer..." -f Yellow
-            Stop-Process -name explorer -Force; Start-Sleep -s 5
+            $windowname = $Host.UI.RawUI.WindowTitle
+            $key = New-Object -com Wscript.Shell
+            Stop-Process -Name "Explorer"; Start-Sleep -s 2
+            $key.AppActivate("$windowname") | Out-Null
 
             # Enable pinning
             Write-host "`t`t- Fixing pinning..." -f Yellow
             $keys | % { Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 0 }
+            
+            #Restart explorer
             Write-host "`t`t- Restarting explorer..." -f Yellow
-            Stop-Process -name explorer -Force; Start-Sleep -s 5
+            $windowname = $Host.UI.RawUI.WindowTitle
+            $key = New-Object -com Wscript.Shell
+            Stop-Process -Name "Explorer"; Start-Sleep -s 2
+            $key.AppActivate("$windowname") | Out-Null
 
             # Save menu to all users
             write-host "`t`t- Save changes to all users.." -f Yellow
@@ -518,16 +534,20 @@ Function settings_customize {
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
+                # Add/Edit regkey
+                $ProgressPreference = "SilentlyContinue" # hide progressbar
                 Write-Host "`t`t- YES. Remove Cortana" -f Green
-                $ProgressPreference = "SilentlyContinue" #hide progressbar
                 Get-AppxPackage -name *Microsoft.549981C3F5F10* | Remove-AppxPackage
                 If (!(Test-Path "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
-                    New-Item -Path "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null
-                }
+                    New-Item -Path "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null}
                 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Type DWord -Value 0
-                $ProgressPreference = "Continue" #unhide progressbar 
-                Stop-Process -name explorer
-                Start-Sleep -s 2
+                $ProgressPreference = "Continue" # unhide progressbar
+                
+                #Restart explorer
+                $windowname = $Host.UI.RawUI.WindowTitle
+                $key = New-Object -com Wscript.Shell
+                Stop-Process -Name "Explorer"; Start-Sleep -s 2
+                $key.AppActivate("$windowname") | Out-Null
             }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
@@ -542,8 +562,7 @@ Function settings_customize {
             Y {
                 Write-Host "`t`t- YES. Disable screen saver." -f Green
                 If (!(Test-Path HKLM:\Software\Policies\Microsoft\Windows\Personalization)) {
-                    New-Item -Path HKLM:\Software\Policies\Microsoft\Windows -Name Personalization | Out-Null
-                }
+                    New-Item -Path HKLM:\Software\Policies\Microsoft\Windows -Name Personalization | Out-Null}
                 Set-ItemProperty -Path HKLM:\Software\Policies\Microsoft\Windows\Personalization -Name NoLockScreen -Type DWord -Value 1
             }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
@@ -556,8 +575,15 @@ Function settings_customize {
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
+                # Edit Regkey
                 Write-Host "`t`t- YES. Disable searchbox." -f Green
                 New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name SearchboxTaskbarMode -Value 0 -Type Dword -Force | Out-Null
+                
+                #Restart explorer
+                $windowname = $Host.UI.RawUI.WindowTitle
+                $key = New-Object -com Wscript.Shell
+                Stop-Process -Name "Explorer"; Start-Sleep -s 2
+                $key.AppActivate("$windowname") | Out-Null
             }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
@@ -570,10 +596,17 @@ Function settings_customize {
         Switch ($answer) { 
             Y {
                 Write-Host "`t`t- YES. Disable task view button." -f Green
+                
+                # Remove/Add regkey
                 If ((Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\MultiTaskingView\")) {
-                    Remove-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\MultiTaskingView\" -Force | Out-Null
-                }
+                    Remove-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\MultiTaskingView\" -Force | Out-Null}
                 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type DWord -Value 0
+
+                #Restart explorer
+                $windowname = $Host.UI.RawUI.WindowTitle
+                $key = New-Object -com Wscript.Shell
+                Stop-Process -Name "Explorer"; Start-Sleep -s 2
+                $key.AppActivate("$windowname") | Out-Null
             }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
