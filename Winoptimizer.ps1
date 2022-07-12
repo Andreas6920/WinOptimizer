@@ -714,7 +714,7 @@ Function settings_customize {
                 $ProgressPreference = "Continue" #unhide progressbar
                 Write-Host "`t`t- Installation complete. Restart PC to take effect." -f Green;
             }
-            N { Write-Host "`t`t- NO. Skipping this step." -f Yellow -nonewline;} 
+            N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
     } While ($answer -notin "y", "n")  
 
@@ -790,17 +790,18 @@ Function settings_customize {
     
     # .Net Framework
     Do {
-        Write-Host "`tWould you like to Install Microsoft .NET Framework? (y/n)" -f Green -nonewline;
+        Write-Host "`t- Install all Microsoft .NET Framework? (y/n)" -f Yellow -nonewline; 
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
-                Write-Host "`t`t- Download.." -f Yellow 
+                Write-Host "`t`t- YES. Installing all the .Net Frameworks.." -f Green
                 iwr -useb 'https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/install-dotnet.ps1' -OutFile "$($env:TMP)\dotnet.ps1"
                 Start-Sleep -S 3
-                Write-Host "`t`t- Installing.." -f Yellow 
                 start-process powershell -argument "-ep bypass -windowstyle Hidden -file `"$($env:TMP)\dotnet.ps1`""
                 Start-Sleep -S 3
                 Remove-item "$($env:TMP)\dotnet.ps1" | Out-Null
+                restart-explorer
+                Write-Host "`t`t- Installation complete." -f Green;
             }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }}
@@ -809,11 +810,11 @@ Function settings_customize {
     # Microsoft Visual C++
     
     Do {
-        Write-Host "`tWould you like to install all Microsoft Visual C++ Redistributable versions? (y/n)" -f Green -nonewline;
+        Write-Host "`t- Install all Microsoft Visual C++ Redistributable versions? (y/n)" -f Yellow -nonewline; 
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
-                
+                Write-Host "`t`t- YES. Installing all the Visual C++ versions.." -f Green
                 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
                 If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main")) {
                 New-Item -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Force | Out-Null}
@@ -823,15 +824,12 @@ Function settings_customize {
                     if(!(test-path $path)){New-Item $path -ItemType Directory -ea SilentlyContinue | Out-Null}
                 $FileDestination = "$($env:TMP)\Visual\drivers.zip"
                 
-                Write-Host "`t`t- Download.." -f Yellow
                 $link =  "https://drive.google.com/uc?export=download&confirm=uc-download-link&id=1mHvNVA_pI0XnWyjRDNee0vhQxLp6agp_"
                 (New-Object net.webclient).Downloadfile($link, $FileDestination)
             
-                Write-Host "`t`t- Extracting.." -f Yellow
                 Expand-Archive $FileDestination -DestinationPath $path | Out-Null; 
                 Start-Sleep -s 5
             
-                Write-Host "`t`t- Installing.." -f Yellow
                 Set-Location $path
                 ./vcredist2005_x64.exe /q | Out-Null
                 ./vcredist2008_x64.exe /qb | Out-Null
@@ -839,6 +837,9 @@ Function settings_customize {
                 ./vcredist2012_x64.exe /passive /norestart | Out-Null
                 ./vcredist2013_x64.exe /passive /norestart | Out-Null
                 ./vcredist2015_2017_2019_2022_x64.exe /passive /norestart | Out-Null
+                
+                restart-explorer
+                Write-Host "`t`t- Installation complete." -f Green;
                 
               }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } }} 
@@ -1061,7 +1062,6 @@ Function app_installer {
                 $answer = Read-Host " " 
                 Switch ($answer) { 
                     Y {   
-                            if ((Get-Childitem -Path $env:ProgramData).Name  -match "Chocolatey"){
                             #create update file
                             write-host "`t`t- Downloading updating script." -f Yellow
                             $filepath = "$env:ProgramData\chocolatey\app-updater.ps1"
@@ -1072,11 +1072,11 @@ Function app_installer {
                             $name = 'winoptimizer-app-Updater'
                             $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-nop -W hidden -noni -ep bypass -file $filepath"
                             $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM"-LogonType ServiceAccount -RunLevel Highest
-                            $trigger= New-ScheduledTaskTrigger -At 12:00 -Daily
+                            $trigger= New-ScheduledTaskTrigger -At 12:05 -Daily
                             $settings = New-ScheduledTaskSettingsSet -RunOnlyIfNetworkAvailable -DontStopIfGoingOnBatteries -RunOnlyIfIdle -DontStopOnIdleEnd -IdleDuration 00:05:00 -IdleWaitTimeout 03:00:00
 
                             Register-ScheduledTask -TaskName $Name -Taskpath "\Microsoft\Windows\Winoptimizer\" -Settings $settings -Principal $principal -Action $action -Trigger $trigger -Force | Out-Null
-                            } else{Write-host "`t`t- Chocolatey is not installed on this system." -f red}                                                    
+                                                                                
                     }
                     N { Write-Host "`t`t- NO. Skipping this step." -f Red }}} 
             While ($answer -notin "y", "n")
