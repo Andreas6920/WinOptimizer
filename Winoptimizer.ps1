@@ -782,12 +782,70 @@ Function settings_customize {
                 $link = "https://github.com"+((iwr -useb 'https://github.com/PowerShell/powershell/releases/latest/').Links | ? href -match 'win-x64.msi').href
                 $file = $($env:TMP)+"\"+(Split-Path $link -Leaf)
                 (New-Object net.webclient).Downloadfile("$link", "$file"); Start-Sleep -s 3; Start-Process $file -ArgumentList "/quiet /passive"
-                $windowname = $Host.UI.RawUI.WindowTitle; $key = New-Object -com Wscript.Shell; Start-Sleep -S 1; $key.AppActivate("$windowname") | Out-Null
+                
               }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
     } While ($answer -notin "y", "n")
     
+    # .Net Framework
+    Do {
+        Write-Host "`tWould you like to Install Microsoft .NET Framework? (y/n)" -f Green -nonewline;
+        $answer = Read-Host " " 
+        Switch ($answer) { 
+            Y {
+                Write-Host "`t`t- Download.." -f Yellow 
+                iwr -useb 'https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/install-dotnet.ps1' -OutFile "$($env:TMP)\dotnet.ps1"
+                Start-Sleep -S 3
+                Write-Host "`t`t- Installing.." -f Yellow 
+                start-process powershell -argument "-ep bypass -windowstyle Hidden -file `"$($env:TMP)\dotnet.ps1`""
+                Start-Sleep -S 3
+                Remove-item "$($env:TMP)\dotnet.ps1" | Out-Null
+            }
+            N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
+        }}
+    While ($answer -notin "y", "n")
+    
+    # Microsoft Visual C++
+    
+    Do {
+        Write-Host "`tWould you like to install all Microsoft Visual C++ Redistributable versions? (y/n)" -f Green -nonewline;
+        $answer = Read-Host " " 
+        Switch ($answer) { 
+            Y {
+                
+                [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+                If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main")) {
+                New-Item -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Force | Out-Null}
+                Set-ItemProperty -Path  "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize"  -Value 1
+                
+                $path = "$($env:TMP)\Visual"
+                    if(!(test-path $path)){New-Item $path -ItemType Directory -ea SilentlyContinue | Out-Null}
+                $FileDestination = "$($env:TMP)\Visual\drivers.zip"
+                
+                Write-Host "`t`t- Download.." -f Yellow
+                $link =  "https://drive.google.com/uc?export=download&confirm=uc-download-link&id=1mHvNVA_pI0XnWyjRDNee0vhQxLp6agp_"
+                (New-Object net.webclient).Downloadfile($link, $FileDestination)
+            
+                Write-Host "`t`t- Extracting.." -f Yellow
+                Expand-Archive $FileDestination -DestinationPath $path | Out-Null; 
+                Start-Sleep -s 5
+            
+                Write-Host "`t`t- Installing.." -f Yellow
+                Set-Location $path
+                ./vcredist2005_x64.exe /q | Out-Null
+                ./vcredist2008_x64.exe /qb | Out-Null
+                ./vcredist2010_x64.exe /passive /norestart | Out-Null
+                ./vcredist2012_x64.exe /passive /norestart | Out-Null
+                ./vcredist2013_x64.exe /passive /norestart | Out-Null
+                ./vcredist2015_2017_2019_2022_x64.exe /passive /norestart | Out-Null
+                
+              }
+            N { Write-Host "`t`t- NO. Skipping this step." -f Red } }} 
+    While ($answer -notin "y", "n")  
+
+
+
     #End of function
     write-host "`tWindows customizer completed. Your system is now customized." -f Green
     Start-Sleep 10
@@ -826,59 +884,6 @@ Function app_installer {
             Write-host $appheader -f Yellow 
             "";
             
-            Do {
-                Write-Host "`tWould you like to Install Microsoft .NET Framework? (y/n)" -f Green -nonewline;
-                $answer = Read-Host " " 
-                Switch ($answer) { 
-                    Y {
-                        Write-Host "`t`t- Download.." -f Yellow 
-                        iwr -useb 'https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/install-dotnet.ps1' -OutFile "$($env:TMP)\dotnet.ps1"
-                        Start-Sleep -S 3
-                        Write-Host "`t`t- Installing.." -f Yellow 
-                        start-process powershell -argument "-ep bypass -windowstyle Hidden -file `"$($env:TMP)\dotnet.ps1`""
-                        Start-Sleep -S 3
-                        Remove-item "$($env:TMP)\dotnet.ps1" | Out-Null
-                    }
-                    N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
-                }}
-            While ($answer -notin "y", "n")
-            
-            Do {
-                Write-Host "`tWould you like to install all Microsoft Visual C++ Redistributable versions? (y/n)" -f Green -nonewline;
-                $answer = Read-Host " " 
-                Switch ($answer) { 
-                    Y {
-                        
-                        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-                        If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main")) {
-                        New-Item -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Force | Out-Null}
-                        Set-ItemProperty -Path  "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize"  -Value 1
-                        
-                        $path = "$($env:TMP)\Visual"
-                            if(!(test-path $path)){New-Item $path -ItemType Directory -ea SilentlyContinue | Out-Null}
-                        $FileDestination = "$($env:TMP)\Visual\drivers.zip"
-                        
-                        Write-Host "`t`t- Download.." -f Yellow
-                        $link =  "https://drive.google.com/uc?export=download&confirm=uc-download-link&id=1mHvNVA_pI0XnWyjRDNee0vhQxLp6agp_"
-                        (New-Object net.webclient).Downloadfile($link, $FileDestination)
-                    
-                        Write-Host "`t`t- Extracting.." -f Yellow
-                        Expand-Archive $FileDestination -DestinationPath $path | Out-Null; 
-                        Start-Sleep -s 5
-                    
-                        Write-Host "`t`t- Installing.." -f Yellow
-                        Set-Location $path
-                        ./vcredist2005_x64.exe /q | Out-Null
-                        ./vcredist2008_x64.exe /qb | Out-Null
-                        ./vcredist2010_x64.exe /passive /norestart | Out-Null
-                        ./vcredist2012_x64.exe /passive /norestart | Out-Null
-                        ./vcredist2013_x64.exe /passive /norestart | Out-Null
-                        ./vcredist2015_2017_2019_2022_x64.exe /passive /norestart | Out-Null
-                        
-                      }
-                    N { Write-Host "`t`t- NO. Skipping this step." -f Red } }} 
-            While ($answer -notin "y", "n")  
-
 
         #check if chocolatey is installed
         Write-Host "`tApp installer:" -f Green
