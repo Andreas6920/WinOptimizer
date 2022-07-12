@@ -8,6 +8,7 @@ Function remove_bloatware {
     Start-Sleep -s 3
     
     # Clean Apps and features
+        # List
         Write-host "`tCleaning Bloatware:" -f Green
         Start-Sleep -s 5
         $Bloatware = @(		
@@ -20,11 +21,11 @@ Function remove_bloatware {
             "Microsoft.Getstarted"
             "Microsoft.Microsoft3DViewer"
             "Microsoft.MicrosoftOfficeHub"
+            "Microsoft.Office.OneNote"
             "Microsoft.MicrosoftSolitaireCollection"
             "Microsoft.MicrosoftStickyNotes"
             "Microsoft.MixedReality.Portal"
             "Microsoft.Music.Preview"
-            "Microsoft.Office.OneNote"
             "Microsoft.People"
             "Microsoft.WindowsFeedbackHub"
             "Microsoft.WindowsMaps"
@@ -74,11 +75,12 @@ Function remove_bloatware {
             "*Twitter*"
             "*Wunderlist*")
 
+            # Remove listed
             $ProgressPreference = "SilentlyContinue" # hide progressbar
             foreach ($Bloat in $Bloatware) {
                 $bloat_name = (Get-AppxPackage | Where-Object Name -Like $Bloat).Name
-                if (Get-AppxPackage | Where-Object Name -Like $Bloat){Write-host "`t`t- Removing: " -f Yellow -nonewline; ; write-host "$bloat_name".Split(".")[1].Split("}")[0] -f Yellow; Get-AppxPackage | Where-Object Name -Like $Bloat | Remove-AppxPackage | Out-Null}
-                if (Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat){Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Out-Null}}
+                if (Get-AppxPackage | Where-Object Name -Like $Bloat){Write-host "`t`t- Removing: " -f Yellow -nonewline; ; write-host "$bloat_name".Split(".")[1].Split("}")[0].Replace('Microsoft','') -f Yellow; Get-AppxPackage | Where-Object Name -Like $Bloat | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null}
+                Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online | Out-Null} 
             $ProgressPreference = "Continue" #unhide progressbar
             write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
 
@@ -282,12 +284,7 @@ Function settings_privacy {
         $ProgressPreference = "SilentlyContinue"
         Get-AppxPackage -name *Microsoft.549981C3F5F10* | Remove-AppxPackage
         If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
-<<<<<<< Updated upstream
             New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null}
-=======
-            New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null
-        }
->>>>>>> Stashed changes
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Type DWord -Value 0
         $ProgressPreference = "Continue"
         Stop-Process -name explorer
@@ -435,14 +432,12 @@ Function settings_privacy {
             get-printer | Where-Object shared -eq True | ForEach-Object {Set-Printer -Name $_.Name -Shared $False -ErrorAction SilentlyContinue | Out-Null}
             netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=No -ErrorAction SilentlyContinue | Out-Null
 
-<<<<<<< Updated upstream
         # Disable LLMNR    
             #https://www.blackhillsinfosec.com/how-to-disable-llmnr-why-you-want-to/
             Write-host "`t`t`t- Disabling LLMNR." -f Yellow
-=======
         
         # Windows hardening
-        Write-host "      BLOCKING - Security holes" -f green
+            Write-host "      BLOCKING - Security holes" -f green
         
         # Disable automatic setup of network connected devices.
             Write-host "        - Disabling auto setup network devices." -f yellow
@@ -458,77 +453,55 @@ Function settings_privacy {
         # Disable LLMNR    
             #https://www.blackhillsinfosec.com/how-to-disable-llmnr-why-you-want-to/
             Write-host "        - Disabling LLMNR." -f yellow
->>>>>>> Stashed changes
             New-Item -Path "HKLM:\Software\policies\Microsoft\Windows NT\" -Name "DNSClient" -ea SilentlyContinue | Out-Null
             Set-ItemProperty -Path "HKLM:\Software\policies\Microsoft\Windows NT\DNSClient" -Name "EnableMulticast" -Type "DWORD" -Value 0 -Force -ea SilentlyContinue | Out-Null
             
         # Disabe SMB Compression - CVE-2020-0796    
             #https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2020-0796
-<<<<<<< Updated upstream
             Write-host "`t`t`t- Disabling SMB Compression." -f Yellow
-=======
             Write-host "        - Disabling SMB Compression." -f yellow
->>>>>>> Stashed changes
             Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" DisableCompression -Type DWORD -Value 1 -Force -ea SilentlyContinue | Out-Null
 
         # Disable SMB v1    
             #https://docs.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3
-<<<<<<< Updated upstream
             Write-host "`t`t`t- Disabling SMB version 1 support." -f Yellow
-=======
             Write-host "        - Disabling SMB version 1 support." -f yellow
->>>>>>> Stashed changes
             Disable-WindowsOptionalFeature -Online -FeatureName smb1protocol -NoRestart -WarningAction:SilentlyContinue  | Out-Null
             Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force -ea SilentlyContinue | Out-Null
             Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" SMB1 -Type DWORD -Value 0 –Force
 
         # Disable SMB v2    
             #https://docs.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3
-<<<<<<< Updated upstream
             Write-host "`t`t`t- Disabling SMB version 2 support." -f Yellow
-=======
             Write-host "        - Disabling SMB version 2 support." -f yellow
->>>>>>> Stashed changes
             Set-SmbServerConfiguration -EnableSMB2Protocol $false -Force -ea SilentlyContinue | Out-Null
             Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" SMB2 -Type DWORD -Value 0 –Force
 
         # Enable SMB Encryption    
             # https://docs.microsoft.com/en-us/windows-server/storage/file-server/smb-security
-<<<<<<< Updated upstream
             Write-host "`t`t- Activating SMB Encryption." -f Yellow
-=======
             Write-host "        - Activating SMB Encryption." -f yellow
->>>>>>> Stashed changes
             Set-SmbServerConfiguration –EncryptData $true -Force -ea SilentlyContinue | Out-Null
             Set-SmbServerConfiguration –RejectUnencryptedAccess $false -Force -ea SilentlyContinue | Out-Null
 
         # Bad Neighbor - CVE-2020-16898    
             # https://blog.rapid7.com/2020/10/14/there-goes-the-neighborhood-dealing-with-cve-2020-16898-a-k-a-bad-neighbor/
-<<<<<<< Updated upstream
             Write-host "`t`t- Patching Bad Neighbor (CVE-2020-16898)." -f Yellow
-=======
             Write-host "        - Patching Bad Neighbor (CVE-2020-16898)." -f yellow
->>>>>>> Stashed changes
             netsh int ipv6 set int *INTERFACENUMBER* rabaseddnsconfig=disable | Out-Null
             
         # Spectre Meldown - CVE-2017-5754    
             # https://support.microsoft.com/en-us/help/4073119/protect-against-speculative-execution-side-channel-vulnerabilities-in
-<<<<<<< Updated upstream
             Write-host "`t`t- Patching Bad Metldown (CVE-2017-5754)." -f Yellow
-=======
             Write-host "        - Patching Bad Metldown (CVE-2017-5754)." -f yellow
->>>>>>> Stashed changes
             Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name FeatureSettingsOverrideMask -Type DWORD -Value 3 -Force -ea SilentlyContinue | Out-Null
             Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Virtualization" -Name MinVmVersionForCpuBasedMitigations -Type String -Value "1.0" -Force -ea SilentlyContinue | Out-Null
                         
             
-<<<<<<< Updated upstream
         write-host "      COMPLETE - PRIVACY OPTIMIZATION" -f Yellow
         Start-Sleep 10
-=======
         write-host "      COMPLETE - PRIVACY OPTIMIZATION" -f yellow
         start-sleep 10
->>>>>>> Stashed changes
     
 }
      
@@ -1023,14 +996,12 @@ Function app_installer {
                                     if(!(test-path $appinstall)){new-item -ItemType Directory ($appinstall | Split-Path) -ea ignore | out-null; New-item $appinstall -ea ignore | out-null;}
                                     Add-content -Encoding UTF8 -Value (invoke-webrequest $link).Content.replace('REPLACE-ME-FULLNAME', $Name).replace('REPLACE-ME-VERSION', $ver).replace('REPLACE-ME-LANGUAGE', $lang) -Path $appinstall
                           }
-              
-                                       
-                       
                        
                     n {Write-host "`t`t- NO. Skipping this step."}}}
             
                 While ($answer1 -notin "y", "n")
-
+            
+        # Start app installation              
             Start-Process PowerShell -argument "-Ep bypass -Windowstyle hidden -file `"""$($env:ProgramData)\Winoptimizer\appinstall.ps1""`""
     
     
