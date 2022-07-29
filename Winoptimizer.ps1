@@ -289,9 +289,25 @@ Function settings_privacy {
     $dir = "$env:ProgramData/Winoptimizer";if(!(Test-Path $dir)){mkdir $dir | Out-Null}
     
     #Cleaning Apps and Features
-    Write-Host "`t`tBLOCKING - Microsoft Data Collection" -f Green
-          
+    Write-Host "`t`tBLOCKING - Microsoft Data Collection" -f Green      
 
+    # Adding entries to hosts file
+        Write-Host "`t`tBLOCKING - Tracking domains (This may take a while).." -f Green
+        $link = "https://github.com/Andreas6920/WinOptimizer/raw/main/res/block-domains.ps1"
+        $file = "$dir\"+(Split-Path $link -Leaf)
+        (New-Object net.webclient).Downloadfile("$link", "$file"); 
+        Start-Sleep -s 2;
+        start-process powershell -argument "-ep bypass -windowstyle Hidden -file `"$file`""
+        Start-Sleep -s 2;
+
+    # Blocking Microsoft Tracking IP's in the firewall
+        Write-Host "`t`tBLOCKING - Tracking IP's" -f Green
+        $link = "https://github.com/Andreas6920/WinOptimizer/raw/main/res/block-ips.ps1"
+        $file = "$dir\"+(Split-Path $link -Leaf)
+        (New-Object net.webclient).Downloadfile("$link", "$file"); 
+        Start-Sleep -s 2;
+        start-process powershell -argument "-ep bypass -windowstyle Hidden -file `"$file`""
+        Start-Sleep -s 2;
     
     # Disable Advertising ID
         Write-Host "`t`t`t- Disabling advertising ID." -f Yellow
@@ -363,23 +379,6 @@ Function settings_privacy {
         Set-ItemProperty -Path  "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Name "TailoredExperiencesWithDiagnosticDataEnabled"  -Value 0
         Start-Sleep -s 2
 
-    # Adding entries to hosts file
-        Write-Host "`t`tBLOCKING - Tracking domains (This may take a while).." -f Green
-        $link = "https://github.com/Andreas6920/WinOptimizer/raw/main/res/block-domains.ps1"
-        $file = "$dir\"+(Split-Path $link -Leaf)
-        (New-Object net.webclient).Downloadfile("$link", "$file"); 
-        Start-Sleep -s 2;
-        start-process powershell -argument "-ep bypass -windowstyle Hidden -file `"$file`""
-        Start-Sleep -s 2;
-
-    # Blocking Microsoft Tracking IP's in the firewall
-        Write-Host "`t`tBLOCKING - Tracking IP's" -f Green
-        $link = "https://github.com/Andreas6920/WinOptimizer/raw/main/res/block-ips.ps1"
-        $file = "$dir\"+(Split-Path $link -Leaf)
-        (New-Object net.webclient).Downloadfile("$link", "$file"); 
-        Start-Sleep -s 2;
-        start-process powershell -argument "-ep bypass -windowstyle Hidden -file `"$file`""
-        Start-Sleep -s 2;
 
     # Send Microsoft a request to delete collected data about you.
         
