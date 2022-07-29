@@ -1076,11 +1076,16 @@ $intro =
 | |/ |/ / / / / / /_/ / /_/ / /_/ / / / / / / / / /_/  __/ /    
 |__/|__/_/_/ /_/\____/ .___/\__/_/_/ /_/ /_/_/ /___/\___/_/     
                     /_/                                         
-Version 2.8
+Version 2.9
 Creator: Andreas6920 | https://github.com/Andreas6920/
                                                                                                                                                     
  "
- 
+<#
+Next up: Menu change color if module runned.
+        white if not used, orange if interupted, gray if used.
+#>
+
+
 #Check if admin
 $admin_permissions_check = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
 $admin_permissions_check = $admin_permissions_check.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
@@ -1112,7 +1117,7 @@ if ($admin_permissions_check) {
         Write-Host ""; Write-Host "";
         Write-Host "        [1] - All"
         Write-Host "        [2] - Bloatware removal"
-        Write-Host "        [3] - Privacy optimizer"
+        Write-Host "        [3] - Privacy And security optimizer"
         Write-Host "        [4] - Customize Windows settings"
         Write-Host "        [5] - App installer"
         "";
