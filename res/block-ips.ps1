@@ -6,7 +6,6 @@
 
     # Adding IP's to firewall configuration
     Write-Host "`t`t`t- Configuring blocking rules in your firewall.." -f Yellow
-    Clear-Variable -Name counter
     foreach ($ip_entry in $blockip) {
         $counter++
         Write-Progress -Activity 'Configuring firewall rules..' -CurrentOperation $ip_entry -PercentComplete (($counter /$blockip.count) * 100)

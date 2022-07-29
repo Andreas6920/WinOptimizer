@@ -15,7 +15,6 @@
         
         # Adding crawled domains to hosts file
         Write-Host "`t`t`t- Blocking domains in your hosts file.." -f Yellow
-        Clear-Variable -Name counter
         foreach ($domain_entry in $domain) {
         $counter++
                 Write-Progress -Activity 'Adding entries to host file..' -CurrentOperation $domain_entry -PercentComplete (($counter /$domain.count) * 100)
