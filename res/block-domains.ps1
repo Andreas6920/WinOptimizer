@@ -22,7 +22,7 @@
         $path = (Get-Process -id $pid).Path
         $balmsg.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
         $balmsg.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
-        $balmsg.BalloonTipText = 'Domains are sucessfully blocked' 
+        $balmsg.BalloonTipText = 'Trackers are sucessfully blocked' 
         $balmsg.BalloonTipTitle = "Winoptimizer"
         $balmsg.Visible = $true
         $balmsg.ShowBalloonTip(20000)
