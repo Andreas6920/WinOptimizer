@@ -384,8 +384,6 @@ Function settings_privacy {
     # Send Microsoft a request to delete collected data about you.
         
         #lock keyboard and mouse to avoid disruption while navigating in GUI.
-    
-        
         block_input | Out-Null
         Write-Host "`t`tSUBMIT - request to Microsoft to delete data about you." -f Green
         Start-Sleep -s 2
