@@ -1,15 +1,21 @@
-﻿        # Taking backup of current hosts file first
+﻿        # Finding hosts file
         $hostsfile = "$env:SystemRoot\System32\drivers\etc\hosts"
+        Write-Host "`t`- Hosts file found: $hostfile" -f Yellow
+        
+        # Taking backup of current hosts file first
         $backupfile = "$env:SystemRoot\System32\drivers\etc\hosts_backup"
-        Write-Host "`t`t`t- Taking Backup of original file.." -f Yellow
+        Write-Host "`t`t`t- Taking Backup of original hosts file ($backupfile)" -f Yellow
         Copy-Item $hostsfile $backupfile
         
         # Crawling new Microsoft tracking domains
         $domain = Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt'  -UseBasicParsing
         $domain = $domain.Content | Foreach-object { $_ -replace "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", "" } | Foreach-object { $_ -replace " ", "" }
         $domain = $domain.Split("`n") -notlike "#*" -notmatch "spynet2.microsoft.com" -match "\w"
+        Write-Host "`t`t`t- Getting updated lists of Microsoft's trackers" -f Yellow
         
         # Adding crawled domains to hosts file
+        Write-Host "`t`t`t- Blocking domains in your hosts file.." -f Yellow
+        Clear-Variable -Name counter
         foreach ($domain_entry in $domain) {
         $counter++
                 Write-Progress -Activity 'Adding entries to host file..' -CurrentOperation $domain_entry -PercentComplete (($counter /$domain.count) * 100)

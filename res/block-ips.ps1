@@ -1,9 +1,12 @@
-﻿    Write-Host "`t`t`t- Getting updated lists of Microsoft's trackin IP's" -f Yellow
+﻿    # Crawling updated list of Microsoft's Tracking IP's
+    Write-Host "`t`t`t- Getting updated lists of Microsoft's trackin IP's" -f Yellow
     $blockip = Invoke-WebRequest -Uri https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/firewall/spy.txt  -UseBasicParsing
     $blockip = $blockip.Content | Foreach-object { $_ -replace "0.0.0.0 ", "" } | Out-String
     $blockip = $blockip.Split("`n") -notlike "#*" -match "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
-    Clear-Variable -Name counter
+
+    # Adding IP's to firewall configuration
     Write-Host "`t`t`t- Configuring blocking rules in your firewall.." -f Yellow
+    Clear-Variable -Name counter
     foreach ($ip_entry in $blockip) {
         $counter++
         Write-Progress -Activity 'Configuring firewall rules..' -CurrentOperation $ip_entry -PercentComplete (($counter /$blockip.count) * 100)
