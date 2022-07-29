@@ -292,7 +292,7 @@ Function settings_privacy {
 
     # Adding entries to hosts file
         Write-Host "`t`tBlocking Microsoft's Tracking domains:" -f Green
-        Write-Host "`t`t`t- Will run in the background." -f Yellow
+        Write-Host "`t`t`t- Will start in the background." -f Yellow
         $link = "https://github.com/Andreas6920/WinOptimizer/raw/main/res/block-domains.ps1"
         $file = "$dir\"+(Split-Path $link -Leaf)
         (New-Object net.webclient).Downloadfile("$link", "$file"); 
@@ -302,7 +302,7 @@ Function settings_privacy {
 
     # Blocking Microsoft Tracking IP's in the firewall
         Write-Host "`t`tBlocking Microsoft's tracking IP's:" -f Green
-        Write-Host "`t`t`t- Will run in the background." -f Yellow
+        Write-Host "`t`t`t- Will start in the background." -f Yellow
         $link = "https://github.com/Andreas6920/WinOptimizer/raw/main/res/block-ips.ps1"
         $file = "$dir\"+(Split-Path $link -Leaf)
         (New-Object net.webclient).Downloadfile("$link", "$file"); 
@@ -311,7 +311,7 @@ Function settings_privacy {
         Start-Sleep -s 2;
     
     #Configuring Windows privacy settings
-        Write-Host "`t`tSetting Privacy Settings: - " -f Green     
+        Write-Host "`t`tSetting Privacy Settings:" -f Green     
         
         # Disable Advertising ID
             Write-Host "`t`t`t- Disabling advertising ID." -f Yellow

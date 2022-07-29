@@ -16,3 +16,13 @@
         }
         #flush DNS cache
         ipconfig /flushdns | Out-Null; start-Sleep 2; nbtstat -R | Out-Null; start-Sleep -s 10;
+
+        Add-Type -AssemblyName System.Windows.Forms
+        $global:balmsg = New-Object System.Windows.Forms.NotifyIcon
+        $path = (Get-Process -id $pid).Path
+        $balmsg.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
+        $balmsg.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
+        $balmsg.BalloonTipText = 'Domains are sucessfully blocked' 
+        $balmsg.BalloonTipTitle = "Winoptimizer"
+        $balmsg.Visible = $true
+        $balmsg.ShowBalloonTip(20000)
