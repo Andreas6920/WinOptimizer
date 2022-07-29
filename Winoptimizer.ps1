@@ -367,26 +367,19 @@ Function settings_privacy {
         Write-Host "`t`tBLOCKING - Tracking domains (This may take a while).." -f Green
         $link = "https://github.com/Andreas6920/WinOptimizer/raw/main/res/block-domains.ps1"
         $file = "$dir\"+(Split-Path $link -Leaf)
+        (New-Object net.webclient).Downloadfile("$link", "$file"); 
+        Start-Sleep -s 2;
         start-process powershell -argument "-ep bypass -windowstyle Hidden -file `"$file`""
-        
+        Start-Sleep -s 2;
 
     # Blocking Microsoft Tracking IP's in the firewall
         Write-Host "`t`tBLOCKING - Tracking IP's" -f Green
-        start-job -Name "Blocking Domains" -ScriptBlock {
-        Write-Host "`t`t`t- Getting updated lists of Microsoft's trackin IP's" -f Yellow
-        $blockip = Invoke-WebRequest -Uri https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/firewall/spy.txt  -UseBasicParsing
-        $blockip = $blockip.Content | Foreach-object { $_ -replace "0.0.0.0 ", "" } | Out-String
-        $blockip = $blockip.Split("`n") -notlike "#*" -match "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
-        Clear-Variable -Name counter
-        Write-Host "`t`t`t- Configuring blocking rules in your firewall.." -f Yellow
-        foreach ($ip_entry in $blockip) {
-        $counter++
-        Write-Progress -Activity 'Configuring firewall rules..' -CurrentOperation $ip_entry -PercentComplete (($counter /$blockip.count) * 100)
-        netsh advfirewall firewall add rule name="Block Microsoft Tracking IP: $ip_entry" dir=out action=block remoteip=$ip_entry enable=yes | Out-Null}
-        Write-Progress -Completed -Activity "make progress bar dissapear"
-        Write-Host "`t`t`t- Firewall configuration complete." -f Yellow
-        Start-Sleep 5;} | Out-Null
-        Start-Sleep -s 5
+        $link = "https://github.com/Andreas6920/WinOptimizer/raw/main/res/block-ips.ps1"
+        $file = "$dir\"+(Split-Path $link -Leaf)
+        (New-Object net.webclient).Downloadfile("$link", "$file"); 
+        Start-Sleep -s 2;
+        start-process powershell -argument "-ep bypass -windowstyle Hidden -file `"$file`""
+        Start-Sleep -s 2;
 
     # Send Microsoft a request to delete collected data about you.
         
