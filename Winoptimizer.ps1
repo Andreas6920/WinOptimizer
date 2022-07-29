@@ -1081,8 +1081,12 @@ Creator: Andreas6920 | https://github.com/Andreas6920/
                                                                                                                                                     
  "
 <#
-Next up: Menu change color if module runned.
-        white if not used, orange if interupted, gray if used.
+    Next up:
+        -  Menu change color if module runned.
+            White if not used, orange if interupted, gray if used.
+        - Module convert (Menu = script, functions = module)
+            Import-Module C:\.. -Function remove_bloat
+
 #>
 
 
