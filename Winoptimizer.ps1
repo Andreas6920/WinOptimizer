@@ -30,12 +30,12 @@ Add-Type -AssemblyName Microsoft.VisualBasic
 [Microsoft.VisualBasic.Interaction]::AppActivate($windowname)}
 
 Function remove_bloatware {
-    Write-host "REMOVING MICROSOFT BLOAT" -f Green;"";
+    Write-Host "REMOVING MICROSOFT BLOAT" -f Green;"";
     Start-Sleep -s 3
     
     # Clean Apps and features
         # List
-        Write-host "`tCleaning Bloatware:" -f Green
+        Write-Host "`tCleaning Bloatware:" -f Green
         Start-Sleep -s 5
         $Bloatware = @(		
             ## Microsoft Bloat ##
@@ -110,15 +110,15 @@ Function remove_bloatware {
             $ProgressPreference = "SilentlyContinue" # hide progressbar
             foreach ($Bloat in $Bloatware) {
                 $bloat_name = (Get-AppxPackage | Where-Object Name -Like $Bloat).Name
-                if (Get-AppxPackage | Where-Object Name -Like $Bloat){Write-host "`t`t- Removing: " -f Yellow -nonewline; write-host "$bloat_name".Split(".")[1].Split("}")[0].Replace('Microsoft','') -f Yellow; Get-AppxPackage | Where-Object Name -Like $Bloat | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null}
+                if (Get-AppxPackage | Where-Object Name -Like $Bloat){Write-Host "`t`t- Removing: " -f Yellow -nonewline; Write-Host "$bloat_name".Split(".")[1].Split("}")[0].Replace('Microsoft','') -f Yellow; Get-AppxPackage | Where-Object Name -Like $Bloat | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null}
                 Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online | Out-Null} 
             $ProgressPreference = "Continue" #unhide progressbar
-            write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
+            Write-Host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
 
 
 
     # Disabling services
-        Write-host "`tCleaning Startup services:" -f Green
+        Write-Host "`tCleaning Startup services:" -f Green
         Start-Sleep -s 5
         $services = @(
             "diagnosticshub.standardcollector.service" # Microsoft (R) Diagnostics Hub Standard Collector Service
@@ -141,14 +141,14 @@ Function remove_bloatware {
 
          foreach ($service in $services) {
          if((Get-Service -Name $service | Where-Object Starttype -ne Disabled)){
-         write-host "`t`t- Disabling: $service" -f Yellow
+         Write-Host "`t`t- Disabling: $service" -f Yellow
          Get-Service | Where-Object name -eq $service | Set-Service -StartupType Disabled}}
-         write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
+         Write-Host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
 
 
 
     # Clean Task Scheduler
-        Write-host "`tCleaning Scheduled tasks:" -f Green
+        Write-Host "`tCleaning Scheduled tasks:" -f Green
         Start-Sleep -s 5
         $Bloatschedules = @(
             "AitAgent" 
@@ -194,14 +194,14 @@ Function remove_bloatware {
 
             foreach ($BloatSchedule in $BloatSchedules) {
             if ((Get-ScheduledTask | Where-Object state -ne Disabled | Where-Object TaskName -like $BloatSchedule)){
-            Write-host "`t`t- Disabling: $BloatSchedule" -f Yellow
+            Write-Host "`t`t- Disabling: $BloatSchedule" -f Yellow
             Get-ScheduledTask | Where-Object Taskname -eq $BloatSchedule | Disable-ScheduledTask | Out-Null}}
-            write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
+            Write-Host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
         
 
             
     # Clean start menu
-        Write-host "`tCleaning Start Menu:" -f Green
+        Write-Host "`tCleaning Start Menu:" -f Green
         Start-Sleep -s 5
     
             # Prepare
@@ -221,26 +221,26 @@ Function remove_bloatware {
             restart-explorer
 
             # Enable pinning
-            Write-host "`t`t- Fixing pinning..." -f Yellow
+            Write-Host "`t`t- Fixing pinning..." -f Yellow
             $keys | % { Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 0 }
             
             #Restart explorer
             restart-explorer
 
             # Save menu to all users
-            write-host "`t`t- Save changes to all users.." -f Yellow
+            Write-Host "`t`t- Save changes to all users.." -f Yellow
             Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
 
             # Clean up after script
             Remove-Item $layoutFile
-            write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
+            Write-Host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
 
         
     # Clean Taskbar
-        Write-host "`tCleaning Taskbar:" -f Green
+        Write-Host "`tCleaning Taskbar:" -f Green
         Start-Sleep -s 5
         
-            write-host "`t`t- Changing keys.." -f Yellow
+            Write-Host "`t`t- Changing keys.." -f Yellow
             Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesChanges -Value 3 -Type Dword -Force | Out-Null
             Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesRemovedChanges -Value 32 -Type Dword -Force | Out-Null
             Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesVersion -Value 3 -Type Dword -Force | Out-Null
@@ -249,63 +249,63 @@ Function remove_bloatware {
             Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Search -Name SearchboxTaskbarMode -Value 0 -Type Dword | Out-Null
             set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowTaskViewButton -Type DWord -Value 0 | Out-Null
 
-            write-host "`t`t- Removing shortcuts.." -f Yellow
+            Write-Host "`t`t- Removing shortcuts.." -f Yellow
             Remove-Item -Path "$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*" -Recurse -Force | Out-Null
             Stop-Process -name explorer
             Start-Sleep -s 5
-            write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
+            Write-Host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
 
         
     # Cleaning printers
-        Write-host "`tCleaning Printers:" -f Green
+        Write-Host "`tCleaning Printers:" -f Green
         Start-Sleep -s 5    
         
-            write-host "`t`t- Disabling auto-install printers from network.." -f Yellow
+            Write-Host "`t`t- Disabling auto-install printers from network.." -f Yellow
             If (!(Test-Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private")) {
             New-Item -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Force | Out-Null}
             Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type DWord -Value 0
             
-            write-host "`t`t- Cleaning spooler" -f Yellow
+            Write-Host "`t`t- Cleaning spooler" -f Yellow
             Stop-Service "Spooler" | out-null; sleep -s 3
             Remove-Item "$env:SystemRoot\System32\spool\PRINTERS\*.*" -Force | Out-Null
             Start-Service "Spooler"
 
-            write-host "`t`t- Removing bloat printers:" -f Yellow
+            Write-Host "`t`t- Removing bloat printers:" -f Yellow
             $Bloatprinters = "Fax","OneNote for Windows 10","Microsoft XPS Document Writer", "Microsoft Print to PDF" 
-            $Bloatprinters | % {if(Get-Printer | Where-Object Name -cMatch $_){write-host "`t`t`t- Uninstalling: $_" -f Yellow; Remove-Printer $_; Start-Sleep -s 2}}
-            write-host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
+            $Bloatprinters | % {if(Get-Printer | Where-Object Name -cMatch $_){Write-Host "`t`t`t- Uninstalling: $_" -f Yellow; Remove-Printer $_; Start-Sleep -s 2}}
+            Write-Host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
 
         
     #End of function
-        write-host "`tBloat Remover Complete. Your system is now clean." -f Green
+        Write-Host "`tBloat Remover Complete. Your system is now clean." -f Green
         Start-Sleep 10
                 
 }
 
 Function settings_privacy {
       
-    Write-host "`tENHANCE WINDOWS PRIVACY" -f Green
+    Write-Host "`tENHANCE WINDOWS PRIVACY" -f Green
     #Cleaning Apps and Features
-    Write-host "`t`tBLOCKING - Microsoft Data Collection" -f Green
+    Write-Host "`t`tBLOCKING - Microsoft Data Collection" -f Green
           
 
     
     # Disable Advertising ID
-        Write-host "`t`t`t- Disabling advertising ID." -f Yellow
+        Write-Host "`t`t`t- Disabling advertising ID." -f Yellow
         If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo")) {
             New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Force | Out-Null}
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Type DWord -Value 0
         Start-Sleep -s 2
       
     # Disable let websites provide locally relevant content by accessing language list
-        Write-host "`t`t`t- Disabling location tracking." -f Yellow
+        Write-Host "`t`t`t- Disabling location tracking." -f Yellow
         If (!(Test-Path "HKCU:\Control Panel\International\User Profile")) {
             New-Item -Path "HKCU:\Control Panel\International\User Profile" -Force | Out-Null}
         Set-ItemProperty -Path  "HKCU:\Control Panel\International\User Profile" -Name "HttpAcceptLanguageOptOut"  -Value 1
         Start-Sleep -s 2
       
     # Disable Show me suggested content in the Settings app
-        Write-host "`t`t`t- Disabling personalized content suggestions." -f Yellow
+        Write-Host "`t`t`t- Disabling personalized content suggestions." -f Yellow
         If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager")) {
             New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Force | Out-Null}
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338393Enabled" -Type DWord -Value 0
@@ -314,7 +314,7 @@ Function settings_privacy {
         Start-Sleep -s 2
       
     # Remove Cortana
-        Write-host "`t`t`t- Disabling Cortana." -f Yellow
+        Write-Host "`t`t`t- Disabling Cortana." -f Yellow
         $ProgressPreference = "SilentlyContinue"
         Get-AppxPackage -name *Microsoft.549981C3F5F10* | Remove-AppxPackage
         If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
@@ -325,14 +325,14 @@ Function settings_privacy {
         Start-Sleep -s 5
 
     # Disable Online Speech Recognition
-        Write-host "`t`t`t- Disabling Online Speech Recognition." -f Yellow
+        Write-Host "`t`t`t- Disabling Online Speech Recognition." -f Yellow
         If (!(Test-Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy")) {
             New-Item -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Force | Out-Null}
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "HasAccepted" -Type DWord -Value 0
         Start-Sleep -s 2
     
     # Hiding personal information from lock screen
-        Write-host "`t`t`t- Disabling sign-in screen notifications." -f Yellow
+        Write-Host "`t`t`t- Disabling sign-in screen notifications." -f Yellow
         If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\System")) {
             New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Force | Out-Null}
         Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "DontDisplayLockedUserID" -Type DWord -Value 0
@@ -340,28 +340,28 @@ Function settings_privacy {
         Start-Sleep -s 2
        
     # Disable diagnostic data collection
-        Write-host "`t`t`t- Disabling diagnostic data collection" -f Yellow
+        Write-Host "`t`t`t- Disabling diagnostic data collection" -f Yellow
         If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection")) {
             New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Force | Out-Null}
         Set-ItemProperty -Path  "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry"  -Value 0
         Start-Sleep -s 2
     
     # Disable App Launch Tracking
-        Write-host "`t`t`t- Disabling App Launch Tracking." -f Yellow
+        Write-Host "`t`t`t- Disabling App Launch Tracking." -f Yellow
         If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
             New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null}
         Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "Start_TrackProgs" -Type DWord -Value 0
         Start-Sleep -s 2
 
     # Disable "tailored expirence"
-        Write-host "`t`t`t- Disable tailored expirience." -f Yellow        
+        Write-Host "`t`t`t- Disable tailored expirience." -f Yellow        
         If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy")) {   
             New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Force | Out-Null}
         Set-ItemProperty -Path  "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Name "TailoredExperiencesWithDiagnosticDataEnabled"  -Value 0
         Start-Sleep -s 2
 
     # Adding entries to hosts file
-        Write-host "`t`tBLOCKING - Tracking domains (This may take a while).." -f Green
+        Write-Host "`t`tBLOCKING - Tracking domains (This may take a while).." -f Green
         Start-Sleep -s 3
          Write-Host "`t`t`t- Backing up your hostsfile.." -f Yellow
         #Taking backup of current hosts file first
@@ -383,12 +383,12 @@ Function settings_privacy {
         }
         Write-Progress -Completed -Activity "make progress bar dissapear"
         #flush DNS cache
-        Write-host "`t`t`t- Flushing local DNS cache" -f Yellow
+        Write-Host "`t`t`t- Flushing local DNS cache" -f Yellow
         ipconfig /flushdns | Out-Null; start-Sleep 2; nbtstat -R | Out-Null; start-Sleep -s 2;
         Stop-Process -name explorer; Start-Sleep -s 5
 
     # Blocking Microsoft Tracking IP's in the firewall
-        Write-host "`t`tBLOCKING - Tracking IP's" -f Green
+        Write-Host "`t`tBLOCKING - Tracking IP's" -f Green
         Write-Host "`t`t`t- Getting updated lists of Microsoft's trackin IP's" -f Yellow
         $blockip = Invoke-WebRequest -Uri https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/firewall/spy.txt  -UseBasicParsing
         $blockip = $blockip.Content | Foreach-object { $_ -replace "0.0.0.0 ", "" } | Out-String
@@ -409,7 +409,7 @@ Function settings_privacy {
     
         
         block_input | Out-Null
-        Write-host "`t`tSUBMIT - request to Microsoft to delete data about you." -f Green
+        Write-Host "`t`tSUBMIT - request to Microsoft to delete data about you." -f Green
         Start-Sleep -s 2
         #start navigating
         $app = New-Object -ComObject Shell.Application
@@ -433,89 +433,81 @@ Function settings_privacy {
         allow_input | Out-Null
         
         # Windows hardening
-        Write-host "`t`tBLOCKING - Security holes" -f Green
+        Write-Host "`t`tBLOCKING - Security holes" -f Green
         
         # Disable automatic setup of network connected devices.
-            Write-host "`t`t`t- Disabling auto setup network devices." -f Yellow
+            Write-Host "`t`t`t- Disabling auto setup network devices." -f Yellow
             If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private")) {
-                New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Force | Out-Null
-            }
+                New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Force | Out-Null}
             Set-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type DWord -Value 0 -Force 
             Start-Sleep -s 2
             
         # Disable sharing of PC and printers
-            Write-host "`t`t`t- Disabling sharing of PC and Printers." -f Yellow
+            Write-Host "`t`t`t- Disabling sharing of PC and Printers." -f Yellow
             Get-NetConnectionProfile | ForEach-Object {Set-NetConnectionProfile -Name $_.Name -NetworkCategory Public -ErrorAction SilentlyContinue | Out-Null}    
             get-printer | Where-Object shared -eq True | ForEach-Object {Set-Printer -Name $_.Name -Shared $False -ErrorAction SilentlyContinue | Out-Null}
             netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=No -ErrorAction SilentlyContinue | Out-Null
-
-        # Disable LLMNR    
-            #https://www.blackhillsinfosec.com/how-to-disable-llmnr-why-you-want-to/
-            Write-host "`t`t`t- Disabling LLMNR." -f Yellow
-        
-        # Windows hardening
-            Write-host "      BLOCKING - Security holes" -f green
         
         # Disable automatic setup of network connected devices.
-            Write-host "        - Disabling auto setup network devices." -f yellow
+            Write-Host "`t`t`t- Disabling auto setup network devices." -f yellow
             Set-Item "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type DWord -Value 0 -Force 
             Start-Sleep -s 2
             
         # Disable sharing of PC and printers
-             Write-host "        - Disabling sharing of PC and Printers." -f yellow
+             Write-Host "`t`t`t- Disabling sharing of PC and Printers." -f yellow
             Get-NetConnectionProfile | ForEach-Object {Set-NetConnectionProfile -Name $_.Name -NetworkCategory Public -ErrorAction SilentlyContinue | Out-Null}    
             get-printer | Where-Object shared -eq True | ForEach-Object {Set-Printer -Name $_.Name -Shared $False -ErrorAction SilentlyContinue | Out-Null}
             netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=No -ErrorAction SilentlyContinue | Out-Null
 
         # Disable LLMNR    
             #https://www.blackhillsinfosec.com/how-to-disable-llmnr-why-you-want-to/
-            Write-host "        - Disabling LLMNR." -f yellow
+            Write-Host "`t`t`t- Disabling LLMNR." -f yellow
             New-Item -Path "HKLM:\Software\policies\Microsoft\Windows NT\" -Name "DNSClient" -ea SilentlyContinue | Out-Null
             Set-ItemProperty -Path "HKLM:\Software\policies\Microsoft\Windows NT\DNSClient" -Name "EnableMulticast" -Type "DWORD" -Value 0 -Force -ea SilentlyContinue | Out-Null
-            
+        
+        # Bad Neighbor - CVE-2020-16898 (Disable IPv6 DNS)  
+            # https://blog.rapid7.com/2020/10/14/there-goes-the-neighborhood-dealing-with-cve-2020-16898-a-k-a-bad-neighbor/
+            Write-Host "`t`t`t- Patching Bad Neighbor (CVE-2020-16898)." -f Yellow
+                # Disable DHCPv6  + routerDiscovery
+                Set-NetIPInterface -AddressFamily IPv6 -InterfaceIndex $(Get-NetIPInterface -AddressFamily IPv6 | Select-Object -ExpandProperty InterfaceIndex) -RouterDiscovery Disabled -Dhcp Disabled
+                # Prefer IPv4 over IPv6 (IPv6 is prefered by default)
+                If (!(Test-Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters")) {
+                    New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" -Force | Out-Null}
+                Set-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" -Name "DisabledComponents" -Type DWord -Value 0x20 -Force
+
+        
         # Disabe SMB Compression - CVE-2020-0796    
             #https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2020-0796
-            Write-host "`t`t`t- Disabling SMB Compression." -f Yellow
-            Write-host "        - Disabling SMB Compression." -f yellow
+            Write-Host "`t`t`t- Disabling SMB Compression." -f Yellow
             Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" DisableCompression -Type DWORD -Value 1 -Force -ea SilentlyContinue | Out-Null
 
         # Disable SMB v1    
             #https://docs.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3
-            Write-host "`t`t`t- Disabling SMB version 1 support." -f Yellow
-            Write-host "        - Disabling SMB version 1 support." -f yellow
+            Write-Host "`t`t`t- Disabling SMB version 1 support." -f Yellow
             Disable-WindowsOptionalFeature -Online -FeatureName smb1protocol -NoRestart -WarningAction:SilentlyContinue  | Out-Null
             Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force -ea SilentlyContinue | Out-Null
             Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" SMB1 -Type DWORD -Value 0 –Force
 
         # Disable SMB v2    
             #https://docs.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3
-            Write-host "`t`t`t- Disabling SMB version 2 support." -f Yellow
-            Write-host "        - Disabling SMB version 2 support." -f yellow
+            Write-Host "`t`t`t- Disabling SMB version 2 support." -f Yellow
             Set-SmbServerConfiguration -EnableSMB2Protocol $false -Force -ea SilentlyContinue | Out-Null
             Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" SMB2 -Type DWORD -Value 0 –Force
 
         # Enable SMB Encryption    
             # https://docs.microsoft.com/en-us/windows-server/storage/file-server/smb-security
-            Write-host "`t`t- Activating SMB Encryption." -f Yellow
-            Write-host "        - Activating SMB Encryption." -f yellow
+            Write-Host "`t`t`t- Activating SMB Encryption." -f Yellow
             Set-SmbServerConfiguration –EncryptData $true -Force -ea SilentlyContinue | Out-Null
             Set-SmbServerConfiguration –RejectUnencryptedAccess $false -Force -ea SilentlyContinue | Out-Null
-
-        # Bad Neighbor - CVE-2020-16898    
-            # https://blog.rapid7.com/2020/10/14/there-goes-the-neighborhood-dealing-with-cve-2020-16898-a-k-a-bad-neighbor/
-            Write-host "`t`t- Patching Bad Neighbor (CVE-2020-16898)." -f Yellow
-            Write-host "        - Patching Bad Neighbor (CVE-2020-16898)." -f yellow
-            netsh int ipv6 set int *INTERFACENUMBER* rabaseddnsconfig=disable | Out-Null
             
         # Spectre Meldown - CVE-2017-5754    
             # https://support.microsoft.com/en-us/help/4073119/protect-against-speculative-execution-side-channel-vulnerabilities-in
-            Write-host "`t`t- Patching Bad Metldown (CVE-2017-5754)." -f Yellow
-            Write-host "        - Patching Bad Metldown (CVE-2017-5754)." -f yellow
+            Write-Host "`t`t`t- Patching Bad Metldown (CVE-2017-5754)." -f Yellow
             Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name FeatureSettingsOverrideMask -Type DWORD -Value 3 -Force -ea SilentlyContinue | Out-Null
             Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Virtualization" -Name MinVmVersionForCpuBasedMitigations -Type String -Value "1.0" -Force -ea SilentlyContinue | Out-Null
             
         #End of function
-            write-host "`tPrivacy optimizer complete. Your system is now optimzed." -f Green
+            Write-Host "`tPrivacy optimizer complete. Your system is now optimzed." -f Green
             Start-Sleep 10
     
 }
@@ -698,15 +690,15 @@ Function settings_customize {
                 Write-Host "`t`t- YES. Installing Hyper-V.. (this may take a while)" -f Green
                 $ProgressPreference = "SilentlyContinue" #hide progressbar
                 if (((Get-WmiObject -class Win32_OperatingSystem).Caption) -match "Home"){$dst = "$env:TMP\install-hyper-v"
-                    write-host "`t`t- Windows Home detected, additional script is needed!" -f Green
+                    Write-Host "`t`t- Windows Home detected, additional script is needed!" -f Green
                     $file = "install.bat"
                     md "$env:TMP\install-hyper-v" -Force | out-null
                     New-Item "$dst\$file" -Force | out-null
                     $domain = Invoke-WebRequest -Uri 'https://gist.githubusercontent.com/samuel-fonseca/662a620ae32aca254ea7730be5ff7145/raw/a1de2537d5b0613e29c9ca3b9bc0ec67ff1e29a2/Hyper-V-Enabler.bat'  -UseBasicParsing
                     $domain = $domain.content; Start-sleep 1
-                    write-host "`t`t- Downloading script..." -f Green
+                    Write-Host "`t`t- Downloading script..." -f Green
                     Set-content "$dst\$file" $domain; Start-Sleep -S 1
-                    write-host "`t`t- Opening CMD..." -f Green
+                    Write-Host "`t`t- Opening CMD..." -f Green
                     start cmd -Verb RunAs -ArgumentList "/c","$dst/$file" -wait}
                 elseIf ((Get-WmiObject -Class "Win32_OperatingSystem").Caption -like "*Server*") {
                     Install-WindowsFeature -Name "Hyper-V" -IncludeManagementTools -WarningAction SilentlyContinue | Out-Null}
@@ -848,7 +840,7 @@ Function settings_customize {
 
 
     #End of function
-    write-host "`tWindows customizer completed. Your system is now customized." -f Green
+    Write-Host "`tWindows customizer completed. Your system is now customized." -f Green
     Start-Sleep 10
 
 }
@@ -882,7 +874,7 @@ Function app_installer {
           |_|   |_|                                               
     " 
         
-            Write-host $appheader -f Yellow 
+            Write-Host $appheader -f Yellow 
             "";
             
 
@@ -905,36 +897,36 @@ Function app_installer {
         
             Add-content -Encoding UTF8 -Value (invoke-webrequest "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/app-template.ps1").Content.replace('REPLACE-ME-NAME', $Name).replace('REPLACE-ME-APP', $App) -Path $appinstall}
 
-            Write-host "`tDesktop Applications:" -f Green;""; 
+            Write-Host "`tDesktop Applications:" -f Green;""; 
 
-            write-host "`t`tBROWSER:" -f Yellow
-            write-host "`t`t`tChrome        Firefox      Opera" -f Green
-            write-host "`t`t`tBrave         Opera        Vevaldi" -f Green
+            Write-Host "`t`tBROWSER:" -f Yellow
+            Write-Host "`t`t`tChrome        Firefox      Opera" -f Green
+            Write-Host "`t`t`tBrave         Opera        Vevaldi" -f Green
             "";
-            write-host "`t`tTOOLS:" -f Yellow
-            write-host "`t`t`tDropbox       Google Drive    Teamviewer" -f Green
-            write-host "`t`t`t7-zip         Winrar          Greenshot" -f Green
-            write-host "`t`t`tShareX        Gimp            Adobe Acrobat Reader" -f Green
+            Write-Host "`t`tTOOLS:" -f Yellow
+            Write-Host "`t`t`tDropbox       Google Drive    Teamviewer" -f Green
+            Write-Host "`t`t`t7-zip         Winrar          Greenshot" -f Green
+            Write-Host "`t`t`tShareX        Gimp            Adobe Acrobat Reader" -f Green
             "";
-            write-host "`t`tMEDIA PLAYER:" -f Yellow
-            write-host "`t`t`tSpotify       VLC           Itunes" -f Green
-            write-host "`t`t`tWinamp        Foobar2000    K-Lite" -f Green
-            write-host "`t`t`tMPC-HC        Popcorntime" -f Green
+            Write-Host "`t`tMEDIA PLAYER:" -f Yellow
+            Write-Host "`t`t`tSpotify       VLC           Itunes" -f Green
+            Write-Host "`t`t`tWinamp        Foobar2000    K-Lite" -f Green
+            Write-Host "`t`t`tMPC-HC        Popcorntime" -f Green
             "";
-            write-host "`t`tDevelopment:" -f Yellow
-            write-host "`t`t`tNotepad++       vscode           atom" -f Green
-            write-host "`t`t`tVim             Eclipse          git " -f Green
-            write-host "`t`t`tPuTTY           Superputty       TeraTerm" -f Green
-            write-host "`t`t`tFilezilla       WinSCP           mRemoteNG" -f Green
-            write-host "`t`t`tWireshark" -f Green
+            Write-Host "`t`tDevelopment:" -f Yellow
+            Write-Host "`t`t`tNotepad++       vscode           atom" -f Green
+            Write-Host "`t`t`tVim             Eclipse          git " -f Green
+            Write-Host "`t`t`tPuTTY           Superputty       TeraTerm" -f Green
+            Write-Host "`t`t`tFilezilla       WinSCP           mRemoteNG" -f Green
+            Write-Host "`t`t`tWireshark" -f Green
             "";
-            write-host "`t`tSocial:" -f Yellow
-            write-host "`t`t`tWebex           Zoom           Microsoft Teams" -f Green
-            write-host "`t`t`tDiscord         Twitch         Ubisoft-Connect" -f Green
+            Write-Host "`t`tSocial:" -f Yellow
+            Write-Host "`t`t`tWebex           Zoom           Microsoft Teams" -f Green
+            Write-Host "`t`t`tDiscord         Twitch         Ubisoft-Connect" -f Green
             "";
-            Write-host "    ** List multiple programs seperated by , (comma) - spaces are allowed." -f Yellow;
+            Write-Host "    ** List multiple programs seperated by , (comma) - spaces are allowed." -f Yellow;
             "";
-            Write-host "Type the programs you would like to be installed on this system" -nonewline;
+            Write-Host "Type the programs you would like to be installed on this system" -nonewline;
             
 
             $requested_apps = (Read-Host " ").Split(",") | Foreach-object { $_ -replace ' ',''}
@@ -996,11 +988,11 @@ Function app_installer {
               
                         # Choose version
                             "";
-                            Write-host "`t`tVersion Menu:" -f Green
+                            Write-Host "`t`tVersion Menu:" -f Green
                             "";
-                            Write-host "`t`t`t - Microsoft 365" -f Yellow
-                            Write-host "`t`t`t - Microsoft Office 2019 Business Retail" -f Yellow
-                            Write-host "`t`t`t - Microsoft Office 2016 Business Retail" -f Yellow
+                            Write-Host "`t`t`t - Microsoft 365" -f Yellow
+                            Write-Host "`t`t`t - Microsoft Office 2019 Business Retail" -f Yellow
+                            Write-Host "`t`t`t - Microsoft Office 2016 Business Retail" -f Yellow
                             "";
                             DO {                     
                                 Write-Host "`t`tWhich version would you prefer?" -f Green -nonewline;
@@ -1013,17 +1005,17 @@ Function app_installer {
                       
                         # Choose Language
                               "";
-                              Write-host "`t`tLanguage Menu:" -f Green
+                              Write-Host "`t`tLanguage Menu:" -f Green
                               "";
-                              Write-host "`t`t`t- English (United States)" -f Yellow
-                              Write-host "`t`t`t- German" -f Yellow
-                              Write-host "`t`t`t- Spanish" -f Yellow
-                              Write-host "`t`t`t- Danish" -f Yellow
-                              Write-host "`t`t`t- France" -f Yellow
-                              Write-host "`t`t`t- Japanese" -f Yellow
-                              Write-host "`t`t`t- Norwegian" -f Yellow
-                              Write-host "`t`t`t- Russia" -f Yellow
-                              Write-host "`t`t`t- Sweden" -f Yellow
+                              Write-Host "`t`t`t- English (United States)" -f Yellow
+                              Write-Host "`t`t`t- German" -f Yellow
+                              Write-Host "`t`t`t- Spanish" -f Yellow
+                              Write-Host "`t`t`t- Danish" -f Yellow
+                              Write-Host "`t`t`t- France" -f Yellow
+                              Write-Host "`t`t`t- Japanese" -f Yellow
+                              Write-Host "`t`t`t- Norwegian" -f Yellow
+                              Write-Host "`t`t`t- Russia" -f Yellow
+                              Write-Host "`t`t`t- Sweden" -f Yellow
                               "";
                               DO {       
                                 Write-Host "`t`tEnter your language from above" -f Green -nonewline;
@@ -1049,7 +1041,7 @@ Function app_installer {
                                     Add-content -Encoding UTF8 -Value (invoke-webrequest $link).Content.replace('REPLACE-ME-FULLNAME', $Name).replace('REPLACE-ME-VERSION', $ver).replace('REPLACE-ME-LANGUAGE', $lang) -Path $appinstall
                           }
                        
-                    n {Write-host "`t`t- NO. Skipping this step."}}}
+                    n {Write-Host "`t`t- NO. Skipping this step."}}}
             
                 While ($answer1 -notin "y", "n")
             
@@ -1063,12 +1055,12 @@ Function app_installer {
                 Switch ($answer) { 
                     Y {   
                             #create update file
-                            write-host "`t`t- Downloading updating script." -f Yellow
+                            Write-Host "`t`t- Downloading updating script." -f Yellow
                             $filepath = "$env:ProgramData\chocolatey\app-updater.ps1"
                             Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/app-updater/app-updater.ps1" -OutFile $filepath -UseBasicParsing
                             
                             # Create scheduled job
-                            write-host "`t`t- scheduling update routine." -f Yellow
+                            Write-Host "`t`t- scheduling update routine." -f Yellow
                             $name = 'winoptimizer-app-Updater'
                             $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-nop -W hidden -noni -ep bypass -file $filepath"
                             $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM"-LogonType ServiceAccount -RunLevel Highest
@@ -1084,7 +1076,7 @@ Function app_installer {
             
  
     #End of function
-    write-host "`tApp installer completed. Enjoy your freshly installed applications." -f Green
+    Write-Host "`tApp installer completed. Enjoy your freshly installed applications." -f Green
     Start-Sleep 10
 
 
@@ -1114,17 +1106,17 @@ if ($admin_permissions_check) {
 
 
     do {
-        Write-host $intro -f Yellow 
-        Write-host "Please select one of the following options:" -f Yellow
-        Write-host ""; Write-host "";
-        Write-host "        [1] - All"
-        Write-host "        [2] - Bloatware removal"
-        Write-host "        [3] - Privacy optimizer"
-        Write-host "        [4] - Customize Windows settings"
-        Write-host "        [5] - App installer"
+        Write-Host $intro -f Yellow 
+        Write-Host "Please select one of the following options:" -f Yellow
+        Write-Host ""; Write-Host "";
+        Write-Host "        [1] - All"
+        Write-Host "        [2] - Bloatware removal"
+        Write-Host "        [3] - Privacy optimizer"
+        Write-Host "        [4] - Customize Windows settings"
+        Write-Host "        [5] - App installer"
         "";
-        Write-host "        [0] - Exit"
-        Write-host ""; Write-host "";
+        Write-Host "        [0] - Exit"
+        Write-Host ""; Write-Host "";
         Write-Host "Option: " -f Yellow -nonewline; ;
         $option = Read-Host
         Switch ($option) { 
@@ -1134,7 +1126,7 @@ if ($admin_permissions_check) {
             3 { settings_privacy }
             4 { settings_customize }
             5 { app_installer }
-            Default { cls; Write-host""; Write-host""; Write-host "INVALID OPTION. TRY AGAIN.." -f red; Write-host""; Write-host""; Start-Sleep 1; cls; Write-host ""; Write-host "" } 
+            Default { cls; Write-Host""; Write-Host""; Write-Host "INVALID OPTION. TRY AGAIN.." -f red; Write-Host""; Write-Host""; Start-Sleep 1; cls; Write-Host ""; Write-Host "" } 
         }
          
     }
@@ -1144,7 +1136,7 @@ if ($admin_permissions_check) {
 else {
     1..99 | % {
         $Warning_message = "POWERSHELL IS NOT RUNNING AS ADMINISTRATOR. Please close this and run this script as administrator."
-        cls; ""; ""; ""; ""; ""; write-host $Warning_message -ForegroundColor White -BackgroundColor Red; ""; ""; ""; ""; ""; Start-Sleep 1; cls
-        cls; ""; ""; ""; ""; ""; write-host $Warning_message -ForegroundColor White; ""; ""; ""; ""; ""; Start-Sleep 1; cls
+        cls; ""; ""; ""; ""; ""; Write-Host $Warning_message -ForegroundColor White -BackgroundColor Red; ""; ""; ""; ""; ""; Start-Sleep 1; cls
+        cls; ""; ""; ""; ""; ""; Write-Host $Warning_message -ForegroundColor White; ""; ""; ""; ""; ""; Start-Sleep 1; cls
     }    
 }
