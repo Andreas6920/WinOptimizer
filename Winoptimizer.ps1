@@ -206,16 +206,16 @@ Function remove_bloatware {
     
             # Prepare
             $link = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/StartMenuLayout.xml"
-            $layoutFile = "$($env:SystemRoot)\StartMenuLayout.xml"
+            $File = "$($env:SystemRoot)\StartMenuLayout.xml"
             $keys = "HKLM:\Software\Policies\Microsoft\Windows\Explorer","HKCU:\Software\Policies\Microsoft\Windows\Explorer"; 
                 
             # Download blank Start Menu file
             Write-Host "`t`t- Downloading Start Menu file..." -f Yellow;
-            iwr -useb $link -OutFile $layoutFile; Start-Sleep -S 3
+            (New-Object net.webclient).Downloadfile("$link", "$file"); 
                             
             # Unlock start menu, disable pinning, replace with blank file
             Write-Host "`t`t- Unlocking and replacing current file..." -f Yellow;
-            $keys | % { if(!(test-path $_)){ New-Item -Path $_ -Force | Out-Null; Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 1; Set-ItemProperty -Path $_ -Name "StartLayoutFile" -Value $layoutFile } }
+            $keys | % { if(!(test-path $_)){ New-Item -Path $_ -Force | Out-Null; Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 1; Set-ItemProperty -Path $_ -Name "StartLayoutFile" -Value $File } }
             
             # Restart explorer
             restart-explorer
@@ -229,10 +229,10 @@ Function remove_bloatware {
 
             # Save menu to all users
             Write-Host "`t`t- Save changes to all users.." -f Yellow
-            Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
+            Import-StartLayout -LayoutPath $File -MountPath $env:SystemDrive\
 
             # Clean up after script
-            Remove-Item $layoutFile
+            Remove-Item $File
             Write-Host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
 
         
@@ -285,8 +285,7 @@ Function remove_bloatware {
 Function settings_privacy {
       
     Write-Host "`tENHANCE WINDOWS PRIVACY" -f Green
-    #Prepare
-    $dir = "$env:ProgramData/Winoptimizer";if(!(Test-Path $dir)){mkdir $dir | Out-Null}
+    
     
      
 
@@ -297,7 +296,7 @@ Function settings_privacy {
         $file = "$dir\"+(Split-Path $link -Leaf)
         (New-Object net.webclient).Downloadfile("$link", "$file"); 
         Start-Sleep -s 2;
-        start-process powershell -argument "-ep bypass -windowstyle Hidden -file `"$file`""
+        Start-Process Powershell -argument "-ep bypass -windowstyle Hidden -file `"$file`""
         Start-Sleep -s 2;
 
     # Blocking Microsoft Tracking IP's in the firewall
@@ -307,7 +306,7 @@ Function settings_privacy {
         $file = "$dir\"+(Split-Path $link -Leaf)
         (New-Object net.webclient).Downloadfile("$link", "$file"); 
         Start-Sleep -s 2;
-        start-process powershell -argument "-ep bypass -windowstyle Hidden -file `"$file`""
+        Start-Process Powershell -argument "-ep bypass -windowstyle Hidden -file `"$file`""
         Start-Sleep -s 2;
     
     #Configuring Windows privacy settings
@@ -659,17 +658,12 @@ Function settings_customize {
                 $ProgressPreference = "SilentlyContinue" #hide progressbar
                 if (((Get-WmiObject -class Win32_OperatingSystem).Caption) -match "Home"){$dst = "$env:TMP\install-hyper-v"
                     Write-Host "`t`t- Windows Home detected, additional script is needed!" -f Green
-                    $file = "install.bat"
-                    md "$env:TMP\install-hyper-v" -Force | out-null
-                    New-Item "$dst\$file" -Force | out-null
-                    $domain = Invoke-WebRequest -Uri 'https://gist.githubusercontent.com/samuel-fonseca/662a620ae32aca254ea7730be5ff7145/raw/a1de2537d5b0613e29c9ca3b9bc0ec67ff1e29a2/Hyper-V-Enabler.bat'  -UseBasicParsing
-                    $domain = $domain.content; Start-sleep 1
-                    Write-Host "`t`t- Downloading script..." -f Green
-                    Set-content "$dst\$file" $domain; Start-Sleep -S 1
-                    Write-Host "`t`t- Opening CMD..." -f Green
+                    $link = "https://gist.githubusercontent.com/samuel-fonseca/662a620ae32aca254ea7730be5ff7145/raw/a1de2537d5b0613e29c9ca3b9bc0ec67ff1e29a2/Hyper-V-Enabler.bat"
+                    $file = "$dir\"+(Split-Path $link -Leaf)
+                    (New-Object net.webclient).Downloadfile("$link", "$file"); 
+                    Start-Sleep -s 3; 
                     start cmd -Verb RunAs -ArgumentList "/c","$dst/$file" -wait}
-                elseIf ((Get-WmiObject -Class "Win32_OperatingSystem").Caption -like "*Server*") {
-                    Install-WindowsFeature -Name "Hyper-V" -IncludeManagementTools -WarningAction SilentlyContinue | Out-Null}
+                elseIf ((Get-WmiObject -Class "Win32_OperatingSystem").Caption -like "*Server*"){Install-WindowsFeature -Name "Hyper-V" -IncludeManagementTools -WarningAction SilentlyContinue | Out-Null}
                 Else { Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Hyper-V-All" -NoRestart -WarningAction SilentlyContinue | Out-Null }
                 $ProgressPreference = "Continue" #unhide progressbar
                 Write-Host "`t`t- Installation complete. Restart PC to take effect." -f Green;
@@ -686,18 +680,24 @@ Function settings_customize {
             Y {
                 Write-Host "`t`t- YES. Installing Linux sub-system.. (this may take a while)" -f Green
                 $ProgressPreference = "SilentlyContinue" #hide progressbar
-                # Enable Feature
+                
+                # Enable Linux Sub-system Feature
                 If ([System.Environment]::OSVersion.Version.Build -ge 14393) {
                     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" -Name "AllowDevelopmentWithoutDevLicense" -Type DWord -Value 1
                     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" -Name "AllowAllTrustedApps" -Type DWord -Value 1}
                 Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-Subsystem-Linux" -NoRestart -WarningAction SilentlyContinue | Out-Null 
                 
-                # Download / Install Ubuntu
+                # Download ubuntu
                 $link = "https://wsldownload.azureedge.net/Ubuntu_2004.2020.424.0_x64.appx"
-                $file = $($env:TMP)+"\"+(Split-Path $link -Leaf)
+                $file = "$dir\"+(Split-Path $link -Leaf)
                 (New-Object net.webclient).Downloadfile("$link", "$file")
+
+                # Install Ubuntu
                 Add-AppxPackage $file; Start-Sleep -S 3; Remove-item $file
                 $ProgressPreference = "Continue" #unhide progressbar
+                Start-Sleep -S 3;
+                
+                
                 Write-Host "`t`t- Installation complete." -f Green;
             }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
@@ -719,13 +719,18 @@ Function settings_customize {
                 $file = $($env:TMP)+"\"+(Split-Path $link -Leaf)
                 (New-Object net.webclient).Downloadfile("$link", "$file"); Add-AppxPackage $file; Remove-Item $file
 
-                # Install terminal
+                # Download terminal
                 $link = "https://github.com"+((iwr -useb 'https://github.com/microsoft/terminal/releases/latest').Links | ? href -match 'Win10.*.msixbundle$').href
                 $file = $($env:TMP)+"\"+(Split-Path $link -Leaf)
-                (New-Object net.webclient).Downloadfile("$link", "$file"); Start-Sleep -S 3; Add-AppxPackage $file; Remove-Item $file
-
-                # Restart explorer
+                (New-Object net.webclient).Downloadfile("$link", "$file"); 
+                Start-Sleep -S 3; 
+                
+                # Install terminal
+                Add-AppxPackage $file; Remove-Item $file
                 restart-explorer
+
+                Write-Host "`t`t- Installation complete." -f Green;
+
                 
             }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
@@ -739,9 +744,16 @@ Function settings_customize {
         Switch ($answer) { 
             Y {
                 Write-Host "`t`t- YES. Installing PowerShell Core.." -f Green
+                
+                # Download file
                 $link = "https://github.com"+((iwr -useb 'https://github.com/PowerShell/powershell/releases/latest/').Links | ? href -match 'win-x64.msi').href
                 $file = $($env:TMP)+"\"+(Split-Path $link -Leaf)
-                (New-Object net.webclient).Downloadfile("$link", "$file"); Start-Sleep -s 3; Start-Process $file -ArgumentList "/quiet /passive"
+                (New-Object net.webclient).Downloadfile("$link", "$file"); Start-Sleep -s 3; 
+                
+                # Install file
+                Start-Process $file -ArgumentList "/quiet /passive"
+
+                Write-Host "`t`t- Installation complete." -f Green;
                 
               }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
@@ -755,12 +767,18 @@ Function settings_customize {
         Switch ($answer) { 
             Y {
                 Write-Host "`t`t- YES. Installing all the .Net Frameworks.." -f Green
-                iwr -useb 'https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/install-dotnet.ps1' -OutFile "$($env:TMP)\dotnet.ps1"
+                
+                #Download file
+                $link = 'https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/install-dotnet.ps1'
+                $file = "$dir\"+(Split-Path $link -Leaf)
+                (New-Object net.webclient).Downloadfile("$link", "$file"); 
                 Start-Sleep -S 3
-                start-process powershell -argument "-ep bypass -windowstyle Hidden -file `"$($env:TMP)\dotnet.ps1`""
+
+                # Run file
+                Start-Process Powershell -argument "-ep bypass -windowstyle Hidden -file `"$file`""
                 Start-Sleep -S 3
-                Remove-item "$($env:TMP)\dotnet.ps1" | Out-Null
                 restart-explorer
+
                 Write-Host "`t`t- Installation complete." -f Green;
             }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
@@ -775,30 +793,26 @@ Function settings_customize {
         Switch ($answer) { 
             Y {
                 Write-Host "`t`t- YES. Installing all the Visual C++ versions.." -f Green
-                [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-                If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main")) {
-                New-Item -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Force | Out-Null}
-                Set-ItemProperty -Path  "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize"  -Value 1
-                
-                $path = "$($env:TMP)\Visual"
-                    if(!(test-path $path)){New-Item $path -ItemType Directory -ea SilentlyContinue | Out-Null}
-                $FileDestination = "$($env:TMP)\Visual\drivers.zip"
-                
-                $link =  "https://drive.google.com/uc?export=download&confirm=uc-download-link&id=1mHvNVA_pI0XnWyjRDNee0vhQxLp6agp_"
+
+                # Download file
+                $link = "https://drive.google.com/uc?export=download&confirm=uc-download-link&id=1mHvNVA_pI0XnWyjRDNee0vhQxLp6agp_"
+                $file = "$dir\Visual\drivers.zip"
                 (New-Object net.webclient).Downloadfile($link, $FileDestination)
-            
+                
+                # Unzip file
                 Expand-Archive $FileDestination -DestinationPath $path | Out-Null; 
                 Start-Sleep -s 5
-            
-                Set-Location $path
+                
+                # Install files
+                Set-Location ($file | Split-Path -Parent)
                 ./vcredist2005_x64.exe /q | Out-Null
                 ./vcredist2008_x64.exe /qb | Out-Null
                 ./vcredist2010_x64.exe /passive /norestart | Out-Null
                 ./vcredist2012_x64.exe /passive /norestart | Out-Null
                 ./vcredist2013_x64.exe /passive /norestart | Out-Null
                 ./vcredist2015_2017_2019_2022_x64.exe /passive /norestart | Out-Null
-                
                 restart-explorer
+
                 Write-Host "`t`t- Installation complete." -f Green;
                 
               }
@@ -1014,7 +1028,7 @@ Function app_installer {
                 While ($answer1 -notin "y", "n")
             
         # Start app installation              
-            Start-Process PowerShell -argument "-Ep bypass -Windowstyle hidden -file `"""$($env:ProgramData)\Winoptimizer\appinstall.ps1""`""
+            Start-Process Powershell -argument "-Ep bypass -Windowstyle hidden -file `"""$($env:ProgramData)\Winoptimizer\appinstall.ps1""`""
     
     
             Do {
@@ -1071,6 +1085,25 @@ Creator: Andreas6920 | https://github.com/Andreas6920/
 $admin_permissions_check = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
 $admin_permissions_check = $admin_permissions_check.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if ($admin_permissions_check) {
+
+    # Prepare system
+        
+        # Allow powershell to download files with Internet Explorer
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main")) {
+        New-Item -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Force | Out-Null}
+        Set-ItemProperty -Path  "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize"  -Value 1
+
+        # Setting root directory
+        $dir = "$env:ProgramData/Winoptimizer";if(!(Test-Path $dir)){mkdir $dir | Out-Null}
+            # Download main script to folder
+            $link = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/Winoptimizer.ps1"
+            $file = "$dir\"+(Split-Path $link -Leaf)
+            (New-Object net.webclient).Downloadfile("$link", "$file")
+        
+        
+
+
 
 
     do {
