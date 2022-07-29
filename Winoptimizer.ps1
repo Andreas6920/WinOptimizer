@@ -288,11 +288,11 @@ Function settings_privacy {
     #Prepare
     $dir = "$env:ProgramData/Winoptimizer";if(!(Test-Path $dir)){mkdir $dir | Out-Null}
     
-    #Cleaning Apps and Features
-    Write-Host "`t`tBLOCKING - Microsoft Data Collection" -f Green      
+     
 
     # Adding entries to hosts file
-        Write-Host "`t`tBLOCKING - Tracking domains (This may take a while).." -f Green
+        Write-Host "`t`tBlocking Microsoft's Tracking domains:" -f Green
+        Write-Host "`t`t`t- Will run in the background." -f Yellow
         $link = "https://github.com/Andreas6920/WinOptimizer/raw/main/res/block-domains.ps1"
         $file = "$dir\"+(Split-Path $link -Leaf)
         (New-Object net.webclient).Downloadfile("$link", "$file"); 
@@ -301,7 +301,8 @@ Function settings_privacy {
         Start-Sleep -s 2;
 
     # Blocking Microsoft Tracking IP's in the firewall
-        Write-Host "`t`tBLOCKING - Tracking IP's" -f Green
+        Write-Host "`t`tBlocking Microsoft's tracking IP's:" -f Green
+        Write-Host "`t`t`t- Will run in the background." -f Yellow
         $link = "https://github.com/Andreas6920/WinOptimizer/raw/main/res/block-ips.ps1"
         $file = "$dir\"+(Split-Path $link -Leaf)
         (New-Object net.webclient).Downloadfile("$link", "$file"); 
@@ -309,75 +310,78 @@ Function settings_privacy {
         start-process powershell -argument "-ep bypass -windowstyle Hidden -file `"$file`""
         Start-Sleep -s 2;
     
-    # Disable Advertising ID
-        Write-Host "`t`t`t- Disabling advertising ID." -f Yellow
-        If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo")) {
-            New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Force | Out-Null}
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Type DWord -Value 0
-        Start-Sleep -s 2
-      
-    # Disable let websites provide locally relevant content by accessing language list
-        Write-Host "`t`t`t- Disabling location tracking." -f Yellow
-        If (!(Test-Path "HKCU:\Control Panel\International\User Profile")) {
-            New-Item -Path "HKCU:\Control Panel\International\User Profile" -Force | Out-Null}
-        Set-ItemProperty -Path  "HKCU:\Control Panel\International\User Profile" -Name "HttpAcceptLanguageOptOut"  -Value 1
-        Start-Sleep -s 2
-      
-    # Disable Show me suggested content in the Settings app
-        Write-Host "`t`t`t- Disabling personalized content suggestions." -f Yellow
-        If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager")) {
-            New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Force | Out-Null}
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338393Enabled" -Type DWord -Value 0
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353694Enabled" -Type DWord -Value 0
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353696Enabled" -Type DWord -Value 0
-        Start-Sleep -s 2
-      
-    # Remove Cortana
-        Write-Host "`t`t`t- Disabling Cortana." -f Yellow
-        $ProgressPreference = "SilentlyContinue"
-        Get-AppxPackage -name *Microsoft.549981C3F5F10* | Remove-AppxPackage
-        If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
-            New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null}
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Type DWord -Value 0
-        $ProgressPreference = "Continue"
-        Stop-Process -name explorer
-        Start-Sleep -s 5
+    #Configuring Windows privacy settings
+        Write-Host "`t`tSetting Privacy Settings: - " -f Green     
+        
+        # Disable Advertising ID
+            Write-Host "`t`t`t- Disabling advertising ID." -f Yellow
+            If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo")) {
+                New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Force | Out-Null}
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Type DWord -Value 0
+            Start-Sleep -s 2
+        
+        # Disable let websites provide locally relevant content by accessing language list
+            Write-Host "`t`t`t- Disabling location tracking." -f Yellow
+            If (!(Test-Path "HKCU:\Control Panel\International\User Profile")) {
+                New-Item -Path "HKCU:\Control Panel\International\User Profile" -Force | Out-Null}
+            Set-ItemProperty -Path  "HKCU:\Control Panel\International\User Profile" -Name "HttpAcceptLanguageOptOut"  -Value 1
+            Start-Sleep -s 2
+        
+        # Disable Show me suggested content in the Settings app
+            Write-Host "`t`t`t- Disabling personalized content suggestions." -f Yellow
+            If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager")) {
+                New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Force | Out-Null}
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338393Enabled" -Type DWord -Value 0
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353694Enabled" -Type DWord -Value 0
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353696Enabled" -Type DWord -Value 0
+            Start-Sleep -s 2
+        
+        # Remove Cortana
+            Write-Host "`t`t`t- Disabling Cortana." -f Yellow
+            $ProgressPreference = "SilentlyContinue"
+            Get-AppxPackage -name *Microsoft.549981C3F5F10* | Remove-AppxPackage
+            If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
+                New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null}
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Type DWord -Value 0
+            $ProgressPreference = "Continue"
+            Stop-Process -name explorer
+            Start-Sleep -s 5
 
-    # Disable Online Speech Recognition
-        Write-Host "`t`t`t- Disabling Online Speech Recognition." -f Yellow
-        If (!(Test-Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy")) {
-            New-Item -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Force | Out-Null}
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "HasAccepted" -Type DWord -Value 0
-        Start-Sleep -s 2
-    
-    # Hiding personal information from lock screen
-        Write-Host "`t`t`t- Disabling sign-in screen notifications." -f Yellow
-        If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\System")) {
-            New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Force | Out-Null}
-        Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "DontDisplayLockedUserID" -Type DWord -Value 0
-        Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "DontDisplayLastUsername" -Type DWord -Value 0
-        Start-Sleep -s 2
-       
-    # Disable diagnostic data collection
-        Write-Host "`t`t`t- Disabling diagnostic data collection" -f Yellow
-        If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection")) {
-            New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Force | Out-Null}
-        Set-ItemProperty -Path  "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry"  -Value 0
-        Start-Sleep -s 2
-    
-    # Disable App Launch Tracking
-        Write-Host "`t`t`t- Disabling App Launch Tracking." -f Yellow
-        If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
-            New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null}
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "Start_TrackProgs" -Type DWord -Value 0
-        Start-Sleep -s 2
+        # Disable Online Speech Recognition
+            Write-Host "`t`t`t- Disabling Online Speech Recognition." -f Yellow
+            If (!(Test-Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy")) {
+                New-Item -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Force | Out-Null}
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "HasAccepted" -Type DWord -Value 0
+            Start-Sleep -s 2
+        
+        # Hiding personal information from lock screen
+            Write-Host "`t`t`t- Disabling sign-in screen notifications." -f Yellow
+            If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\System")) {
+                New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Force | Out-Null}
+            Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "DontDisplayLockedUserID" -Type DWord -Value 0
+            Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "DontDisplayLastUsername" -Type DWord -Value 0
+            Start-Sleep -s 2
+        
+        # Disable diagnostic data collection
+            Write-Host "`t`t`t- Disabling diagnostic data collection" -f Yellow
+            If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection")) {
+                New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Force | Out-Null}
+            Set-ItemProperty -Path  "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry"  -Value 0
+            Start-Sleep -s 2
+        
+        # Disable App Launch Tracking
+            Write-Host "`t`t`t- Disabling App Launch Tracking." -f Yellow
+            If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
+                New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null}
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "Start_TrackProgs" -Type DWord -Value 0
+            Start-Sleep -s 2
 
-    # Disable "tailored expirence"
-        Write-Host "`t`t`t- Disable tailored expirience." -f Yellow        
-        If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy")) {   
-            New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Force | Out-Null}
-        Set-ItemProperty -Path  "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Name "TailoredExperiencesWithDiagnosticDataEnabled"  -Value 0
-        Start-Sleep -s 2
+        # Disable "tailored expirence"
+            Write-Host "`t`t`t- Disable tailored expirience." -f Yellow        
+            If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy")) {   
+                New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Force | Out-Null}
+            Set-ItemProperty -Path  "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Name "TailoredExperiencesWithDiagnosticDataEnabled"  -Value 0
+            Start-Sleep -s 2
 
 
     # Send Microsoft a request to delete collected data about you.
