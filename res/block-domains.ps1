@@ -1,13 +1,15 @@
 ﻿        # Taking backup of current hosts file first
         $hostsfile = "$env:SystemRoot\System32\drivers\etc\hosts"
-        $Takebackup = "$env:SystemRoot\System32\drivers\etc\hosts_backup"
-        Copy-Item $hostsfile $Takebackup
+        $backupfile = "$env:SystemRoot\System32\drivers\etc\hosts_backup"
+        Write-Host "`t`t`t- Taking Backup of original file.." -f Yellow
+        Copy-Item $hostsfile $backupfile
         
         # Crawling new Microsoft tracking domains
         $domain = Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt'  -UseBasicParsing
         $domain = $domain.Content | Foreach-object { $_ -replace "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", "" } | Foreach-object { $_ -replace " ", "" }
         $domain = $domain.Split("`n") -notlike "#*" -notmatch "spynet2.microsoft.com" -match "\w"
         
+        # Adding crawled domains to hosts file
         foreach ($domain_entry in $domain) {
         $counter++
                 Write-Progress -Activity 'Adding entries to host file..' -CurrentOperation $domain_entry -PercentComplete (($counter /$domain.count) * 100)
@@ -15,7 +17,10 @@
                 Start-Sleep -Milliseconds 200
         }
         #flush DNS cache
-        ipconfig /flushdns | Out-Null; start-Sleep 2; nbtstat -R | Out-Null; start-Sleep -s 10;
+        ipconfig /flushdns | Out-Null; start-Sleep 2; nbtstat -R | Out-Null; 
+        Write-Host "`t`t`t- hosts entries complete." -f Yellow
+        
+        Start-Sleep -s 5;
 
         Add-Type -AssemblyName System.Windows.Forms
         $global:balmsg = New-Object System.Windows.Forms.NotifyIcon

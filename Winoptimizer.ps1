@@ -296,7 +296,7 @@ Function settings_privacy {
         $file = "$dir\"+(Split-Path $link -Leaf)
         (New-Object net.webclient).Downloadfile("$link", "$file"); 
         Start-Sleep -s 2;
-        Start-Process Powershell -argument "-ep bypass -windowstyle Hidden -file `"$file`""
+        Start-Process Powershell -argument "-ep bypass -windowstyle Minimized -file `"$file`""
         Start-Sleep -s 2;
 
     # Blocking Microsoft Tracking IP's in the firewall
@@ -306,7 +306,7 @@ Function settings_privacy {
         $file = "$dir\"+(Split-Path $link -Leaf)
         (New-Object net.webclient).Downloadfile("$link", "$file"); 
         Start-Sleep -s 2;
-        Start-Process Powershell -argument "-ep bypass -windowstyle Hidden -file `"$file`""
+        Start-Process Powershell -argument "-ep bypass -windowstyle Minimized -file `"$file`""
         Start-Sleep -s 2;
     
     #Configuring Windows privacy settings
