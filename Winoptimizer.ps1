@@ -285,6 +285,9 @@ Function remove_bloatware {
 Function settings_privacy {
       
     Write-Host "`tENHANCE WINDOWS PRIVACY" -f Green
+    #Prepare
+    $dir = "$env:ProgramData/Winoptimizer";if(!(Test-Path $dir)){mkdir $dir | Out-Null}
+    
     #Cleaning Apps and Features
     Write-Host "`t`tBLOCKING - Microsoft Data Collection" -f Green
           
@@ -362,33 +365,14 @@ Function settings_privacy {
 
     # Adding entries to hosts file
         Write-Host "`t`tBLOCKING - Tracking domains (This may take a while).." -f Green
-        Start-Sleep -s 3
-         Write-Host "`t`t`t- Backing up your hostsfile.." -f Yellow
-        #Taking backup of current hosts file first
-        $hostsfile = "$env:SystemRoot\System32\drivers\etc\hosts"
-        $Takebackup = "$env:SystemRoot\System32\drivers\etc\hosts_backup"
-        Copy-Item $hostsfile $Takebackup
+        $link = "https://github.com/Andreas6920/WinOptimizer/raw/main/res/block-domains.ps1"
+        $file = "$dir\"+(Split-Path $link -Leaf)
+        start-process powershell -argument "-ep bypass -windowstyle Hidden -file `"$file`""
         
-        Write-Host "`t`t`t- Getting an updated list of microsoft tracking domains" -f Yellow
-        $domain = Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt'  -UseBasicParsing
-        $domain = $domain.Content | Foreach-object { $_ -replace "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", "" } | Foreach-object { $_ -replace " ", "" }
-        $domain = $domain.Split("`n") -notlike "#*" -notmatch "spynet2.microsoft.com" -match "\w"
-        
-        Write-Host "`t`t`t- Blocking domains from tracking-list" -f Yellow
-        foreach ($domain_entry in $domain) {
-        $counter++
-                Write-Progress -Activity 'Adding entries to host file..' -CurrentOperation $domain_entry -PercentComplete (($counter /$domain.count) * 100)
-                Add-Content -Encoding UTF8  $hostsfile ("`t" + "0.0.0.0" + "`t`t" + "$domain_entry") -ErrorAction SilentlyContinue
-                Start-Sleep -Milliseconds 200
-        }
-        Write-Progress -Completed -Activity "make progress bar dissapear"
-        #flush DNS cache
-        Write-Host "`t`t`t- Flushing local DNS cache" -f Yellow
-        ipconfig /flushdns | Out-Null; start-Sleep 2; nbtstat -R | Out-Null; start-Sleep -s 2;
-        Stop-Process -name explorer; Start-Sleep -s 5
 
     # Blocking Microsoft Tracking IP's in the firewall
         Write-Host "`t`tBLOCKING - Tracking IP's" -f Green
+        start-job -Name "Blocking Domains" -ScriptBlock {
         Write-Host "`t`t`t- Getting updated lists of Microsoft's trackin IP's" -f Yellow
         $blockip = Invoke-WebRequest -Uri https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/firewall/spy.txt  -UseBasicParsing
         $blockip = $blockip.Content | Foreach-object { $_ -replace "0.0.0.0 ", "" } | Out-String
@@ -401,7 +385,8 @@ Function settings_privacy {
         netsh advfirewall firewall add rule name="Block Microsoft Tracking IP: $ip_entry" dir=out action=block remoteip=$ip_entry enable=yes | Out-Null}
         Write-Progress -Completed -Activity "make progress bar dissapear"
         Write-Host "`t`t`t- Firewall configuration complete." -f Yellow
-        Start-Sleep 5
+        Start-Sleep 5;} | Out-Null
+        Start-Sleep -s 5
 
     # Send Microsoft a request to delete collected data about you.
         
@@ -433,7 +418,7 @@ Function settings_privacy {
         allow_input | Out-Null
         
         # Windows hardening
-        Write-Host "`t`tBLOCKING - Security holes" -f Green
+        Write-Host "`tENHANCE WINDOWS SECURITY" -f Green
         
         # Disable automatic setup of network connected devices.
             Write-Host "`t`t`t- Disabling auto setup network devices." -f Yellow
@@ -444,17 +429,6 @@ Function settings_privacy {
             
         # Disable sharing of PC and printers
             Write-Host "`t`t`t- Disabling sharing of PC and Printers." -f Yellow
-            Get-NetConnectionProfile | ForEach-Object {Set-NetConnectionProfile -Name $_.Name -NetworkCategory Public -ErrorAction SilentlyContinue | Out-Null}    
-            get-printer | Where-Object shared -eq True | ForEach-Object {Set-Printer -Name $_.Name -Shared $False -ErrorAction SilentlyContinue | Out-Null}
-            netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=No -ErrorAction SilentlyContinue | Out-Null
-        
-        # Disable automatic setup of network connected devices.
-            Write-Host "`t`t`t- Disabling auto setup network devices." -f yellow
-            Set-Item "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type DWord -Value 0 -Force 
-            Start-Sleep -s 2
-            
-        # Disable sharing of PC and printers
-             Write-Host "`t`t`t- Disabling sharing of PC and Printers." -f yellow
             Get-NetConnectionProfile | ForEach-Object {Set-NetConnectionProfile -Name $_.Name -NetworkCategory Public -ErrorAction SilentlyContinue | Out-Null}    
             get-printer | Where-Object shared -eq True | ForEach-Object {Set-Printer -Name $_.Name -Shared $False -ErrorAction SilentlyContinue | Out-Null}
             netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=No -ErrorAction SilentlyContinue | Out-Null
@@ -474,7 +448,6 @@ Function settings_privacy {
                 If (!(Test-Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters")) {
                     New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" -Force | Out-Null}
                 Set-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" -Name "DisabledComponents" -Type DWord -Value 0x20 -Force
-
         
         # Disabe SMB Compression - CVE-2020-0796    
             #https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2020-0796
@@ -484,10 +457,10 @@ Function settings_privacy {
         # Disable SMB v1    
             #https://docs.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3
             Write-Host "`t`t`t- Disabling SMB version 1 support." -f Yellow
-            Disable-WindowsOptionalFeature -Online -FeatureName smb1protocol -NoRestart -WarningAction:SilentlyContinue  | Out-Null
-            Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force -ea SilentlyContinue | Out-Null
-            Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" SMB1 -Type DWORD -Value 0 –Force
-
+            start-job -Name "Disable SMB1" -ScriptBlock {
+                Disable-WindowsOptionalFeature -Online -FeatureName smb1protocol -NoRestart -WarningAction:SilentlyContinue | Out-Null
+                Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force -ea SilentlyContinue | Out-Null
+                Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" SMB1 -Type DWORD -Value 0 –Force} | Out-Null
         # Disable SMB v2    
             #https://docs.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3
             Write-Host "`t`t`t- Disabling SMB version 2 support." -f Yellow
@@ -507,7 +480,8 @@ Function settings_privacy {
             Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Virtualization" -Name MinVmVersionForCpuBasedMitigations -Type String -Value "1.0" -Force -ea SilentlyContinue | Out-Null
             
         #End of function
-            Write-Host "`tPrivacy optimizer complete. Your system is now optimzed." -f Green
+            Wait-job -Name "Disable SMB1" | Out-Null;
+            Write-Host "`tPrivacy optimizer complete. Your system is now more private and secure." -f Green
             Start-Sleep 10
     
 }
