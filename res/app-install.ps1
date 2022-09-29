@@ -14,3 +14,10 @@ function appinstall {
             if(!((get-content $appinstall) -notmatch "https://community.chocolatey.org/install.ps1")){Set-content -Encoding UTF8 -Value $code -Path $appinstall}
         
             Add-content -Encoding UTF8 -Value (invoke-webrequest "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/app-template.ps1").Content.replace('REPLACE-ME-NAME', $Name).replace('REPLACE-ME-APP', $App) -Path $appinstall}
+
+
+<#
+iwr -useb https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/app-install.ps1| iex
+Appinstall -Name "Winamp" -App "Winamp"
+Start-Process Powershell -argument "-Ep bypass -Windowstyle hidden -file `"""$($env:ProgramData)\Winoptimizer\appinstall.ps1""`""
+#>

@@ -1,6 +1,60 @@
     Write-Host "REMOVING MICROSOFT BLOAT" -f Green;"";
     Start-Sleep -s 3
     
+    # Clean Taskbar
+        Write-Host "`tCleaning Taskbar:" -f Green
+        Start-Sleep -s 5
+        
+            Write-Host "`t`t- Changing keys.." -f Yellow
+            Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesChanges -Value 3 -Type Dword -Force | Out-Null
+            Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesRemovedChanges -Value 32 -Type Dword -Force | Out-Null
+            Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesVersion -Value 3 -Type Dword -Force | Out-Null
+            Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name Favorites -Value ([byte[]](0xFF)) -Force | Out-Null
+            Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowCortanaButton -Type DWord -Value 0 | Out-Null
+            Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Search -Name SearchboxTaskbarMode -Value 0 -Type Dword | Out-Null
+            set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowTaskViewButton -Type DWord -Value 0 | Out-Null
+
+            Write-Host "`t`t- Removing shortcuts.." -f Yellow
+            Remove-Item -Path "$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*" -Recurse -Force | Out-Null
+            Stop-Process -name explorer
+            Start-Sleep -s 5
+            Write-Host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
+    
+     # Clean start menu
+        Write-Host "`tCleaning Start Menu:" -f Green
+        Start-Sleep -s 5
+    
+            # Prepare
+            $link = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/StartMenuLayout.xml"
+            $File = "$($env:SystemRoot)\StartMenuLayout.xml"
+            $keys = "HKLM:\Software\Policies\Microsoft\Windows\Explorer","HKCU:\Software\Policies\Microsoft\Windows\Explorer"; 
+                
+            # Download blank Start Menu file
+            Write-Host "`t`t- Downloading Start Menu file..." -f Yellow;
+            (New-Object net.webclient).Downloadfile("$link", "$file"); 
+                            
+            # Unlock start menu, disable pinning, replace with blank file
+            Write-Host "`t`t- Unlocking and replacing current file..." -f Yellow;
+            $keys | % { if(!(test-path $_)){ New-Item -Path $_ -Force | Out-Null; Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 1; Set-ItemProperty -Path $_ -Name "StartLayoutFile" -Value $File } }
+            
+            # Restart explorer
+            # restart-explorer
+
+            # Enable pinning
+            Write-Host "`t`t- Fixing pinning..." -f Yellow
+            $keys | % { Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 0 }
+            
+            #Restart explorer
+            # restart-explorer
+
+            # Save menu to all users
+            Write-Host "`t`t- Save changes to all users.." -f Yellow
+            Import-StartLayout -LayoutPath $File -MountPath $env:SystemDrive\
+
+            # Clean up after script
+            Remove-Item $File
+            Write-Host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
+
     # Clean Apps and features
         # List
         Write-Host "`tCleaning Bloatware:" -f Green
@@ -83,8 +137,6 @@
             $ProgressPreference = "Continue" #unhide progressbar
             Write-Host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
 
-
-
     # Disabling services
         Write-Host "`tCleaning Startup services:" -f Green
         Start-Sleep -s 5
@@ -112,8 +164,6 @@
          Write-Host "`t`t- Disabling: $service" -f Yellow
          Get-Service | Where-Object name -eq $service | Set-Service -StartupType Disabled}}
          Write-Host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
-
-
 
     # Clean Task Scheduler
         Write-Host "`tCleaning Scheduled tasks:" -f Green
@@ -166,64 +216,6 @@
             Get-ScheduledTask | Where-Object Taskname -eq $BloatSchedule | Disable-ScheduledTask | Out-Null}}
             Write-Host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
         
-
-            
-    # Clean start menu
-        Write-Host "`tCleaning Start Menu:" -f Green
-        Start-Sleep -s 5
-    
-            # Prepare
-            $link = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/StartMenuLayout.xml"
-            $File = "$($env:SystemRoot)\StartMenuLayout.xml"
-            $keys = "HKLM:\Software\Policies\Microsoft\Windows\Explorer","HKCU:\Software\Policies\Microsoft\Windows\Explorer"; 
-                
-            # Download blank Start Menu file
-            Write-Host "`t`t- Downloading Start Menu file..." -f Yellow;
-            (New-Object net.webclient).Downloadfile("$link", "$file"); 
-                            
-            # Unlock start menu, disable pinning, replace with blank file
-            Write-Host "`t`t- Unlocking and replacing current file..." -f Yellow;
-            $keys | % { if(!(test-path $_)){ New-Item -Path $_ -Force | Out-Null; Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 1; Set-ItemProperty -Path $_ -Name "StartLayoutFile" -Value $File } }
-            
-            # Restart explorer
-            # restart-explorer
-
-            # Enable pinning
-            Write-Host "`t`t- Fixing pinning..." -f Yellow
-            $keys | % { Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 0 }
-            
-            #Restart explorer
-            # restart-explorer
-
-            # Save menu to all users
-            Write-Host "`t`t- Save changes to all users.." -f Yellow
-            Import-StartLayout -LayoutPath $File -MountPath $env:SystemDrive\
-
-            # Clean up after script
-            Remove-Item $File
-            Write-Host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
-
-        
-    # Clean Taskbar
-        Write-Host "`tCleaning Taskbar:" -f Green
-        Start-Sleep -s 5
-        
-            Write-Host "`t`t- Changing keys.." -f Yellow
-            Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesChanges -Value 3 -Type Dword -Force | Out-Null
-            Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesRemovedChanges -Value 32 -Type Dword -Force | Out-Null
-            Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesVersion -Value 3 -Type Dword -Force | Out-Null
-            Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name Favorites -Value ([byte[]](0xFF)) -Force | Out-Null
-            Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowCortanaButton -Type DWord -Value 0 | Out-Null
-            Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Search -Name SearchboxTaskbarMode -Value 0 -Type Dword | Out-Null
-            set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowTaskViewButton -Type DWord -Value 0 | Out-Null
-
-            Write-Host "`t`t- Removing shortcuts.." -f Yellow
-            Remove-Item -Path "$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*" -Recurse -Force | Out-Null
-            Stop-Process -name explorer
-            Start-Sleep -s 5
-            Write-Host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
-
-        
     # Cleaning printers
         Write-Host "`tCleaning Printers:" -f Green
         Start-Sleep -s 5    
@@ -242,7 +234,6 @@
             $Bloatprinters = "Fax","OneNote for Windows 10","Microsoft XPS Document Writer", "Microsoft Print to PDF" 
             $Bloatprinters | % {if(Get-Printer | Where-Object Name -cMatch $_){Write-Host "`t`t`t- Uninstalling: $_" -f Yellow; Remove-Printer $_; Start-Sleep -s 2}}
             Write-Host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
-
         
     #End of function
         Write-Host "`tBloat Remover Complete. Your system is now clean." -f Green
