@@ -186,14 +186,14 @@
             $keys | % { if(!(test-path $_)){ New-Item -Path $_ -Force | Out-Null; Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 1; Set-ItemProperty -Path $_ -Name "StartLayoutFile" -Value $File } }
             
             # Restart explorer
-            restart-explorer
+            # restart-explorer
 
             # Enable pinning
             Write-Host "`t`t- Fixing pinning..." -f Yellow
             $keys | % { Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 0 }
             
             #Restart explorer
-            restart-explorer
+            # restart-explorer
 
             # Save menu to all users
             Write-Host "`t`t- Save changes to all users.." -f Yellow
