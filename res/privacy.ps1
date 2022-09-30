@@ -1,26 +1,26 @@
-﻿# Adding entries to hosts file
-        Write-Host "`t`tBlocking Microsoft's Tracking domains:" -f Green
-        Write-Host "`t`t`t- Will start in the background." -f Yellow
-        $link = "https://github.com/Andreas6920/WinOptimizer/raw/main/res/block-domains.ps1"
-        $file = "$dir\"+(Split-Path $link -Leaf)
-        (New-Object net.webclient).Downloadfile("$link", "$file"); 
-        Start-Sleep -s 2;
-        Start-Process Powershell -argument "-ep bypass -windowstyle Minimized -file `"$file`""
-        Start-Sleep -s 2;
-
-    # Blocking Microsoft Tracking IP's in the firewall
-        Write-Host "`t`tBlocking Microsoft's tracking IP's:" -f Green
-        Write-Host "`t`t`t- Will start in the background." -f Yellow
-        $link = "https://github.com/Andreas6920/WinOptimizer/raw/main/res/block-ips.ps1"
-        $file = "$dir\"+(Split-Path $link -Leaf)
-        (New-Object net.webclient).Downloadfile("$link", "$file"); 
-        Start-Sleep -s 2;
-        Start-Process Powershell -argument "-ep bypass -windowstyle Minimized -file `"$file`""
-        Start-Sleep -s 2;
-    
-    #Configuring Windows privacy settings
-        Write-Host "`t`tSetting Privacy Settings:" -f Green     
+﻿    #Configuring Windows privacy settings
+    Write-Host "`t`tSetting privacy Settings:" -f Green   
         
+        # Blocking Microsoft Tracking domains in the hosts file
+            Write-Host "`t`t`t- Blocking Microsoft's Tracking domains:" -f Green
+            Write-Host "`t`t`t`t- Will start in the background." -f Yellow
+            $link = "https://github.com/Andreas6920/WinOptimizer/raw/main/res/block-domains.ps1"
+            $file = "$dir\"+(Split-Path $link -Leaf)
+            (New-Object net.webclient).Downloadfile("$link", "$file"); 
+            Start-Sleep -s 2;
+            Start-Process Powershell -argument "-ep bypass -windowstyle Minimized -file `"$file`""
+            Start-Sleep -s 2;
+
+        # Blocking Microsoft Tracking IP's in the firewall
+            Write-Host "`t`t`t- Blocking Microsoft's tracking IP's:" -f Green
+            Write-Host "`t`t`t`t- Will start in the background." -f Yellow
+            $link = "https://github.com/Andreas6920/WinOptimizer/raw/main/res/block-ips.ps1"
+            $file = "$dir\"+(Split-Path $link -Leaf)
+            (New-Object net.webclient).Downloadfile("$link", "$file"); 
+            Start-Sleep -s 2;
+            Start-Process Powershell -argument "-ep bypass -windowstyle Minimized -file `"$file`""
+            Start-Sleep -s 2;
+            
         # Disable Advertising ID
             Write-Host "`t`t`t- Disabling advertising ID." -f Yellow
             If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo")) {
@@ -90,7 +90,10 @@
                 New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Force | Out-Null}
             Set-ItemProperty -Path  "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Name "TailoredExperiencesWithDiagnosticDataEnabled"  -Value 0
             Start-Sleep -s 2
-        
+    
+    #Configuring Windows security settings
+    Write-Host "`t`tSetting security settings:" -f Green  
+
         # Disable automatic setup of network connected devices.
             Write-Host "`t`t`t- Disabling auto setup network devices." -f Yellow
             If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private")) {
