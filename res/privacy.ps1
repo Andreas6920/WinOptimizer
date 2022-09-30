@@ -2,7 +2,7 @@
     Write-Host "`t`tSetting privacy Settings:" -f Green   
         
         # Blocking Microsoft Tracking domains in the hosts file
-            Write-Host "`t`t`t- Blocking Microsoft's Tracking domains:" -f Green
+            Write-Host "`t`t`t- Blocking Microsoft's Tracking domains:" -f Yellow
             Write-Host "`t`t`t`t- Will start in the background." -f Yellow
             $link = "https://github.com/Andreas6920/WinOptimizer/raw/main/res/block-domains.ps1"
             $file = "$dir\"+(Split-Path $link -Leaf)
@@ -12,7 +12,7 @@
             Start-Sleep -s 2;
 
         # Blocking Microsoft Tracking IP's in the firewall
-            Write-Host "`t`t`t- Blocking Microsoft's tracking IP's:" -f Green
+            Write-Host "`t`t`t- Blocking Microsoft's tracking IP's:" -f Yellow
             Write-Host "`t`t`t`t- Will start in the background." -f Yellow
             $link = "https://github.com/Andreas6920/WinOptimizer/raw/main/res/block-ips.ps1"
             $file = "$dir\"+(Split-Path $link -Leaf)
