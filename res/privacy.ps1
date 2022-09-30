@@ -1,5 +1,4 @@
-﻿    #Configuring Windows privacy settings
-    Write-Host "`t`tSetting privacy Settings:" -f Green   
+﻿Write-Host "`t`tSetting privacy Settings:" -f Green   
         
         # Blocking Microsoft Tracking domains in the hosts file
             Write-Host "`t`t`t- Blocking Microsoft's Tracking domains:" -f Yellow
@@ -158,4 +157,3 @@
             Write-Host "`tPrivacy optimizer complete. Your system is now more private and secure." -f Green
             Start-Sleep 10
 
-            
