@@ -157,3 +157,5 @@
             Wait-job -Name "Disable SMB1" | Out-Null;
             Write-Host "`tPrivacy optimizer complete. Your system is now more private and secure." -f Green
             Start-Sleep 10
+
+            
