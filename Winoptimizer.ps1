@@ -413,7 +413,7 @@ Function settings_privacy {
         # Windows hardening
         Write-Host "`tENHANCE WINDOWS SECURITY" -f Green
         
-        # Disable automatic setup of network connected devices.
+        # Disable automatic setup of network connected devices
             Write-Host "`t`t`t- Disabling auto setup network devices." -f Yellow
             If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private")) {
                 New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Force | Out-Null}
@@ -426,13 +426,13 @@ Function settings_privacy {
             get-printer | Where-Object shared -eq True | ForEach-Object {Set-Printer -Name $_.Name -Shared $False -ErrorAction SilentlyContinue | Out-Null}
             netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=No -ErrorAction SilentlyContinue | Out-Null
 
-        # Disable LLMNR    
+        # Disable LLMNR
             #https://www.blackhillsinfosec.com/how-to-disable-llmnr-why-you-want-to/
             Write-Host "`t`t`t- Disabling LLMNR." -f yellow
             New-Item -Path "HKLM:\Software\policies\Microsoft\Windows NT\" -Name "DNSClient" -ea SilentlyContinue | Out-Null
             Set-ItemProperty -Path "HKLM:\Software\policies\Microsoft\Windows NT\DNSClient" -Name "EnableMulticast" -Type "DWORD" -Value 0 -Force -ea SilentlyContinue | Out-Null
         
-        # Bad Neighbor - CVE-2020-16898 (Disable IPv6 DNS)  
+        # Bad Neighbor - CVE-2020-16898 (Disable IPv6 DNS)
             # https://blog.rapid7.com/2020/10/14/there-goes-the-neighborhood-dealing-with-cve-2020-16898-a-k-a-bad-neighbor/
             Write-Host "`t`t`t- Patching Bad Neighbor (CVE-2020-16898)." -f Yellow
                 # Disable DHCPv6  + routerDiscovery
@@ -442,35 +442,39 @@ Function settings_privacy {
                     New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" -Force | Out-Null}
                 Set-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" -Name "DisabledComponents" -Type DWord -Value 0x20 -Force
         
-        # Disabe SMB Compression - CVE-2020-0796    
+        # Disabe SMB Compression - CVE-2020-0796
             #https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2020-0796
             Write-Host "`t`t`t- Disabling SMB Compression." -f Yellow
             Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" DisableCompression -Type DWORD -Value 1 -Force -ea SilentlyContinue | Out-Null
 
-        # Disable SMB v1    
+        # Disable SMB v1
             #https://docs.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3
             Write-Host "`t`t`t- Disabling SMB version 1 support." -f Yellow
             start-job -Name "Disable SMB1" -ScriptBlock {
                 Disable-WindowsOptionalFeature -Online -FeatureName smb1protocol -NoRestart -WarningAction:SilentlyContinue | Out-Null
                 Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force -ea SilentlyContinue | Out-Null
                 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" SMB1 -Type DWORD -Value 0 –Force} | Out-Null
-        # Disable SMB v2    
+        # Disable SMB v2
             #https://docs.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3
             Write-Host "`t`t`t- Disabling SMB version 2 support." -f Yellow
             Set-SmbServerConfiguration -EnableSMB2Protocol $false -Force -ea SilentlyContinue | Out-Null
             Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" SMB2 -Type DWORD -Value 0 –Force
 
-        # Enable SMB Encryption    
+        # Enable SMB Encryption
             # https://docs.microsoft.com/en-us/windows-server/storage/file-server/smb-security
             Write-Host "`t`t`t- Activating SMB Encryption." -f Yellow
             Set-SmbServerConfiguration –EncryptData $true -Force -ea SilentlyContinue | Out-Null
             Set-SmbServerConfiguration –RejectUnencryptedAccess $false -Force -ea SilentlyContinue | Out-Null
             
-        # Spectre Meldown - CVE-2017-5754    
+        # Spectre Meldown - CVE-2017-5754
             # https://support.microsoft.com/en-us/help/4073119/protect-against-speculative-execution-side-channel-vulnerabilities-in
             Write-Host "`t`t`t- Patching Bad Metldown (CVE-2017-5754)." -f Yellow
             Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name FeatureSettingsOverrideMask -Type DWORD -Value 3 -Force -ea SilentlyContinue | Out-Null
             Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Virtualization" -Name MinVmVersionForCpuBasedMitigations -Type String -Value "1.0" -Force -ea SilentlyContinue | Out-Null
+        
+        # Enable LSA protection
+            # https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/configuring-additional-lsa-protection
+            reg add HKLM\SYSTEM\CurrentControlSet\Control\LSA /v RunAsPPL /t REG_DWORD /d 1 /f
             
         #End of function
             Wait-job -Name "Disable SMB1" | Out-Null;
