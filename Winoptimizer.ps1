@@ -474,6 +474,7 @@ Function settings_privacy {
         
         # Enable LSA protection
             # https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/configuring-additional-lsa-protection
+            Write-Host "`t`t`t- Enabling LSA protection." -f Yellow
             reg add HKLM\SYSTEM\CurrentControlSet\Control\LSA /v RunAsPPL /t REG_DWORD /d 1 /f
             
         #End of function
