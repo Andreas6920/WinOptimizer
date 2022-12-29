@@ -476,8 +476,23 @@ Function settings_privacy {
             # https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/configuring-additional-lsa-protection
             Write-Host "`t`t`t- Enabling LSA protection." -f Yellow
             reg add HKLM\SYSTEM\CurrentControlSet\Control\LSA /v RunAsPPL /t REG_DWORD /d 1 /f
-            
-        #End of function
+
+        # Change File association on typical malicious files
+            # https://www.reddit.com/r/sysadmin/comments/uvxzge/security_cadence_use_default_apps_to_help_prevent/
+                Write-host "`t`t`t- Setting file association for prevent accidental launching:" -f Yellow
+                $link = "https://raw.githubusercontent.com/DanysysTeam/PS-SFTA/master/SFTA.ps1"
+                $path = $($env:TMP)+"\SFTA.ps1"
+                (New-Object net.webclient).Downloadfile("$link", "$path");
+                Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+                Import-Module $path
+
+                $filetypes = @(
+                ".vsto", ".hta", ".bat", ".ps1", ".js", ".jse", ".vbs", ".vb", ".vbe",
+                ".vbscript", ".reg", ".rgs", ".bin", ".cpl", ".scr", ".ins", ".paf",
+                ".sct", ".ws", ".wsf", ".wsh", ".u3p", ".shs", ".shb", ".cmd")
+                foreach ($filetype in $filetypes) {Write-host "`t`t`t`t- Set file association for $filetype" -f Yellow ;Set-FTA txtfile $filetype}
+    
+        # End of function
             Wait-job -Name "Disable SMB1" | Out-Null;
             Write-Host "`tPrivacy optimizer complete. Your system is now more private and secure." -f Green
             Start-Sleep 10
