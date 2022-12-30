@@ -1,8 +1,26 @@
 ﻿#clean terminal before run
 Clear-Host
 
-
 #Functions
+function Add-Reg {
+
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$Path,
+        [Parameter(Mandatory=$true)]
+        [string]$Name,
+        [Parameter(Mandatory=$true)]
+        [ValidateSet('String', 'ExpandString', 'Binary', 'DWord', 'MultiString', 'Qword',' Unknown')]
+        [String]$Type,
+        [Parameter(Mandatory=$true)]
+        [string]$Value
+    )
+
+If (!(Test-Path $path)) {New-Item -Path $path -Force | Out-Null}; 
+Set-ItemProperty -Path $path -Name $name -Type $type -Value $value -Force | Out-Null
+# Add-Reg -Path "" -Name "" -Type "" -Value ""
+
+}
 
 Function block_input{
     $code = @"
@@ -23,19 +41,21 @@ public static extern bool BlockInput(bool fBlockIt);
     }
 
 Function restart-explorer{
-taskkill /IM explorer.exe /F | Out-Null
+<# When explorer restarts with the regular stop-process function, the active PowerShell loses focus,
+ which means you'll have to click on the window in order to enter your input. here's the hotfix. #>
+taskkill /IM explorer.exe /F | Out-Null -ErrorAction SilentlyContinue
 start explorer | Out-Null
 $windowname = $Host.UI.RawUI.WindowTitle
 Add-Type -AssemblyName Microsoft.VisualBasic
 [Microsoft.VisualBasic.Interaction]::AppActivate($windowname)}
 
 Function remove_bloatware {
-    Write-Host "REMOVING MICROSOFT BLOAT" -f Green;"";
+    Write-Host "`n`tREMOVING WINDOWS BLOAT" -f Green
     Start-Sleep -s 3
     
     # Clean Apps and features
         # List
-        Write-Host "`tCleaning Bloatware:" -f Green
+        Write-Host "`t`tCleaning Bloatware:" -f Green
         Start-Sleep -s 5
         $Bloatware = @(		
             ## Microsoft Bloat ##
@@ -110,16 +130,16 @@ Function remove_bloatware {
             $ProgressPreference = "SilentlyContinue" # hide progressbar
             foreach ($Bloat in $Bloatware) {
                 $bloat_name = (Get-AppxPackage | Where-Object Name -Like $Bloat).Name
-                if (Get-AppxPackage | Where-Object Name -Like $Bloat){Write-Host "`t`t- Removing: " -f Yellow -nonewline; Write-Host "$bloat_name".Split(".")[1].Split("}")[0].Replace('Microsoft','') -f Yellow; Get-AppxPackage | Where-Object Name -Like $Bloat | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null}
+                if (Get-AppxPackage | Where-Object Name -Like $Bloat){Write-Host "`t`t`t- Removing: " -f Yellow -nonewline; Write-Host "$bloat_name".Split(".")[1].Split("}")[0].Replace('Microsoft','') -f Yellow; Get-AppxPackage | Where-Object Name -Like $Bloat | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null}
                 Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online | Out-Null} 
             $ProgressPreference = "Continue" #unhide progressbar
-            Write-Host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
+            Write-Host "`t`t`t- Cleaning complete." -f Yellow;  Start-Sleep -S 3;
 
 
 
     # Disabling services
-        Write-Host "`tCleaning Startup services:" -f Green
-        Start-Sleep -s 5
+        Write-Host "`t`tCleaning Startup services:" -f Green
+        Start-Sleep -s 3
         $services = @(
             "diagnosticshub.standardcollector.service" # Microsoft (R) Diagnostics Hub Standard Collector Service
             "DiagTrack"                                # Diagnostics Tracking Service
@@ -141,15 +161,15 @@ Function remove_bloatware {
 
          foreach ($service in $services) {
          if((Get-Service -Name $service | Where-Object Starttype -ne Disabled)){
-         Write-Host "`t`t- Disabling: $service" -f Yellow
+         Write-Host "`t`t`t- Disabling: $service" -f Yellow
          Get-Service | Where-Object name -eq $service | Set-Service -StartupType Disabled}}
-         Write-Host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
+         Write-Host "`t`t`t- Cleaning complete." -f Yellow;  Start-Sleep -S 3;
 
 
 
     # Clean Task Scheduler
-        Write-Host "`tCleaning Scheduled tasks:" -f Green
-        Start-Sleep -s 5
+        Write-Host "`t`tCleaning Scheduled tasks:" -f Green
+        Start-Sleep -s 3
         $Bloatschedules = @(
             "AitAgent" 
             "AnalyzeSystem" 
@@ -194,15 +214,15 @@ Function remove_bloatware {
 
             foreach ($BloatSchedule in $BloatSchedules) {
             if ((Get-ScheduledTask | Where-Object state -ne Disabled | Where-Object TaskName -like $BloatSchedule)){
-            Write-Host "`t`t- Disabling: $BloatSchedule" -f Yellow
+            Write-Host "`t`t`t- Disabling: $BloatSchedule" -f Yellow
             Get-ScheduledTask | Where-Object Taskname -eq $BloatSchedule | Disable-ScheduledTask | Out-Null}}
-            Write-Host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
+            Write-Host "`t`t`t- Cleaning complete." -f Yellow;  Start-Sleep -S 3;
         
 
             
     # Clean start menu
-        Write-Host "`tCleaning Start Menu:" -f Green
-        Start-Sleep -s 5
+        Write-Host "`t`tCleaning Start Menu:" -f Green
+        Start-Sleep -s 3
     
             # Prepare
             $link = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/StartMenuLayout.xml"
@@ -210,83 +230,78 @@ Function remove_bloatware {
             $keys = "HKLM:\Software\Policies\Microsoft\Windows\Explorer","HKCU:\Software\Policies\Microsoft\Windows\Explorer"; 
                 
             # Download blank Start Menu file
-            Write-Host "`t`t- Downloading Start Menu file..." -f Yellow;
+            Write-Host "`t`t`t- Downloading Start Menu file..." -f Yellow;
             (New-Object net.webclient).Downloadfile("$link", "$file"); 
                             
             # Unlock start menu, disable pinning, replace with blank file
-            Write-Host "`t`t- Unlocking and replacing current file..." -f Yellow;
+            Write-Host "`t`t`t- Unlocking and replacing current file..." -f Yellow;
             $keys | % { if(!(test-path $_)){ New-Item -Path $_ -Force | Out-Null; Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 1; Set-ItemProperty -Path $_ -Name "StartLayoutFile" -Value $File } }
             
             # Restart explorer
             restart-explorer
 
             # Enable pinning
-            Write-Host "`t`t- Fixing pinning..." -f Yellow
+            Write-Host "`t`t`t- Fixing pinning..." -f Yellow
             $keys | % { Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 0 }
             
             #Restart explorer
             restart-explorer
 
             # Save menu to all users
-            Write-Host "`t`t- Save changes to all users.." -f Yellow
+            Write-Host "`t`t`t- Save changes to all users.." -f Yellow
             Import-StartLayout -LayoutPath $File -MountPath $env:SystemDrive\
 
             # Clean up after script
             Remove-Item $File
-            Write-Host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
+            Write-Host "`t`t`t- Cleaning complete." -f Yellow;  Start-Sleep -S 3;
 
         
     # Clean Taskbar
-        Write-Host "`tCleaning Taskbar:" -f Green
+        Write-Host "`t`tCleaning Taskbar:" -f Green
         Start-Sleep -s 5
         
-            Write-Host "`t`t- Changing keys.." -f Yellow
+            Write-Host "`t`t`t- Changing keys.." -f Yellow
             Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesChanges -Value 3 -Type Dword -Force | Out-Null
             Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesRemovedChanges -Value 32 -Type Dword -Force | Out-Null
             Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesVersion -Value 3 -Type Dword -Force | Out-Null
             Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name Favorites -Value ([byte[]](0xFF)) -Force | Out-Null
             Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowCortanaButton -Type DWord -Value 0 | Out-Null
             Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Search -Name SearchboxTaskbarMode -Value 0 -Type Dword | Out-Null
-            set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowTaskViewButton -Type DWord -Value 0 | Out-Null
+            Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowTaskViewButton -Type DWord -Value 0 | Out-Null
 
-            Write-Host "`t`t- Removing shortcuts.." -f Yellow
+            Write-Host "`t`t`t- Removing shortcuts.." -f Yellow
             Remove-Item -Path "$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*" -Recurse -Force | Out-Null
-            Stop-Process -name explorer
-            Start-Sleep -s 5
-            Write-Host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
+            restart-explorer
+            Write-Host "`t`t`t- Cleaning complete." -f Yellow;  Start-Sleep -S 3;
 
         
     # Cleaning printers
-        Write-Host "`tCleaning Printers:" -f Green
+        Write-Host "`t`tCleaning Printers:" -f Green
         Start-Sleep -s 5    
         
-            Write-Host "`t`t- Disabling auto-install printers from network.." -f Yellow
-            If (!(Test-Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private")) {
-            New-Item -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Force | Out-Null}
-            Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type DWord -Value 0
+            Write-Host "`t`t`t- Disabling auto-install printers from network.." -f Yellow
+            Add-Reg -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type DWord -Value 0
             
-            Write-Host "`t`t- Cleaning spooler" -f Yellow
+            Write-Host "`t`t`t- Cleaning spooler" -f Yellow
             Stop-Service "Spooler" | out-null; sleep -s 3
             Remove-Item "$env:SystemRoot\System32\spool\PRINTERS\*.*" -Force | Out-Null
             Start-Service "Spooler"
 
-            Write-Host "`t`t- Removing bloat printers:" -f Yellow
+            Write-Host "`t`t`t- Removing bloat printers:" -f Yellow
             $Bloatprinters = "Fax","OneNote for Windows 10","Microsoft XPS Document Writer", "Microsoft Print to PDF" 
-            $Bloatprinters | % {if(Get-Printer | Where-Object Name -cMatch $_){Write-Host "`t`t`t- Uninstalling: $_" -f Yellow; Remove-Printer $_; Start-Sleep -s 2}}
-            Write-Host "`t`t- Cleaning complete." -f Yellow; ""; Start-Sleep -S 3;
+            $Bloatprinters | % {if(Get-Printer | Where-Object Name -cMatch $_){Write-Host "`t`t`t`t- Uninstalling: $_" -f Yellow; Remove-Printer $_; Start-Sleep -s 2}}
+            Write-Host "`t`t`t- Cleaning complete." -f Yellow;  Start-Sleep -S 3;
 
         
     #End of function
-        Write-Host "`tBloat Remover Complete. Your system is now clean." -f Green
+        Write-Host "`t`tBLOAT REMOVER COMPLETE." -f Green
         Start-Sleep 10
                 
 }
 
 Function settings_privacy {
       
-    Write-Host "`tENHANCE WINDOWS PRIVACY" -f Green
-    
-    
+    Write-Host "`n`tENHANCE WINDOWS PRIVACY" -f Green
      
 
     # Adding entries to hosts file
@@ -313,75 +328,53 @@ Function settings_privacy {
         Write-Host "`t`tSetting Privacy Settings:" -f Green     
         
         # Disable Advertising ID
-            Write-Host "`t`t`t- Disabling advertising ID." -f Yellow
-            If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo")) {
-                New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Force | Out-Null}
-            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Type DWord -Value 0
+            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Type "DWord" -Value "0"
             Start-Sleep -s 2
         
-        # Disable let websites provide locally relevant content by accessing language list
-            Write-Host "`t`t`t- Disabling location tracking." -f Yellow
-            If (!(Test-Path "HKCU:\Control Panel\International\User Profile")) {
-                New-Item -Path "HKCU:\Control Panel\International\User Profile" -Force | Out-Null}
-            Set-ItemProperty -Path  "HKCU:\Control Panel\International\User Profile" -Name "HttpAcceptLanguageOptOut"  -Value 1
+        # Disable let websites provide locally relevant content by accessing language list           
+            Add-Reg -Path "HKCU:\Control Panel\International\User Profile" -Name "HttpAcceptLanguageOptOut" -Type "DWord" -Value "1"
             Start-Sleep -s 2
         
         # Disable Show me suggested content in the Settings app
             Write-Host "`t`t`t- Disabling personalized content suggestions." -f Yellow
-            If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager")) {
-                New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Force | Out-Null}
-            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338393Enabled" -Type DWord -Value 0
-            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353694Enabled" -Type DWord -Value 0
-            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353696Enabled" -Type DWord -Value 0
+            $keys = "SubscribedContent-338393Enabled","SubscribedContent-353694Enabled", "SubscribedContent-353696Enabled" 
+            $keys | % {Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "$_" -Type "DWord" -Value "0"}
             Start-Sleep -s 2
         
         # Remove Cortana
             Write-Host "`t`t`t- Disabling Cortana." -f Yellow
             $ProgressPreference = "SilentlyContinue"
             Get-AppxPackage -name *Microsoft.549981C3F5F10* | Remove-AppxPackage
-            If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
-                New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null}
-            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Type DWord -Value 0
+            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Type "DWord" -Value "0"
             $ProgressPreference = "Continue"
-            Stop-Process -name explorer
+            restart-explorer
             Start-Sleep -s 5
 
         # Disable Online Speech Recognition
             Write-Host "`t`t`t- Disabling Online Speech Recognition." -f Yellow
-            If (!(Test-Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy")) {
-                New-Item -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Force | Out-Null}
-            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "HasAccepted" -Type DWord -Value 0
+            Add-Reg -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "HasAccepted" -Type "DWord" -Value "0"
             Start-Sleep -s 2
         
         # Hiding personal information from lock screen
             Write-Host "`t`t`t- Disabling sign-in screen notifications." -f Yellow
-            If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\System")) {
-                New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Force | Out-Null}
-            Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "DontDisplayLockedUserID" -Type DWord -Value 0
-            Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "DontDisplayLastUsername" -Type DWord -Value 0
+            $keys = "DontDisplayLockedUserID","DontDisplayLastUsername";
+            $keys | % {Add-Reg -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "$_" -Type "DWORD" -Value "0"}
             Start-Sleep -s 2
         
         # Disable diagnostic data collection
             Write-Host "`t`t`t- Disabling diagnostic data collection" -f Yellow
-            If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection")) {
-                New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Force | Out-Null}
-            Set-ItemProperty -Path  "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry"  -Value 0
+            Add-Reg -Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Type "DWORD" -Value "0"
             Start-Sleep -s 2
         
         # Disable App Launch Tracking
             Write-Host "`t`t`t- Disabling App Launch Tracking." -f Yellow
-            If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
-                New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null}
-            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "Start_TrackProgs" -Type DWord -Value 0
+            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackProgs" -Type "DWORD" -Value "0"
             Start-Sleep -s 2
 
         # Disable "tailored expirence"
-            Write-Host "`t`t`t- Disable tailored expirience." -f Yellow        
-            If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy")) {   
-                New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Force | Out-Null}
-            Set-ItemProperty -Path  "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Name "TailoredExperiencesWithDiagnosticDataEnabled"  -Value 0
+            Write-Host "`t`t`t- Disabling tailored expirience." -f Yellow
+            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Name "TailoredExperiencesWithDiagnosticDataEnabled" -Type "DWORD" -Value "0"
             Start-Sleep -s 2
-
 
     # Send Microsoft a request to delete collected data about you.
         
@@ -411,13 +404,11 @@ Function settings_privacy {
         allow_input | Out-Null
         
         # Windows hardening
-        Write-Host "`tENHANCE WINDOWS SECURITY" -f Green
+        Write-Host "`n`tENHANCE WINDOWS SECURITY" -f Green
         
         # Disable automatic setup of network connected devices
             Write-Host "`t`t`t- Disabling auto setup network devices." -f Yellow
-            If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private")) {
-                New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Force | Out-Null}
-            Set-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type DWord -Value 0 -Force 
+            Add-Reg -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type "DWORD" -Value "0"
             Start-Sleep -s 2
             
         # Disable sharing of PC and printers
@@ -427,10 +418,9 @@ Function settings_privacy {
             netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=No -ErrorAction SilentlyContinue | Out-Null
 
         # Disable LLMNR
-            #https://www.blackhillsinfosec.com/how-to-disable-llmnr-why-you-want-to/
+            # https://www.blackhillsinfosec.com/how-to-disable-llmnr-why-you-want-to/
             Write-Host "`t`t`t- Disabling LLMNR." -f yellow
-            New-Item -Path "HKLM:\Software\policies\Microsoft\Windows NT\" -Name "DNSClient" -ea SilentlyContinue | Out-Null
-            Set-ItemProperty -Path "HKLM:\Software\policies\Microsoft\Windows NT\DNSClient" -Name "EnableMulticast" -Type "DWORD" -Value 0 -Force -ea SilentlyContinue | Out-Null
+            Add-Reg -Path "HKLM:\Software\policies\Microsoft\Windows NT\DNSClient" -Name "EnableMulticast" -Type "DWORD" -Value "0"
         
         # Bad Neighbor - CVE-2020-16898 (Disable IPv6 DNS)
             # https://blog.rapid7.com/2020/10/14/there-goes-the-neighborhood-dealing-with-cve-2020-16898-a-k-a-bad-neighbor/
@@ -438,27 +428,28 @@ Function settings_privacy {
                 # Disable DHCPv6  + routerDiscovery
                 Set-NetIPInterface -AddressFamily IPv6 -InterfaceIndex $(Get-NetIPInterface -AddressFamily IPv6 | Select-Object -ExpandProperty InterfaceIndex) -RouterDiscovery Disabled -Dhcp Disabled
                 # Prefer IPv4 over IPv6 (IPv6 is prefered by default)
-                If (!(Test-Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters")) {
-                    New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" -Force | Out-Null}
-                Set-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" -Name "DisabledComponents" -Type DWord -Value 0x20 -Force
+                Add-Reg -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" -Name "DisabledComponents" -Type "DWORD" -Value "0x20"
         
         # Disabe SMB Compression - CVE-2020-0796
-            #https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2020-0796
+            # https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2020-0796
             Write-Host "`t`t`t- Disabling SMB Compression." -f Yellow
-            Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" DisableCompression -Type DWORD -Value 1 -Force -ea SilentlyContinue | Out-Null
+            Add-Reg -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" -Name "DisableCompression" -Type "DWORD" -Value "1"
 
         # Disable SMB v1
-            #https://docs.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3
+            # https://docs.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3
             Write-Host "`t`t`t- Disabling SMB version 1 support." -f Yellow
-            start-job -Name "Disable SMB1" -ScriptBlock {
+            $smb1state = (Get-WindowsOptionalFeature -Online -FeatureName smb1protocol).State
+            if ($smb1state -ne "Disabled"){
+                Write-Host "`t`t`t`t- This may take a while.." -f Yellow
                 Disable-WindowsOptionalFeature -Online -FeatureName smb1protocol -NoRestart -WarningAction:SilentlyContinue | Out-Null
                 Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force -ea SilentlyContinue | Out-Null
-                Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" SMB1 -Type DWORD -Value 0 –Force} | Out-Null
+                Add-Reg -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" -Name "SMB1" -Type "DWORD" -Value "0"}
+
         # Disable SMB v2
-            #https://docs.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3
+            # https://docs.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3
             Write-Host "`t`t`t- Disabling SMB version 2 support." -f Yellow
             Set-SmbServerConfiguration -EnableSMB2Protocol $false -Force -ea SilentlyContinue | Out-Null
-            Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" SMB2 -Type DWORD -Value 0 –Force
+            Add-Reg -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" -Name "SMB2" -Type "DWORD" -Value "0"
 
         # Enable SMB Encryption
             # https://docs.microsoft.com/en-us/windows-server/storage/file-server/smb-security
@@ -469,28 +460,28 @@ Function settings_privacy {
         # Spectre Meldown - CVE-2017-5754
             # https://support.microsoft.com/en-us/help/4073119/protect-against-speculative-execution-side-channel-vulnerabilities-in
             Write-Host "`t`t`t- Patching Bad Metldown (CVE-2017-5754)." -f Yellow
-            Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name FeatureSettingsOverrideMask -Type DWORD -Value 3 -Force -ea SilentlyContinue | Out-Null
-            Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Virtualization" -Name MinVmVersionForCpuBasedMitigations -Type String -Value "1.0" -Force -ea SilentlyContinue | Out-Null
+            Add-Reg -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "FeatureSettingsOverrideMask" -Type "DWORD" -Value "3"
+            Add-Reg -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Virtualization" -Name "MinVmVersionForCpuBasedMitigations" -Type "String" -Value "1.0"
         
         # Enable LSA protection
             # https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/configuring-additional-lsa-protection
             Write-Host "`t`t`t- Enabling LSA protection." -f Yellow
-            reg add HKLM\SYSTEM\CurrentControlSet\Control\LSA /v RunAsPPL /t REG_DWORD /d 1 /f
+            Add-Reg -Path "HKLM:\SYSTEM\CurrentControlSet\Control\LSA" -Name "RunAsPPL" -Type "DWORD" -Value "1"
 
-        # Change File association on typical malicious files
+        # Change File association on typical malicious files to prevent accidental launching
             # https://www.reddit.com/r/sysadmin/comments/uvxzge/security_cadence_use_default_apps_to_help_prevent/
-                Write-host "`t`t`t- Setting file association for prevent accidental launching:" -f Yellow
-                $link = "https://raw.githubusercontent.com/DanysysTeam/PS-SFTA/master/SFTA.ps1"
-                $path = $($env:TMP)+"\SFTA.ps1"
-                (New-Object net.webclient).Downloadfile("$link", "$path");
-                Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-                Import-Module $path
+            Write-host "`t`t`t- Setting file association for prevent accidental launching:" -f Yellow
+            $link = "https://raw.githubusercontent.com/DanysysTeam/PS-SFTA/master/SFTA.ps1"
+            $path = $($env:TMP)+"\SFTA.ps1"
+            (New-Object net.webclient).Downloadfile("$link", "$path");
+            Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+            Import-Module $path
 
-                $filetypes = @(
-                ".vsto", ".hta", ".bat", ".ps1", ".js", ".jse", ".vbs", ".vb", ".vbe",
-                ".vbscript", ".reg", ".rgs", ".bin", ".cpl", ".scr", ".ins", ".paf",
-                ".sct", ".ws", ".wsf", ".wsh", ".u3p", ".shs", ".shb", ".cmd")
-                foreach ($filetype in $filetypes) {Write-host "`t`t`t`t- Set file association for $filetype" -f Yellow ;Set-FTA txtfile $filetype}
+            $filetypes = @(
+            ".vsto", ".hta", ".bat", ".ps1", ".js", ".jse", ".vbs", ".vb", ".vbe",
+            ".vbscript", ".reg", ".rgs", ".bin", ".cpl", ".scr", ".ins", ".paf",
+            ".sct", ".ws", ".wsf", ".wsh", ".u3p", ".shs", ".shb", ".cmd")
+            foreach ($filetype in $filetypes) {Write-host "`t`t`t`t- Set file association for $filetype" -f Yellow ;Set-FTA txtfile $filetype}
     
         # End of function
             Wait-job -Name "Disable SMB1" | Out-Null;
@@ -511,12 +502,8 @@ Function settings_customize {
                 $ProgressPreference = "SilentlyContinue" # hide progressbar
                 Write-Host "`t`t- YES. Remove Cortana" -f Green
                 Get-AppxPackage -name *Microsoft.549981C3F5F10* | Remove-AppxPackage
-                If (!(Test-Path "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
-                    New-Item -Path "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null}
-                Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Type DWord -Value 0
+                Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Type "DWORD" -Value "0"
                 $ProgressPreference = "Continue" # unhide progressbar
-                
-                #Restart explorer
                 restart-explorer
             }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
@@ -537,9 +524,7 @@ Function settings_customize {
         Switch ($answer) { 
             Y {
                 Write-Host "`t`t- YES. Disable screen saver." -f Green
-                If (!(Test-Path HKLM:\Software\Policies\Microsoft\Windows\Personalization)) {
-                    New-Item -Path HKLM:\Software\Policies\Microsoft\Windows -Name Personalization | Out-Null}
-                Set-ItemProperty -Path HKLM:\Software\Policies\Microsoft\Windows\Personalization -Name NoLockScreen -Type DWord -Value 1
+                Add-Reg -Path "HKLM:\Software\Policies\Microsoft\Windows\Personalization" -Name "Personalization" -Type "DWORD" -Value "1"
             }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
@@ -551,11 +536,8 @@ Function settings_customize {
         $answer = Read-Host " " 
         Switch ($answer) { 
             Y {
-                # Edit Regkey
                 Write-Host "`t`t- YES. Disable searchbox." -f Green
-                New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name SearchboxTaskbarMode -Value 0 -Type Dword -Force | Out-Null
-                
-                #Restart explorer
+                Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type "DWORD" -Value "0"
                 restart-explorer
             }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
@@ -569,13 +551,7 @@ Function settings_customize {
         Switch ($answer) { 
             Y {
                 Write-Host "`t`t- YES. Disable task view button." -f Green
-                
-                # Remove/Add regkey
-                If ((Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\MultiTaskingView\")) {
-                    Remove-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\MultiTaskingView\" -Force | Out-Null}
-                Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type DWord -Value 0
-
-                #Restart explorer
+                Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\MultiTaskingView" -Name "ShowTaskViewButton" -Type "DWORD" -Value "0"
                 restart-explorer
             }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
@@ -589,9 +565,7 @@ Function settings_customize {
         Switch ($answer) { 
             Y {
                 Write-Host "`t`t- YES. Show file extensions." -f Green
-                If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
-                    New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null }
-                Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 0
+                Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type "DWORD" -Value "0"
             }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
@@ -604,9 +578,7 @@ Function settings_customize {
         Switch ($answer) { 
             Y {
                 Write-Host "`t`t- YES. Show hidden files." -f Green
-                If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
-                    New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null}
-                Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type DWord -Value 1 
+                Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type "DWORD" -Value "1"
             }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
@@ -619,8 +591,8 @@ Function settings_customize {
         Switch ($answer) { 
             Y {
                 Write-Host "`t`t- YES. Enabling Dark Mode" -f Green
-                New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name AppsUseLightTheme -Value 0 -Type Dword -Force | Out-Null
-                New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name SystemUsesLightTheme -Value 0 -Type Dword -Force | Out-Null 
+                $keys = "AppsUseLightTheme","SystemUsesLightTheme"; 
+                $keys | % {Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "$_" -Type "DWORD" -Value "0"}
             }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
@@ -633,7 +605,7 @@ Function settings_customize {
         Switch ($answer) { 
             Y {
                 Write-Host "`t`t- YES. Explorer is changed." -f Green
-                Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name LaunchTo -Type DWord -Value 1
+                Add-Reg -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type "DWORD" -Value "1"
             }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
@@ -646,7 +618,7 @@ Function settings_customize {
         Switch ($answer) { 
             Y {
                 Write-Host "`t`t- YES. Bing is being removed." -f Green
-                Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" -Name BingSearchEnabled -Type DWord -Value 0
+                Add-Reg -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -Type "DWORD" -Value "0"
             }
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }   
@@ -703,8 +675,8 @@ Function settings_customize {
                 
                 # Enable Linux Sub-system Feature
                 If ([System.Environment]::OSVersion.Version.Build -ge 14393) {
-                    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" -Name "AllowDevelopmentWithoutDevLicense" -Type DWord -Value 1
-                    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" -Name "AllowAllTrustedApps" -Type DWord -Value 1}
+                $keys = "AllowDevelopmentWithoutDevLicense","AllowAllTrustedApps"; 
+                $keys | % {Add-Reg -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" -Name "$_" -Type "DWORD" -Value "1"}}
                 Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-Subsystem-Linux" -NoRestart -WarningAction SilentlyContinue | Out-Null 
                 
                 # Download ubuntu
@@ -1096,7 +1068,7 @@ $intro =
 | |/ |/ / / / / / /_/ / /_/ / /_/ / / / / / / / / /_/  __/ /    
 |__/|__/_/_/ /_/\____/ .___/\__/_/_/ /_/ /_/_/ /___/\___/_/     
                     /_/                                         
-Version 2.9
+Version 2.9.3
 Creator: Andreas6920 | https://github.com/Andreas6920/
                                                                                                                                                     
  "
@@ -1119,10 +1091,7 @@ if ($admin_permissions_check) {
         
         # Allow powershell to download files with Internet Explorer
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-        If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main")) {
-        New-Item -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Force | Out-Null}
-        Set-ItemProperty -Path  "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize"  -Value 1
-
+        Add-Reg -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Type "DWORD" -Value "1"
         # Setting root directory
         $dir = "$env:ProgramData/Winoptimizer";if(!(Test-Path $dir)){mkdir $dir | Out-Null}
             # Download main script to folder
@@ -1139,13 +1108,13 @@ if ($admin_permissions_check) {
         Write-Host $intro -f Yellow 
         Write-Host "Please select one of the following options:" -f Yellow
         Write-Host ""; Write-Host "";
-        Write-Host "        [1] - All"
-        Write-Host "        [2] - Bloatware removal"
-        Write-Host "        [3] - Privacy And security optimizer"
-        Write-Host "        [4] - Customize Windows settings"
-        Write-Host "        [5] - App installer"
+        Write-Host "`t[1] - All"
+        Write-Host "`t[2] - Bloatware optimizer"
+        Write-Host "`t[3] - Privacy And security optimizer"
+        Write-Host "`t[4] - Windows settings optimizer"
+        Write-Host "`t[5] - App installer"
         "";
-        Write-Host "        [0] - Exit"
+        Write-Host "`t[0] - Exit"
         Write-Host ""; Write-Host "";
         Write-Host "Option: " -f Yellow -nonewline; ;
         $option = Read-Host
