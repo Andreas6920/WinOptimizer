@@ -18,7 +18,6 @@ function Add-Reg {
 
 If (!(Test-Path $path)) {New-Item -Path $path -Force | Out-Null}; 
 Set-ItemProperty -Path $path -Name $name -Type $type -Value $value -Force | Out-Null
-# Add-Reg -Path "" -Name "" -Type "" -Value ""
 
 }
 
