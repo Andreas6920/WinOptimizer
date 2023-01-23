@@ -1035,9 +1035,9 @@ Function app_installer {
                             # Create scheduled job
                             Write-Host "`t`t- scheduling update routine." -f Yellow
                             $name = 'winoptimizer-app-Updater'
-                            $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-nop -W hidden -noni -ep bypass -file $filepath"
+                            $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-W hidden -ep bypass -file $filepath"
                             $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM"-LogonType ServiceAccount -RunLevel Highest
-                            $trigger= New-ScheduledTaskTrigger -At 12:05 -Daily
+                            $trigger= New-ScheduledTaskTrigger -At 12:00 -Daily
                             $settings = New-ScheduledTaskSettingsSet -RunOnlyIfNetworkAvailable -DontStopIfGoingOnBatteries -RunOnlyIfIdle -DontStopOnIdleEnd -IdleDuration 00:05:00 -IdleWaitTimeout 03:00:00
 
                             Register-ScheduledTask -TaskName $Name -Taskpath "\Microsoft\Windows\Winoptimizer\" -Settings $settings -Principal $principal -Action $action -Trigger $trigger -Force | Out-Null
