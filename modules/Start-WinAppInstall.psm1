@@ -3,102 +3,97 @@
             [string]$Name,
             [Parameter(Mandatory=$true)]
             [string]$App)
-
-    If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main")) {New-Item -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Force | Out-Null}
-    Set-ItemProperty -Path  "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize"  -Value 1
     
-    $code = "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))"
-    $installationfile = "$($env:ProgramData)\Winoptimizer\Invoke-AppInstall.ps1"
+    # Create Installation file
+        $code = "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))"
+        $installationfile = "$($env:TMP)\Invoke-AppInstall.ps1"
+        if(!(test-path $installationfile)){new-item -ItemType Directory ($installationfile | Split-Path) -ea ignore | out-null; New-item $installationfile -ea ignore | out-null;}
+        if(!((get-content $installationfile) -notmatch "https://community.chocolatey.org/install.ps1")){Set-content -Encoding UTF8 -Value $code -Path $installationfile}
+        Add-content -Encoding UTF8 -Value (invoke-webrequest "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/app-template.ps1").Content.replace('REPLACE-ME-NAME', $Name).replace('REPLACE-ME-APP', $App) -Path $installationfile}
 
-    if(!(test-path $installationfile)){new-item -ItemType Directory ($installationfile | Split-Path) -ea ignore | out-null; New-item $installationfile -ea ignore | out-null;}
-    if(!((get-content $installationfile) -notmatch "https://community.chocolatey.org/install.ps1")){Set-content -Encoding UTF8 -Value $code -Path $installationfile}
+    # UI menu
+        Write-Host "`tDesktop Applications:" -f Green;""; 
 
-    Add-content -Encoding UTF8 -Value (invoke-webrequest "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/app-template.ps1").Content.replace('REPLACE-ME-NAME', $Name).replace('REPLACE-ME-APP', $App) -Path $installationfile}
-
-    Write-Host "`tDesktop Applications:" -f Green;""; 
-
-    Write-Host "`t`tBROWSER:" -f Yellow
-    Write-Host "`t`t`tChrome        Mozilla Firefox   Opera" -f Green
-    Write-Host "`t`t`tBrave         Librewolf         Vevaldi" -f Green
-    "";
-    Write-Host "`t`tTOOLS:" -f Yellow
-    Write-Host "`t`t`tDropbox       Google Drive      Teamviewer" -f Green
-    Write-Host "`t`t`t7-zip         Winrar            Greenshot" -f Green
-    Write-Host "`t`t`tShareX        Gimp              Adobe Acrobat Reader" -f Green
-    "";
-    Write-Host "`t`tMEDIA PLAYER:" -f Yellow
-    Write-Host "`t`t`tSpotify       VLC               Itunes" -f Green
-    Write-Host "`t`t`tWinamp        Foobar2000        K-Lite" -f Green
-    Write-Host "`t`t`tMPC-HC        Popcorntime" -f Green
-    "";
-    Write-Host "`t`tDevelopment:" -f Yellow
-    Write-Host "`t`t`tNotepad++       vscode          atom" -f Green
-    Write-Host "`t`t`tVim             Eclipse         PowerShell-Core " -f Green
-    Write-Host "`t`t`tPuTTY           Superputty      TeraTerm" -f Green
-    Write-Host "`t`t`tFilezilla       WinSCP          mRemoteNG" -f Green
-    Write-Host "`t`t`tWireshark       git             Windows Terminal" -f Green
-    "";
-    Write-Host "`t`tSocial:" -f Yellow
-    Write-Host "`t`t`tWebex           Zoom            Microsoft Teams" -f Green
-    Write-Host "`t`t`tDiscord         Twitch          Ubisoft-Connect" -f Green
-    "";
-    Write-Host "    ** List multiple programs seperated by , (comma) - spaces are allowed." -f Yellow;
-    "";
-    Write-Host "Type the programs you would like to be installed on this system" -nonewline;
+        Write-Host "`t`tBROWSER:" -f Yellow
+        Write-Host "`t`t`tChrome        Mozilla Firefox   Opera" -f Green
+        Write-Host "`t`t`tBrave         Librewolf         Vevaldi" -f Green
+        "";
+        Write-Host "`t`tTOOLS:" -f Yellow
+        Write-Host "`t`t`tDropbox       Google Drive      Teamviewer" -f Green
+        Write-Host "`t`t`t7-zip         Winrar            Greenshot" -f Green
+        Write-Host "`t`t`tShareX        Gimp              Adobe Acrobat Reader" -f Green
+        "";
+        Write-Host "`t`tMEDIA PLAYER:" -f Yellow
+        Write-Host "`t`t`tSpotify       VLC               Itunes" -f Green
+        Write-Host "`t`t`tWinamp        Foobar2000        K-Lite" -f Green
+        Write-Host "`t`t`tMPC-HC        Popcorntime" -f Green
+        "";
+        Write-Host "`t`tDevelopment:" -f Yellow
+        Write-Host "`t`t`tNotepad++       vscode          atom" -f Green
+        Write-Host "`t`t`tVim             Eclipse         PowerShell-Core " -f Green
+        Write-Host "`t`t`tPuTTY           Superputty      TeraTerm" -f Green
+        Write-Host "`t`t`tFilezilla       WinSCP          mRemoteNG" -f Green
+        Write-Host "`t`t`tWireshark       git             Windows Terminal" -f Green
+        "";
+        Write-Host "`t`tSocial:" -f Yellow
+        Write-Host "`t`t`tWebex           Zoom            Microsoft Teams" -f Green
+        Write-Host "`t`t`tDiscord         Twitch          Ubisoft-Connect" -f Green
+        "";
+        Write-Host "    ** List multiple programs seperated by , (comma) - spaces are allowed." -f Yellow;
+        "";
+        Write-Host "Type the programs you would like to be installed on this system" -nonewline;
     
-
-    $requested_apps = (Read-Host " ").Split(",") | Foreach-object { $_ -replace ' ',''}
-    foreach ($requested_app in $requested_apps) {
-        if("cancel" -eq "$requested_app"){Write-Output "Skipping this section.."}
-        # Browsers
-            elseif("Firefox" -match "$requested_app"){Invoke-AppInstall -Name "Mozilla Firefox" -App "firefox"} 
-            elseif("Chrome" -match "$requested_app"){Invoke-AppInstall -Name "Google Chrome" -App "googlechrome"} 
-            elseif("Brave" -match "$requested_app"){Invoke-AppInstall -Name "Brave Browser" -App "brave"} 
-            elseif("Opera" -match "$requested_app"){Invoke-AppInstall -Name "Opera" -App "opera"} 
-            elseif("Vivaldi" -match "$requested_app"){Invoke-AppInstall -Name "Libre wolf" -App "librewolf"} 
-
-        # Tools
-            elseif("Dropbox" -match "$requested_app"){Invoke-AppInstall -Name "Dropbox" -App "dropbox"} 
-            elseif("Google Drive" -match "$requested_app"){Invoke-AppInstall -Name "Google Drive" -App "googledrive"} 
-            elseif("TeamViewer" -match "$requested_app"){Invoke-AppInstall -Name "TeamViewer" -App "teamviewer"} 
-            elseif("7-zip" -match "$requested_app"){Invoke-AppInstall -Name "7-Zip" -App "7Zip"} 
-            elseif("winrar" -match "$requested_app"){Invoke-AppInstall -Name "Winrar" -App "winrar"} 
-            elseif("Greenshot" -match "$requested_app"){Invoke-AppInstall -Name "Greenshot" -App "greenshot"} 
-            elseif("ShareX" -match "$requested_app"){Invoke-AppInstall -Name "ShareX" -App "sharex"} 
-            elseif("Gimp" -match "$requested_app"){Invoke-AppInstall -Name "Gimp" -App "gimp"} 
-            elseif("Adobe" -match "$requested_app"){Invoke-AppInstall -Name "Adobe Acrobat Reader" -App "adobereader"} 
-        # Media Player
-            elseif("spotify" -match "$requested_app"){Invoke-AppInstall -Name "Spotify" -App "Spotify"}  
-            elseif("VLC" -match "$requested_app"){Invoke-AppInstall -Name "VLC" -App "VLC"}  
-            elseif("itunes" -match "$requested_app"){Invoke-AppInstall -Name "iTunes" -App "itunes"}  
-            elseif("Winamp" -match "$requested_app"){Invoke-AppInstall -Name "Winamp" -App "Winamp"}  
-            elseif("foobar2000" -match "$requested_app"){Invoke-AppInstall -Name "foobar2000" -App "foobar2000"}  
-            elseif("K-lite" -match "$requested_app"){Invoke-AppInstall -Name "K-lite" -App "k-litecodecpackfull"}  
-            elseif("MPC-HC" -match "$requested_app"){Invoke-AppInstall -Name "MPC-HC" -App "MPC-HC"}  
-            elseif("popcorn" -match "$requested_app"){Invoke-AppInstall -Name "Popcorntime" -App "popcorntime"}  
-        # Development
-            elseif("notepad++" -match "$requested_app"){Invoke-AppInstall -Name "Notepad++" -App "notepadplusplus"}  
-            elseif("vscode" -match "$requested_app"){Invoke-AppInstall -Name "Visual Studio Code" -App "vscode"}  
-            elseif("atom" -match "$requested_app"){Invoke-AppInstall -Name "atom" -App "atom"}  
-            elseif("vim" -match "$requested_app"){Invoke-AppInstall -Name "vim" -App "vim"} 
-            elseif("Eclipse" -match "$requested_app"){Invoke-AppInstall -Name "Eclipse" -App "Eclipse"} 
-            elseif("putty" -match "$requested_app"){Invoke-AppInstall -Name "PuTTY" -App "putty"} 
-            elseif("superputty" -match "$requested_app"){Invoke-AppInstall -Name "SuperPutty" -App "superputty"} 
-            elseif("teraterm" -match "$requested_app"){Invoke-AppInstall -Name "Tera Term" -App "teraterm"} 
-            elseif("Filezilla" -match "$requested_app"){Invoke-AppInstall -Name "Filezilla" -App "filezilla"} 
-            elseif("WinSCP" -match "$requested_app"){Invoke-AppInstall -Name "WinSCP" -App "WinSCP"} 
-            elseif("mremoteng" -match "$requested_app"){Invoke-AppInstall -Name "MremoteNG" -App "mremoteng"} 
-            elseif("wireshark" -match "$requested_app"){Invoke-AppInstall -Name "Wireshark" -App "wireshark"} 
-            elseif("git" -match "$requested_app"){Invoke-AppInstall -Name "git" -App "git"}
-            elseif("Powershell-Core" -match "$requested_app"){Invoke-AppInstall -Name "PowerShell Core" -App "powershell-core"}
-            elseif("Windows terminal" -match "$requested_app"){Invoke-AppInstall -Name "Windows terminal" -App "microsoft-windows-terminal"}
-        # Social
-            elseif("Microsoft Teams" -match "$requested_app"){Invoke-AppInstall -Name "Microsoft Teams" -App "microsoft-teams"} 
-            elseif("Zoom" -match "$requested_app"){Invoke-AppInstall -Name "Zoom" -App "zoom"} 
-            elseif("Webex" -match "$requested_app"){Invoke-AppInstall -Name "Webex" -App "webex"}
-            elseif("Twitch" -match "$requested_app"){Invoke-AppInstall -Name "Twitch" -App "twitch"}
-            elseif("Ubisoft Connect" -match "$requested_app"){Invoke-AppInstall -Name "Ubisoft Connect" -App "ubisoft-connect"}
-    }
+    # Add requested app to insllation file
+        $requested_apps = (Read-Host " ").Split(",") | Foreach-object { $_ -replace ' ',''}
+        foreach ($requested_app in $requested_apps) {
+            if("cancel" -eq "$requested_app"){Write-Output "Skipping this section.."}
+            # Browsers
+                elseif("Firefox" -match "$requested_app"){Invoke-AppInstall -Name "Mozilla Firefox" -App "firefox"} 
+                elseif("Chrome" -match "$requested_app"){Invoke-AppInstall -Name "Google Chrome" -App "googlechrome"} 
+                elseif("Brave" -match "$requested_app"){Invoke-AppInstall -Name "Brave Browser" -App "brave"} 
+                elseif("Opera" -match "$requested_app"){Invoke-AppInstall -Name "Opera" -App "opera"} 
+                elseif("Vivaldi" -match "$requested_app"){Invoke-AppInstall -Name "Libre wolf" -App "librewolf"} 
+            # Tools
+                elseif("Dropbox" -match "$requested_app"){Invoke-AppInstall -Name "Dropbox" -App "dropbox"} 
+                elseif("Google Drive" -match "$requested_app"){Invoke-AppInstall -Name "Google Drive" -App "googledrive"} 
+                elseif("TeamViewer" -match "$requested_app"){Invoke-AppInstall -Name "TeamViewer" -App "teamviewer"} 
+                elseif("7-zip" -match "$requested_app"){Invoke-AppInstall -Name "7-Zip" -App "7Zip"} 
+                elseif("winrar" -match "$requested_app"){Invoke-AppInstall -Name "Winrar" -App "winrar"} 
+                elseif("Greenshot" -match "$requested_app"){Invoke-AppInstall -Name "Greenshot" -App "greenshot"} 
+                elseif("ShareX" -match "$requested_app"){Invoke-AppInstall -Name "ShareX" -App "sharex"} 
+                elseif("Gimp" -match "$requested_app"){Invoke-AppInstall -Name "Gimp" -App "gimp"} 
+                elseif("Adobe" -match "$requested_app"){Invoke-AppInstall -Name "Adobe Acrobat Reader" -App "adobereader"} 
+            # Media Player
+                elseif("spotify" -match "$requested_app"){Invoke-AppInstall -Name "Spotify" -App "Spotify"}  
+                elseif("VLC" -match "$requested_app"){Invoke-AppInstall -Name "VLC" -App "VLC"}  
+                elseif("itunes" -match "$requested_app"){Invoke-AppInstall -Name "iTunes" -App "itunes"}  
+                elseif("Winamp" -match "$requested_app"){Invoke-AppInstall -Name "Winamp" -App "Winamp"}  
+                elseif("foobar2000" -match "$requested_app"){Invoke-AppInstall -Name "foobar2000" -App "foobar2000"}  
+                elseif("K-lite" -match "$requested_app"){Invoke-AppInstall -Name "K-lite" -App "k-litecodecpackfull"}  
+                elseif("MPC-HC" -match "$requested_app"){Invoke-AppInstall -Name "MPC-HC" -App "MPC-HC"}  
+                elseif("popcorn" -match "$requested_app"){Invoke-AppInstall -Name "Popcorntime" -App "popcorntime"}  
+            # Development
+                elseif("notepad++" -match "$requested_app"){Invoke-AppInstall -Name "Notepad++" -App "notepadplusplus"}  
+                elseif("vscode" -match "$requested_app"){Invoke-AppInstall -Name "Visual Studio Code" -App "vscode"}  
+                elseif("atom" -match "$requested_app"){Invoke-AppInstall -Name "atom" -App "atom"}  
+                elseif("vim" -match "$requested_app"){Invoke-AppInstall -Name "vim" -App "vim"} 
+                elseif("Eclipse" -match "$requested_app"){Invoke-AppInstall -Name "Eclipse" -App "Eclipse"} 
+                elseif("putty" -match "$requested_app"){Invoke-AppInstall -Name "PuTTY" -App "putty"} 
+                elseif("superputty" -match "$requested_app"){Invoke-AppInstall -Name "SuperPutty" -App "superputty"} 
+                elseif("teraterm" -match "$requested_app"){Invoke-AppInstall -Name "Tera Term" -App "teraterm"} 
+                elseif("Filezilla" -match "$requested_app"){Invoke-AppInstall -Name "Filezilla" -App "filezilla"} 
+                elseif("WinSCP" -match "$requested_app"){Invoke-AppInstall -Name "WinSCP" -App "WinSCP"} 
+                elseif("mremoteng" -match "$requested_app"){Invoke-AppInstall -Name "MremoteNG" -App "mremoteng"} 
+                elseif("wireshark" -match "$requested_app"){Invoke-AppInstall -Name "Wireshark" -App "wireshark"} 
+                elseif("git" -match "$requested_app"){Invoke-AppInstall -Name "git" -App "git"}
+                elseif("Powershell-Core" -match "$requested_app"){Invoke-AppInstall -Name "PowerShell Core" -App "powershell-core"}
+                elseif("Windows terminal" -match "$requested_app"){Invoke-AppInstall -Name "Windows terminal" -App "microsoft-windows-terminal"}
+            # Social
+                elseif("Microsoft Teams" -match "$requested_app"){Invoke-AppInstall -Name "Microsoft Teams" -App "microsoft-teams"} 
+                elseif("Zoom" -match "$requested_app"){Invoke-AppInstall -Name "Zoom" -App "zoom"} 
+                elseif("Webex" -match "$requested_app"){Invoke-AppInstall -Name "Webex" -App "webex"}
+                elseif("Twitch" -match "$requested_app"){Invoke-AppInstall -Name "Twitch" -App "twitch"}
+                elseif("Ubisoft Connect" -match "$requested_app"){Invoke-AppInstall -Name "Ubisoft Connect" -App "ubisoft-connect"}}
 
     DO {
         Write-Host "`tWould you like to Install Microsoft Office? (y/n)" -f Green -nonewline;
@@ -166,8 +161,68 @@
     
         While ($answer1 -notin "y", "n")
     
-# Start app installation              
+# Start installtion file in the background
     Start-Process Powershell -argument "-Ep bypass -Windowstyle hidden -file `"""$($env:ProgramData)\Winoptimizer\Invoke-AppInstall.ps1""`""
+
+# Microsoft Visual C++
+    Do {
+        Write-Host "`t- Install all Microsoft Visual C++ Redistributable versions? (y/n)" -f Yellow -nonewline; 
+        $answer = Read-Host " " 
+        Switch ($answer) { 
+            Y {
+                Write-Host "`t`t- YES. Installing all the Visual C++ versions.." -f Green
+
+                # Download file
+                $link = "https://drive.google.com/uc?export=download&confirm=uc-download-link&id=1mHvNVA_pI0XnWyjRDNee0vhQxLp6agp_"
+                $file = "$dir\Visual\drivers.zip"
+                (New-Object net.webclient).Downloadfile($link, $FileDestination)
+                
+                # Unzip file
+                Expand-Archive $FileDestination -DestinationPath $path | Out-Null; 
+                Start-Sleep -s 5
+                
+                # Install files
+                Set-Location ($file | Split-Path -Parent)
+                ./vcredist2005_x64.exe /q | Out-Null
+                ./vcredist2008_x64.exe /qb | Out-Null
+                ./vcredist2010_x64.exe /passive /norestart | Out-Null
+                ./vcredist2012_x64.exe /passive /norestart | Out-Null
+                ./vcredist2013_x64.exe /passive /norestart | Out-Null
+                ./vcredist2015_2017_2019_2022_x64.exe /passive /norestart | Out-Null
+                restart-explorer
+
+                Write-Host "`t`t- Installation complete." -f Green;
+                
+            }
+            N { Write-Host "`t`t- NO. Skipping this step." -f Red } }} 
+    While ($answer -notin "y", "n")
+
+    <#
+    # .Net Framework
+    Do {
+        Write-Host "`t- Install all Microsoft .NET Framework? (y/n)" -f Yellow -nonewline; 
+        $answer = Read-Host " " 
+        Switch ($answer) { 
+            Y {
+                Write-Host "`t`t- YES. Installing all the .Net Frameworks.." -f Green
+                
+                #Download file
+                $link = 'https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/install-dotnet.ps1'
+                $file = "$dir\"+(Split-Path $link -Leaf)
+                (New-Object net.webclient).Downloadfile("$link", "$file"); 
+                Start-Sleep -S 3
+
+                # Run file
+                Start-Process Powershell -argument "-ep bypass -windowstyle Hidden -file `"$file`""
+                Start-Sleep -S 3
+                restart-explorer
+
+                Write-Host "`t`t- Installation complete." -f Green;
+            }
+            N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
+        }}
+    While ($answer -notin "y", "n")
+    #>
 
 
     Do {
