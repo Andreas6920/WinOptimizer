@@ -269,7 +269,7 @@
 
             Write-Host "`t        - Removing bloat printers:" -f Yellow
             $Bloatprinters = "Fax","OneNote for Windows 10","Microsoft XPS Document Writer", "Microsoft Print to PDF" 
-            $Bloatprinters | % {if(Get-Printer | Where-Object Name -cMatch $_){Write-Host "`t                - Uninstalling: $_" -f Yellow; Remove-Printer $_; Start-Sleep -s 2}}
+            $Bloatprinters | % {if(Get-Printer | Where-Object Name -cMatch $_){Write-Host "`t            - Uninstalling: $_" -f Yellow; Remove-Printer $_; Start-Sleep -s 2}}
             Write-Host "`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;
 
         
