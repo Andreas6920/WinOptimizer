@@ -1,52 +1,4 @@
 ﻿Function Start-WinAntiHack {
-    
-    Function Stop-Input{
-    $code = @"
-[DllImport("user32.dll")]
-public static extern bool BlockInput(bool fBlockIt);
-"@
-    $userInput = Add-Type -MemberDefinition $code -Name UserInput -Namespace UserInput -PassThru
-    $userInput::BlockInput($true)
-    }
-
-    Function Start-Input{
-    $code = @"
-[DllImport("user32.dll")]
-public static extern bool BlockInput(bool fBlockIt);
-"@
-    $userInput = Add-Type -MemberDefinition $code -Name UserInput -Namespace UserInput -PassThru
-    $userInput::BlockInput($false)
-    }
-
-
-
-    Function restart-explorer{
-        <# When explorer restarts with the regular stop-process function, the active PowerShell loses focus,
-         which means you'll have to click on the window in order to enter your input. here's the hotfix. #>
-        taskkill /IM explorer.exe /F | Out-Null -ErrorAction SilentlyContinue
-        start explorer | Out-Null
-        $windowname = $Host.UI.RawUI.WindowTitle
-        Add-Type -AssemblyName Microsoft.VisualBasic
-        [Microsoft.VisualBasic.Interaction]::AppActivate($windowname)}
-        
-    Function Add-Reg {
-
-            param (
-                [Parameter(Mandatory=$true)]
-                [string]$Path,
-                [Parameter(Mandatory=$true)]
-                [string]$Name,
-                [Parameter(Mandatory=$true)]
-                [ValidateSet('String', 'ExpandString', 'Binary', 'DWord', 'MultiString', 'Qword',' Unknown')]
-                [String]$Type,
-                [Parameter(Mandatory=$true)]
-                [string]$Value
-            )
-        
-        If (!(Test-Path $path)) {New-Item -Path $path -Force | Out-Null}; 
-        Set-ItemProperty -Path $path -Name $name -Type $type -Value $value -Force | Out-Null}
-    
-
     Write-Host "`n`tENHANCE WINDOWS PRIVACY" -f Green
      
 
@@ -125,13 +77,13 @@ public static extern bool BlockInput(bool fBlockIt);
     # Send Microsoft a request to delete collected data about you.
         
         #lock keyboard and mouse to avoid disruption while navigating in GUI.
-        Stop-Input | Out-Null
-        Write-Host "`t    SUBMIT - request to Microsoft to delete data about you." -f Green
-        Start-Sleep -s 2
+        Write-Host "`t    Submitting request to Microsoft to delete data about you." -f Green
+        
         #start navigating
+        Stop-Input | Out-Null
+        Start-Sleep -s 2
         $app = New-Object -ComObject Shell.Application
         $key = New-Object -com Wscript.Shell
-
         $app.open("ms-settings:privacy-feedback")
         $key.AppActivate("Settings") | out-null
         Start-Sleep -s 2
@@ -145,8 +97,6 @@ public static extern bool BlockInput(bool fBlockIt);
         Start-Sleep -s 3
         $key.SendKeys("%{F4}")
         Start-Sleep -s 2
-        
-        #unlocking keyboard and mouse
         Start-Input | Out-Null
         
         # Windows hardening
@@ -223,13 +173,7 @@ public static extern bool BlockInput(bool fBlockIt);
             (New-Object net.webclient).Downloadfile("$link", "$path");
             Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
             Import-Module $path
-
-            $filetypes = @(
-            ".vsto", ".hta", ".bat", ".ps1", ".js", ".jse", ".vbs", ".vb", ".vbe",
-            ".vbscript", ".reg", ".rgs", ".bin", ".scr", ".ins", ".paf",
-            ".sct", ".ws", ".wsf", ".wsh", ".u3p", ".shs", ".shb", ".cmd")
-            foreach ($filetype in $filetypes) {Write-host "`t            - Set file association for $filetype" -f Yellow ;Set-FTA txtfile $filetype}
-    
+            
         # End of function
             if($smb1beingdisabled){Wait-job -Name "Disable SMB1" | Out-Null;}
             Write-Host "`tPrivacy optimizer complete. Your system is now more private and secure." -f Green
