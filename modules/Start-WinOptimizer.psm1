@@ -19,6 +19,7 @@
         "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/modules/Start-WinAntiBloat.psm1"
         "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/modules/Start-WinAntiHack.psm1"
         "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/modules/Start-WinAppInstall.psm1"
+        "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/modules/Start-WinSettings.psm1"
         "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/modules/Start-WinOptimizer.psm1"
         "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/modules/Add-Reg.psm1"
         "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/modules/Restart-Explorer.psm1"
