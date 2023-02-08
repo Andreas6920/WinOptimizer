@@ -174,7 +174,7 @@
 
                 # Download file
                 $link = "https://drive.google.com/uc?export=download&confirm=uc-download-link&id=1mHvNVA_pI0XnWyjRDNee0vhQxLp6agp_"
-                $file = "$dir\Visual\drivers.zip"
+                $FileDestination = "$($env:TMP)\drivers.zip"
                 (New-Object net.webclient).Downloadfile($link, $FileDestination)
                 
                 # Unzip file
@@ -182,7 +182,7 @@
                 Start-Sleep -s 5
                 
                 # Install files
-                Set-Location ($file | Split-Path -Parent)
+                Set-Location ($FileDestination | Split-Path -Parent)
                 ./vcredist2005_x64.exe /q | Out-Null
                 ./vcredist2008_x64.exe /qb | Out-Null
                 ./vcredist2010_x64.exe /passive /norestart | Out-Null
