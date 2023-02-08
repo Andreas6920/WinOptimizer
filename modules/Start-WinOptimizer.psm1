@@ -15,15 +15,14 @@
     $modulepath = $env:PSmodulepath.split(";")[1]
 
     $modules = @(
-    "https://raw.githubusercontent.com/Andreas6920/Other/main/modules/backup/upload.psm1"
-    "https://raw.githubusercontent.com/Andreas6920/Other/main/Winoptimizer2.psm1"
-    "https://raw.githubusercontent.com/Andreas6920/Other/main/modules/backup/Invoke-Antibloat.psm1"
-    "https://raw.githubusercontent.com/Andreas6920/Other/main/modules/backup/Invoke-Antihack.psm1"
-    "https://raw.githubusercontent.com/Andreas6920/Other/main/modules/backup/Invoke-AppInstall.psm1"
-    "https://raw.githubusercontent.com/Andreas6920/Other/main/modules/backup/Restart-Explorer.psm1"
-    "https://raw.githubusercontent.com/Andreas6920/Other/main/modules/backup/Start-Input.psm1"
-    "https://raw.githubusercontent.com/Andreas6920/Other/main/modules/backup/Stop-Input.psm1"
-
+        "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/modules/Start-WinAntiBloat.psm1"
+        "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/modules/Start-WinAntiHack.psm1"
+        "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/modules/Start-WinAppInstall.psm1"
+        "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/modules/Start-WinOptimizer.psm1"
+        "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/modules/Add-Reg.psm1"
+        "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/modules/Restart-Explorer.psm1"
+        "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/modules/Start-input.psm1"
+        "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/modules/Stop-input.psm1"    
     )   
     
     foreach ($module in $modules) {
