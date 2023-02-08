@@ -197,7 +197,7 @@
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } }} 
     While ($answer -notin "y", "n")
 
-    <#
+    
     # .Net Framework
     Do {
         Write-Host "`t- Install all Microsoft .NET Framework? (y/n)" -f Yellow -nonewline; 
@@ -207,7 +207,7 @@
                 Write-Host "`t`t- YES. Installing all the .Net Frameworks.." -f Green
                 
                 #Download file
-                $link = 'https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/install-dotnet.ps1'
+                $link = 'https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/install-dotnet.ps1'
                 $file = "$dir\"+(Split-Path $link -Leaf)
                 (New-Object net.webclient).Downloadfile("$link", "$file"); 
                 Start-Sleep -S 3
@@ -222,7 +222,7 @@
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }}
     While ($answer -notin "y", "n")
-    #>
+    
 
 
     Do {
@@ -233,7 +233,7 @@
                     #create update file
                     Write-Host "`t`t- Downloading updating script." -f Yellow
                     $filepath = "$env:ProgramData\chocolatey\app-updater.ps1"
-                    Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/app-updater/app-updater.ps1" -OutFile $filepath -UseBasicParsing
+                    Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app-updater.ps1" -OutFile $filepath -UseBasicParsing
                     
                     # Create scheduled job
                     Write-Host "`t`t- scheduling update routine." -f Yellow
