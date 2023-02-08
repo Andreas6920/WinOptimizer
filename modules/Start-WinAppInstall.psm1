@@ -151,8 +151,8 @@
                 #Installation
                     # Modify install script
                         # Download
-                            $link = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/install-office.ps1"
-                            $installationfile = "$($env:ProgramData)\Winoptimizer\Start-WinAppInstall.ps1"
+                            $link = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/office-template.txt"
+                            $installationfile = "$($env:TMP)\Start-WinAppInstall.ps1"
                             if(!(test-path $installationfile)){new-item -ItemType Directory ($installationfile | Split-Path) -ea ignore | out-null; New-item $installationfile -ea ignore | out-null;}
                             Add-content -Encoding UTF8 -Value (invoke-webrequest $link).Content.replace('REPLACE-ME-FULLNAME', $Name).replace('REPLACE-ME-VERSION', $ver).replace('REPLACE-ME-LANGUAGE', $lang) -Path $installationfile
                   }
@@ -162,7 +162,7 @@
         While ($answer1 -notin "y", "n")
     
 # Start installtion file in the background
-    Start-Process Powershell -argument "-Ep bypass -Windowstyle hidden -file `"""$($env:ProgramData)\Winoptimizer\Start-WinAppInstall.ps1""`""
+    Start-Process Powershell -argument "-Ep bypass -Windowstyle hidden -file `"""$($env:TMP)\Start-WinAppInstall.ps1""`""
 
 # Microsoft Visual C++
     Do {
