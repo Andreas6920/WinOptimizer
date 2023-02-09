@@ -101,7 +101,10 @@
             Switch ($answer1) { 
       
             y {        
-      
+                
+                #build your own: https://www.powershellgallery.com/packages/Install-Office365Suite/1.5/Content/Install-Office365Suite.ps1, https://github.com/mallockey/Install-Office365Suite
+                
+                <#
                 # Choose version
                     "";
                     Write-Host "`t`tVersion Menu:" -f Green
@@ -155,7 +158,8 @@
                             $installationfile = "$($env:TMP)\Start-WinAppInstall.ps1"
                             if(!(test-path $installationfile)){new-item -ItemType Directory ($installationfile | Split-Path) -ea ignore | out-null; New-item $installationfile -ea ignore | out-null;}
                             Add-content -Encoding UTF8 -Value (invoke-webrequest $link).Content.replace('REPLACE-ME-FULLNAME', $Name).replace('REPLACE-ME-VERSION', $ver).replace('REPLACE-ME-LANGUAGE', $lang) -Path $installationfile
-                  }
+                  #>
+                        }
                
             n {Write-Host "`t`t- NO. Skipping this step."}}}
     
