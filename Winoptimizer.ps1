@@ -32,7 +32,7 @@
     $modules = @(
     "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/modules/Start-WinAntiBloat.psm1"
     "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/modules/Start-WinAntiHack.psm1"
-    "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/modules/Start-WinAppInstall.psm1"
+    #"https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/modules/Start-WinAppInstall.psm1"
     "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/modules/Start-WinSettings.psm1"
     "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/modules/Start-WinOptimizer.psm1"
     "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/modules/Add-Reg.psm1"
@@ -50,12 +50,12 @@
     # Download module
         (New-Object net.webclient).Downloadfile($module, $filedestination)
     # Install module
-        if (Get-Module -ListAvailable -Name $filename){ <#Import-module -name $filename;#> Write-host "." -NoNewline}
+        if (Get-Module -ListAvailable -Name $filename){ Import-module -name $filename; Write-host "." -NoNewline}
         #else {write-host "!"}
     }
         
     write-host ""
-   
+    start-sleep -s 10
 # Front end begins here
 $intro = 
 "
