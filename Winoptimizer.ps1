@@ -85,8 +85,8 @@ do {
     $option = Read-Host
     Switch ($option) { 
         0 { exit }
-        1 { Start-WinAntiBlock; Start-WinAntihack; Start-WinSettings; Start-WinAppInstall }
-        2 { Start-WinAntiBlock }
+        1 { Start-WinAntiBloat; Start-WinAntihack; Start-WinSettings; Start-WinAppInstall }
+        2 { Start-WinAntiBloat }
         3 { Start-WinAntihack }
         4 { Start-WinSettings }
         5 { Start-WinAppInstall }
