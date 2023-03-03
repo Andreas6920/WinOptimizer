@@ -96,7 +96,7 @@
                 elseif("Ubisoft Connect" -match "$requested_app"){Start-WinAppInstall -Name "Ubisoft Connect" -App "ubisoft-connect"}}
 
     DO {
-        Write-Host "`tWould you like to Install Microsoft Office? (y/n)" -f Green -nonewline;
+        Write-Host "`tWould you like to Install Microsoft Office? (y/n)" -f Yellow -nonewline;
         $answer1 = Read-host " " 
             Switch ($answer1) { 
       
@@ -104,7 +104,7 @@
                 
                 #build your own: https://www.powershellgallery.com/packages/Install-Office365Suite/1.5/Content/Install-Office365Suite.ps1, https://github.com/mallockey/Install-Office365Suite
                 
-                <#
+                
                 # Choose version
                     "";
                     Write-Host "`t`tVersion Menu:" -f Green
@@ -158,7 +158,7 @@
                             $installationfile = "$($env:TMP)\Start-WinAppInstall.ps1"
                             if(!(test-path $installationfile)){new-item -ItemType Directory ($installationfile | Split-Path) -ea ignore | out-null; New-item $installationfile -ea ignore | out-null;}
                             Add-content -Encoding UTF8 -Value (invoke-webrequest $link).Content.replace('REPLACE-ME-FULLNAME', $Name).replace('REPLACE-ME-VERSION', $ver).replace('REPLACE-ME-LANGUAGE', $lang) -Path $installationfile
-                  #>
+                  
                         }
                
             n {Write-Host "`t`t- NO. Skipping this step."}}}
@@ -168,6 +168,7 @@
 # Start installtion file in the background
     Start-Process Powershell -argument "-Ep bypass -Windowstyle hidden -file `"""$($env:TMP)\Start-WinAppInstall.ps1""`""
 
+<#
 # Microsoft Visual C++
     Do {
         Write-Host "`t- Install all Microsoft Visual C++ Redistributable versions? (y/n)" -f Yellow -nonewline; 
@@ -226,7 +227,7 @@
             N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
         }}
     While ($answer -notin "y", "n")
-    
+    #>
 
 
     Do {
