@@ -1,12 +1,13 @@
 # auto-updater
 if(Test-Connection www.github.com -Quiet){
     $this_version = "Version 2.0"
-    $version = (Invoke-WebRequest "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/app-updater/app-updater.ps1").Content
+    $link = https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app-updater.ps1
+    $version = (Invoke-WebRequest $link).Content
     if ($version -cmatch "$this_version")
-    {write "same"}
+    {write-host "same"}
     else {
     remove-item "$env:ProgramData\chocolatey\app-updater.ps1" -Force; sleep -s 5
-    Invoke-WebRequest "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/app-updater/app-updater.ps1" -OutFile "$env:ProgramData\chocolatey\app-updater.ps1" -UseBasicParsing | out-null
+    Invoke-WebRequest $link -OutFile "$env:ProgramData\chocolatey\app-updater.ps1" -UseBasicParsing | out-null
     sleep -s 5
     powershell -ep bypass -runas Verb "$env:ProgramData\chocolatey\app-updater.ps1"
      }
