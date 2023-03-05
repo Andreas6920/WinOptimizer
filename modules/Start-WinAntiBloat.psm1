@@ -165,7 +165,8 @@
             foreach ($BloatSchedule in $BloatSchedules) {
             if ((Get-ScheduledTask | Where-Object state -ne Disabled | Where-Object TaskName -like $BloatSchedule)){
             Write-Host "`t        - Disabling: $BloatSchedule" -f Yellow
-            Get-ScheduledTask | Where-Object Taskname -eq $BloatSchedule | Disable-ScheduledTask | Out-Null}}
+            Get-ScheduledTask | Where-Object Taskname -eq $BloatSchedule | Disable-ScheduledTask | Out-Null
+            Start-Sleep -S 1}}
             Write-Host "`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;
         
 
