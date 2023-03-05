@@ -3,7 +3,7 @@
     $link = (Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app-updater.ps1").Content
     $scriptlocation = Join-Path -path $env:programdata -ChildPath "\Chocolatey\app-updater.ps1"
     $scriptcontent = Get-content $scriptlocation
-    if (!($link -eq $scriptcontent )){set-content -Value $link -Path $scriptlocation -Force; set-location ($scriptlocation| Split-Path -Parent); .\app-updater.ps1}}
+    if (!($link -eq $scriptcontent )){write-host "updating..."; start-sleep -s 3; set-content -Value $link -Path $scriptlocation -Force; set-location ($scriptlocation| Split-Path -Parent)}}
 
 # Updater script
     $date = (get-date -f "yyyy/MM/dd - HH:mm:ss")
