@@ -1,3 +1,4 @@
+<#
 # auto-updater
 if(Test-Connection www.github.com -Quiet){
     $this_version = "Version 2.0"
@@ -11,6 +12,7 @@ if(Test-Connection www.github.com -Quiet){
     powershell -ep bypass -runas Verb "$env:ProgramData\chocolatey\app-updater.ps1"
      }
     }
+#>
 
 $date = (get-date -f "yyyy/MM/dd - HH:mm:ss")
 $check_updates = choco outdated
