@@ -1,19 +1,10 @@
-<#
 # auto-updater
 if(Test-Connection www.github.com -Quiet){
-    $this_version = "Version 2.1"
-    $link = https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app-updater.ps1
-    $version = (Invoke-WebRequest $link).Content
-    if ($version -cmatch "$this_version")
-    {write-host "same"}
-    else {
-    remove-item "$env:ProgramData\chocolatey\app-updater.ps1" -Force; sleep -s 5
-    Invoke-WebRequest $link -OutFile "$env:ProgramData\chocolatey\app-updater.ps1" -UseBasicParsing | out-null
-    Start-Sleep -s 5
-    powershell -ep bypass -runas Verb "$env:ProgramData\chocolatey\app-updater.ps1"
-     }
-    }
-#>
+    $this_version = "Version 2.5"
+    $link = (Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app-updater.ps1").Content
+    $location = Join-Path -path $env:programdata -ChildPath "\Chocolatey\app-updater.ps1"
+    if (!($link -cmatch "$this_version")){set-content -Value $link -Path $location -Force; set-location ($location  | Split-Path -Parent); .\app-updater.ps1}}
+
 
 $date = (get-date -f "yyyy/MM/dd - HH:mm:ss")
 $check_updates = choco outdated
