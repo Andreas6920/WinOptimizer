@@ -1,4 +1,4 @@
-$version = "Version 2.5"
+$version = "Version 2.6"
 $link = (Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app-updater.ps1").Content
 $scriptlocation = Join-Path -path $env:programdata -ChildPath "\Chocolatey\app-updater.ps1"
 $date = (get-date -f "yyyy/MM/dd - HH:mm:ss")
@@ -22,3 +22,5 @@ $log = "$env:ProgramData\chocolatey\app-updater_log.txt"
         Checkpoint-Computer -Description "winoptimizer - appupdater" -RestorePointType "APPLICATION_INSTALL" | Out-Null #out-null waits for complete
         choco upgrade all -y >> $log
         echo "`n###################################################################################################" >> $log}
+
+        #test
