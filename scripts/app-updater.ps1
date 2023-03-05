@@ -1,14 +1,15 @@
+$link = (Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app-updater.ps1").Content
+$scriptlocation = Join-Path -path $env:programdata -ChildPath "\Chocolatey\app-updater.ps1"
+$scriptcontent = Get-content $scriptlocation
+$date = (get-date -f "yyyy/MM/dd - HH:mm:ss")
+$check_updates = choco outdated
+$log = "$env:ProgramData\chocolatey\app-updater_log.txt"
+
 # Get latest version of script
     if(Test-Connection www.github.com -Quiet){
-    $link = (Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app-updater.ps1").Content
-    $scriptlocation = Join-Path -path $env:programdata -ChildPath "\Chocolatey\app-updater.ps1"
-    $scriptcontent = Get-content $scriptlocation
     if (!($link -eq $scriptcontent )){write-host "updating..."; start-sleep -s 3; set-content -Value $link -Path $scriptlocation -Force; set-location ($scriptlocation| Split-Path -Parent)}}
 
 # Updater script
-    $date = (get-date -f "yyyy/MM/dd - HH:mm:ss")
-    $check_updates = choco outdated
-    $log = "$env:ProgramData\chocolatey\app-updater_log.txt"
 
     # if no updates available, just write to logs that scan is done and nothing found.
     if ($check_updates -match "Chocolatey has determined 0 package") 
