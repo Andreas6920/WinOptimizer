@@ -5,7 +5,6 @@ if(Test-Connection www.github.com -Quiet){
     $location = Join-Path -path $env:programdata -ChildPath "\Chocolatey\app-updater.ps1"
     if (!($link -cmatch "$this_version")){set-content -Value $link -Path $location -Force; set-location ($location  | Split-Path -Parent); .\app-updater.ps1}}
 
-
 $date = (get-date -f "yyyy/MM/dd - HH:mm:ss")
 $check_updates = choco outdated
 $log = "$env:ProgramData\chocolatey\app-updater_log.txt"
