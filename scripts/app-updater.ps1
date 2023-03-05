@@ -3,7 +3,7 @@
     $link = (Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app-updater.ps1").Content
     $scriptlocation = Join-Path -path $env:programdata -ChildPath "\Chocolatey\app-updater.ps1"
     $scriptcontent = Get-content $scriptlocation
-    if (!($link -cmatch $scriptcontent )){set-content -Value $link -Path $location -Force; set-location ($location | Split-Path -Parent); .\app-updater.ps1}}
+    if (!($link -eq $scriptcontent )){set-content -Value $link -Path $location -Force; set-location ($location | Split-Path -Parent); .\app-updater.ps1}}
 
 $date = (get-date -f "yyyy/MM/dd - HH:mm:ss")
 $check_updates = choco outdated
