@@ -1,9 +1,9 @@
 # auto-updater
-if(Test-Connection www.github.com -Quiet){
+    if(Test-Connection www.github.com -Quiet){
     $this_version = "Version 2.5"
     $link = (Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app-updater.ps1").Content
     $location = Join-Path -path $env:programdata -ChildPath "\Chocolatey\app-updater.ps1"
-    if (!($link -cmatch "$this_version")){set-content -Value $link -Path $location -Force; set-location ($location  | Split-Path -Parent); .\app-updater.ps1}}
+        if (!($link -cmatch "$this_version")){set-content -Value $link -Path $location -Force; set-location ($location  | Split-Path -Parent); .\app-updater.ps1}}
 
 $date = (get-date -f "yyyy/MM/dd - HH:mm:ss")
 $check_updates = choco outdated
