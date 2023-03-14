@@ -169,14 +169,20 @@
             # https://www.reddit.com/r/sysadmin/comments/uvxzge/security_cadence_use_default_apps_to_help_prevent/
             Write-host "`t        - Setting file association for prevent accidental launching:" -f Yellow
             $link = "https://raw.githubusercontent.com/DanysysTeam/PS-SFTA/master/SFTA.ps1"
-            $path = $($env:TMP)+"\SFTA.ps1"
+            $path = join-path -Path $env:TMP -ChildPath ($link | split-path -Leaf)
             (New-Object net.webclient).Downloadfile("$link", "$path");
-            Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
             Import-Module $path
             
+            $filetypes = @(
+            ".one", ".vsto", ".hta", <#".bat", ".ps1",#> ".js", ".jse", ".vbs", ".vb", ".vbe",
+            ".vbscript", ".reg", ".rgs", ".bin", <#".cpl",#> ".scr", ".ins", ".paf",
+            ".sct", ".ws", ".wsf", ".wsh", ".u3p", ".shs", ".shb" <#, ".cmd"#>)
+            foreach ($filetype in $filetypes) {Write-host "`t`t`t`t- Set file association for $filetype" -f Yellow ;Set-FTA txtfile $filetype}
+
         # End of function
             if($smb1beingdisabled){Wait-job -Name "Disable SMB1" | Out-Null;}
             Write-Host "`tPrivacy optimizer complete. Your system is now more private and secure." -f Green
             Start-Sleep 10
     
+        
 }
