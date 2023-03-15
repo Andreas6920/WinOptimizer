@@ -174,10 +174,17 @@
             Import-Module $path
             
             $filetypes = @(
-            ".one", ".vsto", ".hta", <#".bat", ".ps1",#> ".js", ".jse", ".vbs", ".vb", ".vbe",
-            ".vbscript", ".reg", ".rgs", ".bin", <#".cpl",#> ".scr", ".ins", ".paf",
-            ".sct", ".ws", ".wsf", ".wsh", ".u3p", ".shs", ".shb" <#, ".cmd"#>)
+            ".one", ".vsto", ".hta", ".bat", <#".ps1",#> ".js", ".jse", ".vbs", ".vb", ".vbe",
+            ".vbscript", ".reg", ".rgs", ".bin", ".scr", ".ins", ".paf",
+            ".sct", ".ws", ".wsf", ".wsh", ".u3p", ".shs", ".shb", ".cmd")
             foreach ($filetype in $filetypes) {Write-host "`t`t`t`t- Set file association for $filetype" -f Yellow ;Set-FTA txtfile $filetype}
+
+        # Disable OneNote embedded file attacks
+            # test om extensions definition virker
+            # https://www.bleepingcomputer.com/news/security/how-to-prevent-microsoft-onenote-files-from-infecting-windows-with-malware/
+            # Write-Host "`t        - Disabling embedded file OneNote phishing attacks." -f Yellow
+            # Add-Reg -Path "HKCU:\software\policies\microsoft\office\16.0\onenote\options" -Name "disableembeddedfiles" -Type "DWORD" -Value "0"
+            # Add-Reg -Path "HKCU:\software\policies\microsoft\office\16.0\onenote\options\embeddedfileopenoptions" -Name "blockedextensions" -Type "DWORD" -Value "".js;.exe;.bat;.vbs;.com;.scr;.cmd;.ps1""
 
         # End of function
             if($smb1beingdisabled){Wait-job -Name "Disable SMB1" | Out-Null;}
