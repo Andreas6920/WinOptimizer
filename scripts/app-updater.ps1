@@ -1,5 +1,5 @@
 # Prepare varibles
-    $version = "Version 2.9"
+    $version = "Version 3.0"
     [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing") 
     [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") 
     $link = (Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app-updater.ps1").Content
