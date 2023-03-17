@@ -175,10 +175,10 @@
                     # schedule job for script
                         
                         $jobname = "Winoptimizer App Updater"
-                        $jobaction = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-ep bypass -w hidden -file $appupdatepath"
                         $jobprincipal = New-ScheduledTaskPrincipal -UserId $env:USERNAME -LogonType ServiceAccount -RunLevel Highest
-                        $jobtrigger= New-ScheduledTaskTrigger -At 12:00 -Daily
-                        $jobsettings = New-ScheduledTaskSettingsSet -RunOnlyIfNetworkAvailable -DontStopIfGoingOnBatteries -DontStopOnIdleEnd -IdleDuration 00:05:00 -IdleWaitTimeout 03:00:00
+                        $jobtrigger= New-ScheduledTaskTrigger -Weekly -DaysOfWeek 'Monday','Tuesday','Wednesday','Thursday','Friday' -At 11:50
+                        $jobaction = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-ep bypass -w hidden -file $appupdatepath"
+                        $jobsettings = New-ScheduledTaskSettingsSet -StartWhenAvailable -ExecutionTimeLimit '04:00:00' -RunOnlyIfNetworkAvailable -DontStopIfGoingOnBatteries -DontStopOnIdleEnd
     
                         Register-ScheduledTask -TaskName $jobname -Settings $jobsettings -Principal $jobprincipal -Action $jobaction -Trigger $jobtrigger -Force | Out-Null}
     
