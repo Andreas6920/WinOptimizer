@@ -11,9 +11,12 @@
 
 #  Wait for inactivity    
     do {$a = [System.Windows.Forms.Cursor]::Position
-        Start-Sleep -s 240
+        Start-Sleep -s 20
         $b = [System.Windows.Forms.Cursor]::Position} 
     while ($b -ne $a)
+
+    $date = get-date -f "yyyy/MM/dd - HH:mm:ss"
+    msg * $date
 
 # Get latest version of script
     if(Test-Connection www.github.com -Quiet){

@@ -1,5 +1,5 @@
 $version = "REPLACE-ME-FULLNAME"
-$language "REPLACE-ME-LANGUAGE"
+$language = "REPLACE-ME-LANGUAGE"
 
 # Windows notification 1
     Add-Type -AssemblyName System.Windows.Forms
