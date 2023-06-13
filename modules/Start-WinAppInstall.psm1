@@ -1,4 +1,4 @@
-﻿function Start-WinAppInstall {
+﻿
     function Install-App {
         param  ([Parameter(Mandatory=$false)]
                 [string]$Name,
@@ -209,12 +209,4 @@
                     $filepath = join-path -Path $env:TMP -ChildPath ($link | Split-Path -Leaf)
                     (New-Object net.webclient).Downloadfile("$link", "$filepath")
                     Start-Process Powershell -argument "-ep bypass -windowstyle Hidden -file `"$filepath`""
-                    }}
-       
-   
-
-    
-}
-#End of function
-Write-Host "`tApp installer completed. Enjoy your freshly installed applications." -f Green
-Start-Sleep 10
+                    }
