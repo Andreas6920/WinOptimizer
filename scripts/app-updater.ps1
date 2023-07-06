@@ -1,40 +1,94 @@
-# Prepare variables
-    $version = "Version 3.1"
-    [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing") 
-    [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") 
-    $link = (Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app-updater.ps1").Content
-    $scriptlocation = Join-Path -path $env:programdata -ChildPath "\Chocolatey\app-updater.ps1"
-    $check_updates = choco outdated
-    $check_updates_negative = choco outdated | select-string "Chocolatey has determined"
-    $check_updates_positive = choco outdated | select-string "false"
-    $loglocation = Join-path -Path $env:ProgramData -ChildPath "\chocolatey\app-updater_log.txt"
+
 
 #  Wait for inactivity    
-    do {$a = [System.Windows.Forms.Cursor]::Position
-        Start-Sleep -s 20
-        $b = [System.Windows.Forms.Cursor]::Position} 
-    while ($b -ne $a)
+[void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing") 
+[void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") 
+Do  {$mouseactivity1 = [System.Windows.Forms.Cursor]::Position
+    Start-Sleep -s 180
+    $mouseactivity2 = [System.Windows.Forms.Cursor]::Position} 
+While ($mouseactivity2 -ne $mouseactivity1)
 
-    $date = get-date -f "yyyy/MM/dd - HH:mm:ss"
-    msg * $date
 
-# Get latest version of script
-    if(Test-Connection www.github.com -Quiet){
-    if (!($link -cMatch $version )){write-host "updating..."; start-sleep -s 3; set-content -Value $link -Path $scriptlocation -Force; set-location ($scriptlocation| Split-Path -Parent)}}
+# Initiate script
+$logfile = Join-path -Path $env:ProgramData -ChildPath "\chocolatey\app-updater_log.txt"
+$string = "`n`t- DATE:" + (Get-Date -Format " yyyy/MM/dd HH:mm:sss")
+Add-Content -Value $string -Path $logfile -Encoding UTF8
 
-# if updates not found, add that to the logs.
-    if ($check_updates -match "Chocolatey has determined 0 package"){
-        $date = get-date -f "yyyy/MM/dd - HH:mm:ss"
-        Add-Content -Value "`n$date - No update(s) found :)`n" -Path $loglocation -Encoding UTF8
-        Add-Content -Value $check_updates_negative -Path $loglocation -Encoding UTF8
-        Add-Content -Value "`n###################################################################################################" -Path $loglocation -Encoding UTF8}
+Write-host "- Checking Network Connection:" -nonewline
+if (Test-Connection www.github.com -Quiet){
 
-# if updates found, update and add to logs
-    else{
-        $update = choco upgrade all -y | Select-string "has been installed."
-        $date = get-date -f "yyyy/MM/dd - HH:mm:ss"
-        Add-Content -Value "`n$date - OUTDATED APPLICATIONS DETECTED!!`n" -Path $loglocation -Encoding UTF8
-        Add-Content -Value $check_updates_positive.Replace('|false','') -Path $loglocation -Encoding UTF8
-        Checkpoint-Computer -Description "Winoptimizer - appupdater" -RestorePointType "APPLICATION_INSTALL" | Out-Null
-        Add-Content -Value $update.Replace('installed','updated') -Path $loglocation -Encoding UTF8
-        Add-Content -Value "`n###################################################################################################" -Path $loglocation -Encoding UTF8}
+	# Setup network connection
+	Write-host " VERIFIED" -f Green
+	[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+	If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main")) {
+	New-Item -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Force | Out-Null}
+	Set-ItemProperty -Path  "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize"  -Value 1
+
+	$string = "`t- NETWORK CONNECTION: VERIFIED"
+	Add-Content -Value $string -Path $logfile -Encoding UTF8
+
+# Scriptupdater
+    $version = "Version 3.5"
+    $link = (Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app-updater.ps1").Content
+    $scriptlocation = Join-Path -path $env:programdata -ChildPath "\Chocolatey\app-updater.ps1"
+	if (!($link -cMatch $version )){write-host "updating..."; start-sleep -s 3; set-content -Value $link -Path $scriptlocation -Force; set-location ($scriptlocation| Split-Path -Parent)}
+
+# App-updater Variables
+	$code = choco outdated -r 
+	$logfile = Join-path -Path $env:ProgramData -ChildPath "\chocolatey\app-updater_log.txt"	
+
+# if outdated application is detected
+	if ($code -ne $null){
+		#$date2 = Get-Date -Format "[yyyy/MM/dd HH:MM:ss]"
+		$string = "`t- UPDATES DETECTED:"
+		Write-host "- Updating:"
+		Add-Content -Value $string -Path $logfile -Encoding UTF8
+		foreach ($app in $code){
+			
+			# Define values from choco output
+				$software = ($app.Split("|")[0]).toupper()
+				$currentversion = $app.Split("|")[1]
+				$newestversion = $app.Split("|")[2]			
+			
+			# Update
+				Add-Content -Value "`t`t- $software" -Path $logfile -Encoding UTF8
+				write-host "`t- $software..." -nonewline
+				$string = "`t`t`t- UPDATING:`tVersion: $currentversion -> $newestversion"
+				Add-Content -Value $string -Path $logfile -Encoding UTF8
+				$update = choco upgrade $software -y
+			
+			# Logging: Sucessfull update
+				if($update -match "The upgrade of.*was successful."){
+					$msg = (($update | Select-String -Pattern " The upgrade of.*was successful.").Matches.Value).trim()
+					if($msg -match ". The upgrade"){$msg = $msg.replace(".","#").Split('#').Trim()[2]}
+					write-host "COMPLETED" -f Green
+					$string = "`t`t`t- SUCCESS:`t$msg"
+					Add-Content -Value $string -Path $logfile -Encoding UTF8}
+					
+			# Logging: Unsuccessful update
+				elseif($update -match "The upgrade of.*was NOT successful."){
+					$msg = (($update | Select-String -Pattern "The upgrade of.*was NOT successful.").Matches.Value).trim()
+					$string = "`t`t`t- ERROR:`t$msg"
+					Add-Content -Value $string -Path $logfile -Encoding UTF8
+					write-host "FAILED" -f Red
+					$msg = $update | Select-String -Pattern "^ERROR:"
+					$msg = ($msg -split "Exit code indicates the following: ")[1]
+					if ($msg -ne $null){
+					$string = "`t`t`t- INFO:`t`t$msg"
+					Add-Content -Value $string -Path $logfile -Encoding UTF8}
+					}}	
+		
+		$string = "`t- SYSTEM UPDATED (" + (Get-Date -Format "yyyy/MM/dd HH:mm:sss") + ")"
+        Add-Content -Value $string -Path $logfile -Encoding UTF8
+	}
+
+# if no updates is detected
+	else{   $string = "`t- NO UPDATES DETECTED."
+	        Add-Content -Value $string -Path $logfile -Encoding UTF8}}
+
+else{$string = "`t- No Network Connection. Trying again tomrrow."; Add-Content -Value $string -Path $logfile -Encoding UTF8 }
+
+# Ending script
+	$separator = "#" * 99
+	$string = "`n$separator"
+	Add-Content -Value $string -Path $logfile -Encoding UTF8 
