@@ -1,20 +1,23 @@
 
 
 #  Wait for inactivity    
-[void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing") 
-[void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") 
-Do  {$mouseactivity1 = [System.Windows.Forms.Cursor]::Position
-    Start-Sleep -s 180
-    $mouseactivity2 = [System.Windows.Forms.Cursor]::Position} 
-While ($mouseactivity2 -ne $mouseactivity1)
+	[void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing") 
+	[void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") 
+    Do  {$mouseactivity1 = [System.Windows.Forms.Cursor]::Position
+        Start-Sleep -s 180
+        $mouseactivity2 = [System.Windows.Forms.Cursor]::Position} 
+    While ($mouseactivity2 -ne $mouseactivity1)
 
 
 # Initiate script
+Clear-Host
 $logfile = Join-path -Path $env:ProgramData -ChildPath "\chocolatey\app-updater_log.txt"
-$string = "`n`t- DATE:" + (Get-Date -Format " yyyy/MM/dd HH:mm:sss")
+$string = "`n`t- DATE: " + (Get-Date -Format "yyyy/MM/dd") + ", " + (Get-Date -UFormat "%A").ToUpper()
+Add-Content -Value $string -Path $logfile -Encoding UTF8
+$string = "`t- TIME: " + (Get-Date -Format "HH:mm:sss")
 Add-Content -Value $string -Path $logfile -Encoding UTF8
 
-Write-host "- Checking Network Connection:" -nonewline
+Write-host "- CHECKING NETWORK CONNECTION:" -nonewline
 if (Test-Connection www.github.com -Quiet){
 
 	# Setup network connection
@@ -28,10 +31,10 @@ if (Test-Connection www.github.com -Quiet){
 	Add-Content -Value $string -Path $logfile -Encoding UTF8
 
 # Scriptupdater
-    $version = "Version 3.5"
+    $version = "Version 3.51"
     $link = (Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app-updater.ps1").Content
     $scriptlocation = Join-Path -path $env:programdata -ChildPath "\Chocolatey\app-updater.ps1"
-	if (!($link -cMatch $version )){write-host "updating..."; start-sleep -s 3; set-content -Value $link -Path $scriptlocation -Force; set-location ($scriptlocation| Split-Path -Parent)}
+	if (!($link -cMatch $version )){write-host "`t - UPDATING SCRIPT..."; start-sleep -s 3; set-content -Value $link -Path $scriptlocation -Force; set-location ($scriptlocation| Split-Path -Parent)}
 
 # App-updater Variables
 	$code = choco outdated -r 
@@ -41,7 +44,7 @@ if (Test-Connection www.github.com -Quiet){
 	if ($code -ne $null){
 		#$date2 = Get-Date -Format "[yyyy/MM/dd HH:MM:ss]"
 		$string = "`t- UPDATES DETECTED:"
-		Write-host "- Updating:"
+		Write-host "- UPDATING:"
 		Add-Content -Value $string -Path $logfile -Encoding UTF8
 		foreach ($app in $code){
 			

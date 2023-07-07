@@ -174,12 +174,11 @@
     
                     # schedule job for script
                         
-                        $jobname = "Winoptimizer App Updater"
+                        $jobname = "Winoptimizer: Patching - Desktop Applications"
                         $jobprincipal = New-ScheduledTaskPrincipal -UserId $env:USERNAME -LogonType ServiceAccount -RunLevel Highest
                         $jobtrigger= New-ScheduledTaskTrigger -Weekly -DaysOfWeek 'Monday','Tuesday','Wednesday','Thursday','Friday' -At 11:50
                         $jobaction = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-ep bypass -w hidden -file $appupdatepath"
-                        $jobsettings = New-ScheduledTaskSettingsSet -StartWhenAvailable -ExecutionTimeLimit '04:00:00' -RunOnlyIfNetworkAvailable -DontStopIfGoingOnBatteries -DontStopOnIdleEnd
-    
+                        $jobsettings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit '03:00:00' -RunOnlyIfNetworkAvailable -DontStopIfGoingOnBatteries -DontStopOnIdleEnd
                         Register-ScheduledTask -TaskName $jobname -Settings $jobsettings -Principal $jobprincipal -Action $jobaction -Trigger $jobtrigger -Force | Out-Null}
     
         # Microsoft Visual C++
@@ -210,3 +209,11 @@
                     (New-Object net.webclient).Downloadfile("$link", "$filepath")
                     Start-Process Powershell -argument "-ep bypass -windowstyle Hidden -file `"$filepath`""
                     }
+       
+   
+
+    
+}
+#End of function
+Write-Host "`tApp installer completed. Enjoy your freshly installed applications." -f Green
+Start-Sleep 10
