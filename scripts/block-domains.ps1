@@ -8,7 +8,7 @@
         Copy-Item $hostsfile $backupfile
         
         # Crawling new Microsoft tracking domains
-        $domain = Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt'  -UseBasicParsing
+        $domain = Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/hosts.txt'  -UseBasicParsing
         $domain = $domain.Content | Foreach-object { $_ -replace "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", "" } | Foreach-object { $_ -replace " ", "" }
         $domain = $domain.Split("`n") -notlike "#*" -notmatch "spynet2.microsoft.com" -match "\w"
         Write-Host "`t`t`t- Getting updated lists of Microsoft's trackers" -f Yellow
