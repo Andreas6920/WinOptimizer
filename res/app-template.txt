@@ -4,7 +4,7 @@ $name = "REPLACE-ME-NAME"
 $app = "REPLACE-ME-APP"
 
 # Install
-    choco install $app -y
+    choco install $app -y --ignore-checksums
 
 # Windows notification
     Add-Type -AssemblyName System.Windows.Forms
