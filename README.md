@@ -29,6 +29,7 @@
 ## Install
 open powershell <b>AS ADMIN</b> and run:
 ```
-Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/Winoptimizer.ps1" -OutFile "$env:ProgramData\Winoptimizer.ps1" -UseBasicParsing; cls; powershell -ep bypass "$env:ProgramData\Winoptimizer.ps1"
+iwr -useb https://git.io/JzrB5 -O "$env:TMP\win.ps1"; Import-Module "$env:TMP\win.ps1"; Start-WinOptimizerUI
+
 ```
 
