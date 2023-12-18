@@ -1,5 +1,5 @@
 # WinOptimizer
- Optimize your windows system by removing bloat (like Xbox, Minecraft, bing, ads), optimize your privacy settings, install apps and even enable hidden features!
+Optimize your windows system by removing bloat (like Xbox, Minecraft, bing, ads), optimize your privacy settings, install apps and even enable hidden features!
 
 ## Modules
  * <b>Cleaning Windows 10 from bloat</b><br>
