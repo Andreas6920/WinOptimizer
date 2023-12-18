@@ -272,6 +272,31 @@ function Install-App {
 
 }
 
+Function Add-Hash {
+        <# When you're choosing the UI version of this script, the menu options will grey out if the exact script
+        has aldready been ran on the system.. Yep, spent way to much time on this feature.#>
+        param (
+            [Parameter(Mandatory=$true)]
+            [string]$Name)
+
+        $Base = Join-path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -Childpath "WinOptimizer"
+        $path = Join-Path -Path $Base -Childpath "$Name.ps1"
+        $file = "$Name.ps1"
+        $filehash = (Get-FileHash $path).Hash
+        $reg_install = "HKLM:\Software\WinOptimizer"
+         #$reghash = (get-ItemProperty -Path $reg_install -Name $file).$file
+
+        Set-ItemProperty -Path $reg_install -Name $file -Type String -Value $filehash
+        
+        
+
+        # Creating Missing Regkeys
+        
+    }
+
+
+    
+
 Function Install-AppUpdater {
 # Download Script
     $appupdaterlink = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app-updater.ps1"
@@ -326,7 +351,7 @@ Creator: Andreas6920 | https://github.com/Andreas6920/
             2 { .\win_antibloat.ps1; Add-Hash -Name "win_antibloat.ps1"; .\menu.ps1; }
             3 { .\win_security.ps1; Add-Hash -Name "win_security.ps1"; .\menu.ps1; }
             4 { .\win_settings.ps1; Add-Hash -Name "win_settings.ps1"; .\menu.ps1; }
-            5 {  }
+            5 {  Install-App; .\menu.ps1;}
             Default { } 
         }
 

@@ -219,7 +219,7 @@
             Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowTaskViewButton -Type DWord -Value 0 | Out-Null
 
             Write-Host "`t        - Removing shortcuts.." -f Yellow
-            Remove-Item -Path "$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*" -Recurse -Force | Out-Null
+            Remove-Item -Path "$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*" -Recurse -Force  | Out-Null
             restart-explorer
             Write-Host "`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;
 
