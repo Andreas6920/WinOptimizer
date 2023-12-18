@@ -118,8 +118,6 @@ function Install-App {
         [Parameter(Mandatory=$false)]
         [switch]$IncludeVisualPlusplus,
         [Parameter(Mandatory=$false)]
-        [switch]$IncludeDotNet,
-        [Parameter(Mandatory=$false)]
         [switch]$Default)
 
 # Disable Explorer first run
