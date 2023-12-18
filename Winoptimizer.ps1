@@ -348,9 +348,9 @@ Creator: Andreas6920 | https://github.com/Andreas6920/
         Switch ($option) { 
             0 { exit }
             1 { }
-            2 { .\win_antibloat.ps1; Add-Hash -Name "win_antibloat.ps1"; .\menu.ps1; }
-            3 { .\win_security.ps1; Add-Hash -Name "win_security.ps1"; .\menu.ps1; }
-            4 { .\win_settings.ps1; Add-Hash -Name "win_settings.ps1"; .\menu.ps1; }
+            2 { .\win_antibloat.ps1; Add-Hash -Name "win_antibloat"; .\menu.ps1; }
+            3 { .\win_security.ps1; Add-Hash -Name "win_security"; .\menu.ps1; }
+            4 { .\win_settings.ps1; Add-Hash -Name "win_settings"; .\menu.ps1; }
             5 {  Install-App; .\menu.ps1;}
             Default { } 
         }
