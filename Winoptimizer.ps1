@@ -339,6 +339,7 @@ Creator: Andreas6920 | https://github.com/Andreas6920/
     Start-Menu -Name "win_antibloat" -Number "2" -Rename "Clean Windows"
     Start-Menu -Name "win_security" -Number "3" -Rename "Secure Windows"
     Start-Menu -Name "win_settings" -Number "4" -Rename "Configure Windows"
+    Write-Host "`t[5] - Install Applications"
     Write-Host ""
     Write-Host "`t[0] - Quit"
     Write-Host ""

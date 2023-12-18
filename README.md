@@ -29,10 +29,7 @@
 ## Install
 open powershell <b>AS ADMIN</b> and run:
 ```
+
 $a = "$env:TMP\win.ps1"; iwr -useb https://git.io/JzrB5 -O $a; ipmo $a; Start-WinOptimizerUI
 
 ```
-
-
-$a = "$env:TMP\win.ps1"; iwr -useb https://git.io/JzrB5 -O $a; ipmo $a; Start-WinOptimizerUI
-iwr -useb https://git.io/JzrB5 -O "$env:TMP\win.ps1"; Import-Module "$env:TMP\win.ps1"; Start-WinOptimizerUI
