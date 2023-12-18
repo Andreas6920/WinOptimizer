@@ -116,6 +116,10 @@ function Install-App {
         [Parameter(Mandatory=$false)]
         [switch]$EnableAutoupdate,
         [Parameter(Mandatory=$false)]
+        [switch]$IncludeVisualPlusplus,
+        [Parameter(Mandatory=$false)]
+        [switch]$IncludeDotNet,
+        [Parameter(Mandatory=$false)]
         [switch]$Default)
 
 # Disable Explorer first run
@@ -242,12 +246,36 @@ function Install-App {
     # Add entries to template, insert template in installer script
         Add-content -Value (invoke-webrequest "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/app-template.txt").Content.replace('REPLACE-ME-NAME', $header).replace('REPLACE-ME-APP', $package) -Path $appinstallerscript}
 
+
    # Execute installer script
         Write-Host "Starting installation script" -f Yellow
         Start-Job -Name "Installation" -ScriptBlock  { Start-Process Powershell -argument "-Ep bypass -Windowstyle Hidden -file `"""C:\ProgramData\WinOptimizer\win_appinstaller\app_installerscript.ps1""`"" } | Out-Null
         Write-Host "Installing applications. (This may take a while)" -f Yellow
         Wait-Job -Name "Installation"  | Out-Null
     
+    # Microsoft Visual C++
+        if ($IncludeVisualPlusplus){
+            # Download
+                $link = "https://drive.google.com/uc?export=download&confirm=uc-download-link&id=1mHvNVA_pI0XnWyjRDNee0vhQxLp6agp_"
+                $FileDestination = "$($env:TMP)\drivers.zip"
+                $path = ($FileDestination | split-path -parent)
+                (New-Object net.webclient).Downloadfile($link, $FileDestination)
+            # Unzip
+                Expand-Archive $FileDestination -DestinationPath $path | Out-Null; 
+                Start-Sleep -s 5
+            # Install
+                Set-Location $path
+                ./vcredist2005_x64.exe /q | Out-Null
+                ./vcredist2008_x64.exe /qb | Out-Null
+                ./vcredist2010_x64.exe /passive /norestart | Out-Null
+                ./vcredist2012_x64.exe /passive /norestart | Out-Null
+                ./vcredist2013_x64.exe /passive /norestart | Out-Null
+                ./vcredist2015_2017_2019_2022_x64.exe /passive /norestart | Out-Null
+                restart-explorer
+                Write-Host "`t`t- Installation complete." -f Green;}
+
+    
+
     #Scheduling application updater service
         if(!$Name){
             Do {
