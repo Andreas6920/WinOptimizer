@@ -1,5 +1,6 @@
 ﻿#Install
     # TLS upgrade
+    Clear-Host
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
     # Disable Explorer first run
