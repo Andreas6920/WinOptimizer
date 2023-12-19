@@ -385,7 +385,7 @@ do {
             3 { .\win_security.ps1; Add-Hash -Name "win_security";  Start-WinOptimizerUI; }
             4 { .\win_settings.ps1; Add-Hash -Name "win_settings";  Start-WinOptimizerUI; }
             5 {  Install-App; Start-WinOptimizerUI;}
-            Default {  Write-Host "INVALID OPTION. TRY AGAIN.." -f red; Start-Sleep -s 3; Start-WinOptimizerUI } 
+            Default {  Write-Host "INVALID OPTION. TRY AGAIN.." -f red; Start-Sleep -s 2; Start-WinOptimizerUI } 
         }
 }
 
