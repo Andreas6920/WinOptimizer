@@ -1,4 +1,9 @@
 ﻿#Install
+    $admin_permissions_check = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+    $admin_permissions_check = $admin_permissions_check.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    if ($admin_permissions_check) {
+
+
     # TLS upgrade
     Clear-Host
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -341,7 +346,7 @@ Function Install-AppUpdater {
 
 
 Function Start-WinOptimizerUI {
-Clear-Host
+
 $intro = 
 "
  _       ___       ____        __  _           _                
@@ -358,8 +363,9 @@ Creator: Andreas6920 | https://github.com/Andreas6920/
 
 # Start Menu
 
+do {
     Set-Location (Join-path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -Childpath "WinOptimizer")
-    #Clear-Host
+    Clear-Host
     Write-Host $intro -f Yellow 
     Write-Host "`t[1] - All"
     Start-Menu -Name "win_antibloat" -Number "2" -Rename "Clean Windows"
@@ -381,8 +387,22 @@ Creator: Andreas6920 | https://github.com/Andreas6920/
             5 {  Install-App; Start-WinOptimizerUI;}
             Default { } 
         }
+}
+
+while ($option -ne 5 )
 
 
 
 
 }
+
+
+}
+else {
+    1..99 | % {
+        $Warning_message = "POWERSHELL IS NOT RUNNING AS ADMINISTRATOR. Please close this and run this script as administrator."
+        cls; ""; ""; ""; ""; ""; Write-Host $Warning_message -ForegroundColor White -BackgroundColor Red; ""; ""; ""; ""; ""; Start-Sleep 1; cls
+        cls; ""; ""; ""; ""; ""; Write-Host $Warning_message -ForegroundColor White; ""; ""; ""; ""; ""; Start-Sleep 1; cls
+    }    
+} 
+Start-WinOptimizerUI
