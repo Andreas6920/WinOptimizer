@@ -1,42 +1,4 @@
-﻿Function Add-Reg {
-
-    param (
-        [Parameter(Mandatory=$true)]
-        [string]$Path,
-        [Parameter(Mandatory=$true)]
-        [string]$Name,
-        [Parameter(Mandatory=$true)]
-        [ValidateSet('String', 'ExpandString', 'Binary', 'DWord', 'MultiString', 'Qword',' Unknown')]
-        [String]$Type,
-        [Parameter(Mandatory=$true)]
-        [string]$Value
-    )
-
-If (!(Test-Path $path)) {New-Item -Path $path -Force | Out-Null}; 
-Set-ItemProperty -Path $path -Name $name -Type $type -Value $value -Force | Out-Null
-
-}
-
-Function Start-Input{
-    $code = @"
-[DllImport("user32.dll")]
-public static extern bool BlockInput(bool fBlockIt);
-"@
-    $userInput = Add-Type -MemberDefinition $code -Name UserInput -Namespace UserInput -PassThru
-    $userInput::BlockInput($false)
-    }
-
-Function Stop-Input{
-    $code = @"
-[DllImport("user32.dll")]
-public static extern bool BlockInput(bool fBlockIt);
-"@
-    $userInput = Add-Type -MemberDefinition $code -Name UserInput -Namespace UserInput -PassThru
-    $userInput::BlockInput($true)
-    }
-
-
-    Write-Host "`n`tENHANCE WINDOWS PRIVACY" -f Green
+﻿    Write-Host "`n`tENHANCE WINDOWS PRIVACY" -f Green
      
 
     # Adding entries to hosts file
