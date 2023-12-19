@@ -385,7 +385,7 @@ do {
             3 { .\win_security.ps1; Add-Hash -Name "win_security";  Start-WinOptimizerUI; }
             4 { .\win_settings.ps1; Add-Hash -Name "win_settings";  Start-WinOptimizerUI; }
             5 {  Install-App; Start-WinOptimizerUI;}
-            Default { cls; Write-Host""; Write-Host""; Write-Host "INVALID OPTION. TRY AGAIN.." -f red; Write-Host""; Write-Host""; Start-Sleep 1; cls; Write-Host ""; Write-Host "" } 
+            Default {  Write-Host "INVALID OPTION. TRY AGAIN.." -f red; Start-Sleep -s 3; Start-WinOptimizerUI } 
         }
 }
 
@@ -405,4 +405,3 @@ else {
         cls; ""; ""; ""; ""; ""; Write-Host $Warning_message -ForegroundColor White; ""; ""; ""; ""; ""; Start-Sleep 1; cls
     }    
 } 
-Start-WinOptimizerUI
