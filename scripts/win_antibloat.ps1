@@ -158,7 +158,8 @@
             "UsbCeip"
             "UsbCeip" 
             "WinSAT" 
-            "XblGameSaveTask")
+            "XblGameSaveTask"
+            "PcaPatchDbTask")
 
             foreach ($BloatSchedule in $BloatSchedules) {
             if ((Get-ScheduledTask | Where-Object state -ne Disabled | Where-Object TaskName -like $BloatSchedule)){
