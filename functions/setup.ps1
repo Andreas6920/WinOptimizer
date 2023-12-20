@@ -1,7 +1,8 @@
    # TLS upgrade
-    Clear-Host
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-    Write-host "Loading" -NoNewline
+        Clear-Host
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        Write-host "Loading" -NoNewline
+        
     # Disable Explorer first run
         $RegistryKey = "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main"
             If (!(Test-Path $RegistryKey)) {New-Item -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Force | Out-Null}
@@ -36,3 +37,9 @@
         # Creating Missing Regkeys
             if (!((Get-Item -Path $reg_install).Property -match $filename)){Set-ItemProperty -Path $reg_install -Name $filename -Type String -Value 0}}
 
+    # Preparing Functions
+        $Link = "https://github.com/Andreas6920/WinOptimizer/blob/main/functions/WinOpt.psm1" 
+        $Path = join-path -Path $Basefolder -ChildPath (split-path $link -Leaf)
+        Invoke-WebRequest -Uri $Link -OutFile $Path -UseBasicParsing
+        Import-Module $path
+    
