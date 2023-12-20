@@ -218,13 +218,17 @@
             Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowCortanaButton -Type DWord -Value 0 | Out-Null
             Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Search -Name SearchboxTaskbarMode -Value 0 -Type Dword | Out-Null
             Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowTaskViewButton -Type DWord -Value 0 | Out-Null
+            Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Feeds" -Name "ShellFeedsTaskbarViewMode" -Value 2
 
             Write-Host "`t        - Removing shortcuts.." -f Yellow
             Remove-Item -Path "$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*" -Recurse -Force  | Out-Null
             restart-explorer
             Write-Host "`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;
-
+    # 
+            
+    
         
+
     # Cleaning printers
         Write-Host "`t    Cleaning Printers:" -f Green
         Start-Sleep -s 5    
