@@ -3,7 +3,7 @@
 
     # Adding entries to hosts file
         Write-Host "`t    Blocking Microsoft's Tracking domains:" -f Green
-        Write-Host "`t        - Will start in the background." -f Yellow
+        Write-Host "`t        - Will start in the background" -f Yellow
         $link = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/block-domains.ps1"
         $file = "$dir\"+(Split-Path $link -Leaf)
         (New-Object net.webclient).Downloadfile("$link", "$file"); 
@@ -13,7 +13,7 @@
 
     # Blocking Microsoft Tracking IP's in the firewall
         Write-Host "`t    Blocking Microsoft's tracking IP's:" -f Green
-        Write-Host "`t        - Will start in the background." -f Yellow
+        Write-Host "`t        - Will start in the background" -f Yellow
         $link = "https://github.com/Andreas6920/WinOptimizer/blob/main/scripts/block-ips.ps1"
         $file = "$dir\"+(Split-Path $link -Leaf)
         (New-Object net.webclient).Downloadfile("$link", "$file"); 
@@ -33,27 +33,27 @@
             Start-Sleep -s 2
         
         # Disable Show me suggested content in the Settings app
-            Write-Host "`t        - Disabling personalized content suggestions." -f Yellow
+            Write-Host "`t        - Disabling personalized content suggestions" -f Yellow
             $keys = "SubscribedContent-338393Enabled","SubscribedContent-353694Enabled", "SubscribedContent-353696Enabled" 
             $keys | % {Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "$_" -Type "DWord" -Value "0"}
             Start-Sleep -s 2
         
         # Remove Cortana
-            Write-Host "`t        - Disabling Cortana." -f Yellow
+            Write-Host "`t        - Disabling Cortana" -f Yellow
             $ProgressPreference = "SilentlyContinue"
             Get-AppxPackage -name *Microsoft.549981C3F5F10* | Remove-AppxPackage
             Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Type "DWord" -Value "0"
             $ProgressPreference = "Continue"
-            restart-explorer
+            Restart-Explorer
             Start-Sleep -s 5
 
         # Disable Online Speech Recognition
-            Write-Host "`t        - Disabling Online Speech Recognition." -f Yellow
+            Write-Host "`t        - Disabling Online Speech Recognition" -f Yellow
             Add-Reg -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "HasAccepted" -Type "DWord" -Value "0"
             Start-Sleep -s 2
         
         # Hiding personal information from lock screen
-            Write-Host "`t        - Disabling sign-in screen notifications." -f Yellow
+            Write-Host "`t        - Disabling sign-in screen notifications" -f Yellow
             $keys = "DontDisplayLockedUserID","DontDisplayLastUsername";
             $keys | % {Add-Reg -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "$_" -Type "DWORD" -Value "0"}
             Start-Sleep -s 2
@@ -64,14 +64,23 @@
             Start-Sleep -s 2
         
         # Disable App Launch Tracking
-            Write-Host "`t        - Disabling App Launch Tracking." -f Yellow
+            Write-Host "`t        - Disabling App Launch Tracking" -f Yellow
             Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackProgs" -Type "DWORD" -Value "0"
             Start-Sleep -s 2
 
         # Disable "tailored expirence"
-            Write-Host "`t        - Disabling tailored expirience." -f Yellow
+            Write-Host "`t        - Disabling tailored expirience" -f Yellow
             Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Name "TailoredExperiencesWithDiagnosticDataEnabled" -Type "DWORD" -Value "0"
             Start-Sleep -s 2
+        
+        # Disable application telemetry
+            Write-Host "`t        - Disabling application telemetry" -f Yellow
+            Add-Reg -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppCompat" -Name "AITEnable" -Type "DWORD" -Value "0"
+            Start-Sleep -s 2
+
+
+
+
 
     # Send Microsoft a request to delete collected data about you.
         
@@ -116,15 +125,28 @@
             # https://www.blackhillsinfosec.com/how-to-disable-llmnr-why-you-want-to/
             Write-Host "`t        - Disabling LLMNR." -f yellow
             Add-Reg -Path "HKLM:\Software\policies\Microsoft\Windows NT\DNSClient" -Name "EnableMulticast" -Type "DWORD" -Value "0"
-        
+            Start-Sleep -s 2
+
+
+        # Disable Wi-Fi Sense
+            # https://www.blackhillsinfosec.com/how-to-disable-llmnr-why-you-want-to/
+            Write-Host "`t        - Disabling Wi-Fi Sense." -f yellow
+            If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting")) {New-Item -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting" -Force | Out-Null}
+            Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting" -Name "Value" -Value 0
+            Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi\AllowAutoConnectToWiFiSenseHotspots" -Name "Value" -Value 0
+            Start-Sleep -s 2
+
+
         # Bad Neighbor - CVE-2020-16898 (Disable IPv6 DNS)
             # https://blog.rapid7.com/2020/10/14/there-goes-the-neighborhood-dealing-with-cve-2020-16898-a-k-a-bad-neighbor/
             Write-Host "`t        - Patching Bad Neighbor (CVE-2020-16898)." -f Yellow
-                # Disable DHCPv6  + routerDiscovery
-                Set-NetIPInterface -AddressFamily IPv6 -InterfaceIndex $(Get-NetIPInterface -AddressFamily IPv6 | Select-Object -ExpandProperty InterfaceIndex) -RouterDiscovery Disabled -Dhcp Disabled
-                # Prefer IPv4 over IPv6 (IPv6 is prefered by default)
-                Add-Reg -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" -Name "DisabledComponents" -Type "DWORD" -Value "0x20"
+            # Disable DHCPv6  + routerDiscovery
+            Set-NetIPInterface -AddressFamily IPv6 -InterfaceIndex $(Get-NetIPInterface -AddressFamily IPv6 | Select-Object -ExpandProperty InterfaceIndex) -RouterDiscovery Disabled -Dhcp Disabled
+            # Prefer IPv4 over IPv6 (IPv6 is prefered by default)
+            Add-Reg -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" -Name "DisabledComponents" -Type "DWORD" -Value "0x20"
+            Start-Sleep -s 2
         
+
         # Disabe SMB Compression - CVE-2020-0796
             # https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2020-0796
             Write-Host "`t        - Disabling SMB Compression." -f Yellow
