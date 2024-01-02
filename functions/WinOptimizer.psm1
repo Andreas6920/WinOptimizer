@@ -50,6 +50,7 @@ public static extern bool BlockInput(bool fBlockIt);
     $userInput::BlockInput($true)
     }
 
+
 Function Add-Reg {
         
         param (
@@ -64,10 +65,20 @@ Function Add-Reg {
             [string]$Value
         )
 
-    If (!(Test-Path $path)) {New-Item -Path $path -Force | Out-Null}; 
-    Set-ItemProperty -Path $path -Name $name -Type $type -Value $value -Force | Out-Null
+    # If base reg exists
+    If (!(Test-Path $path)){New-Item -Path $path -Force | Out-Null}; 
+    
+    # If reg key exists
+    if((Get-Item -Path $path).Property -match $name){
+      # If value is not the same, change it
+        if ((Get-ItemPropertyValue $path -Name $name) -ne $Value){Set-ItemProperty -Path $path -Name $Name -Value $Value -Type $Type -Force | Out-Null}}
+    
+    # If reg key does not exist, create it
+    else{Set-ItemProperty -Path $path -Name $Name -Value $Value -Type $Type -Force | Out-Null}
+    }
 
-}
+
+
 
 Function Install-App {
     param (
@@ -331,7 +342,10 @@ do {
         $option = Read-Host
         Switch ($option) { 
             0 { exit }
-            1 { }
+            1 { .\win_antibloat.ps1; Add-Hash -Name "win_antibloat";
+                .\win_security.ps1; Add-Hash -Name "win_security";
+                .\win_security.ps1; Add-Hash -Name "win_security";
+                Install-App; Start-WinOptimizerUI;}
             2 { .\win_antibloat.ps1; Add-Hash -Name "win_antibloat";  Start-WinOptimizerUI; }
             3 { .\win_security.ps1; Add-Hash -Name "win_security";  Start-WinOptimizerUI; }
             4 { .\win_settings.ps1; Add-Hash -Name "win_settings";  Start-WinOptimizerUI; }
