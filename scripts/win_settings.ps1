@@ -1,7 +1,5 @@
 ﻿Write-Host "`n`tENHANCE WINDOWS Settings" -f Green
 
-
-
     # Remove login screensaver
         Write-Host "`t    - Disabling Defender positive notifications" -f Green
         Add-Reg -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender\Reporting" -Name "DisableEnhancedNotifications" -Type "DWORD" -Value "1"
