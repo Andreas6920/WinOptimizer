@@ -3,7 +3,7 @@
 
 
     # Remove login screensaver
-        Write-Host "`t    - Disabling screensaver on login screen" -f Green
+        Write-Host "`t    - Disabling Defender positive notifications" -f Green
         Add-Reg -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender\Reporting" -Name "DisableEnhancedNotifications" -Type "DWORD" -Value "1"
     
     # Disable LockScreen ScreenSaver? To prevent missing first character
