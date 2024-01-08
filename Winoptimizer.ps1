@@ -95,7 +95,7 @@ public static extern bool BlockInput(bool fBlockIt);
     $userInput::BlockInput($true)
     }
 
-function Add-Reg {
+Function Add-Reg {
         
         param (
             [Parameter(Mandatory=$true)]
@@ -114,7 +114,7 @@ function Add-Reg {
 
 }
 
-function Install-App {
+Function Install-App {
     param (
         [Parameter(Mandatory=$false)]
         [string]$Name,
