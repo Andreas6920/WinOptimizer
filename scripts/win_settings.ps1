@@ -13,12 +13,12 @@
     # Taskbar: Hide Searchbox
         Write-Host "`t    - Taskbar: Hide the searchbox" -f Green
         Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type "DWORD" -Value "0"
-        restart-explorer
+        Restart-Explorer
         
     # Taskbar: Hide task view button
         Write-Host "`t    - Taskbar: Hide task view" -f Green
         Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\MultiTaskingView" -Name "ShowTaskViewButton" -Type "DWORD" -Value "0"
-        restart-explorer
+        Restart-Explorer
 
     # Show file extensions
         Write-Host "`t    - Show file extensions" -f Green
