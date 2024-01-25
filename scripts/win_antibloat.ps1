@@ -1,6 +1,60 @@
 ﻿    Write-Host "`n`tREMOVING WINDOWS BLOAT" -f Green
     Start-Sleep -s 3
     
+    # Clean start menu
+        Write-Host "`t    Cleaning Start Menu:" -f Green
+        Start-Sleep -s 3
+    
+            # Prepare
+            $link = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/StartMenuLayout.xml"
+            $File = "$($env:SystemRoot)\StartMenuLayout.xml"
+            $keys = "HKLM:\Software\Policies\Microsoft\Windows\Explorer","HKCU:\Software\Policies\Microsoft\Windows\Explorer"; 
+                
+            # Download blank Start Menu file
+            Write-Host "`t        - Downloading Start Menu file..." -f Yellow;
+            (New-Object net.webclient).Downloadfile("$link", "$file"); 
+                            
+            # Unlock start menu, disable pinning, replace with blank file
+            Write-Host "`t        - Unlocking and replacing current file..." -f Yellow;
+            $keys | % { if(!(test-path $_)){ New-Item -Path $_ -Force | Out-Null; Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 1; Set-ItemProperty -Path $_ -Name "StartLayoutFile" -Value $File } }
+            
+            # Restart explorer
+            Restart-Explorer
+
+            # Enable pinning
+            Write-Host "`t        - Fixing pinning..." -f Yellow
+            $keys | % { Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 0 }
+            
+            #Restart explorer
+            Restart-Explorer
+
+            # Save menu to all users
+            Write-Host "`t        - Save changes to all users.." -f Yellow
+            Import-StartLayout -LayoutPath $File -MountPath $env:SystemDrive\
+
+            # Clean up after script
+            Remove-Item $File
+            Write-Host "`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;
+        
+    # Clean Taskbar
+        Write-Host "`t    Cleaning Taskbar:" -f Green
+        Start-Sleep -s 5
+        
+            Write-Host "`t        - Setting registrykeys.." -f Yellow
+            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesChanges" -Type "Dword" -Value "3"
+            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesRemovedChanges" -Type "Dword" -Value "32"
+            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesVersion" -Type "Dword"-Value "3" 
+            Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name Favorites -Value ([byte[]](0xFF)) -Force | Out-Null
+            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Type "DWord" -Value "0"
+            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type "Dword" -Value "0" 
+            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type "DWord" -Value "0" 
+            Add-Reg -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Feeds" -Name "ShellFeedsTaskbarViewMode" -Type "DWord" -Value "2"
+            Write-Host "`t        - Removing shortcuts.." -f Yellow
+            $PinnedPath = Join-path -Path ([Environment]::GetFolderPath("ApplicationData")) -Childpath "\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*"
+            If (test-path $PinnedPath){Remove-Item -Path $PinnedPath -Recurse -Force }
+            Restart-Explorer
+            Write-Host "`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;
+
     # Clean Apps and features
         # List
         Write-Host "`t    Cleaning Bloatware:" -f Green
@@ -166,63 +220,7 @@
             Write-Host "`t        - Disabling: $BloatSchedule" -f Yellow
             Get-ScheduledTask | Where-Object Taskname -eq $BloatSchedule | Disable-ScheduledTask | Out-Null
             Start-Sleep -S 1}}
-            Write-Host "`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;
-        
-
-            
-    # Clean start menu
-        Write-Host "`t    Cleaning Start Menu:" -f Green
-        Start-Sleep -s 3
-    
-            # Prepare
-            $link = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/StartMenuLayout.xml"
-            $File = "$($env:SystemRoot)\StartMenuLayout.xml"
-            $keys = "HKLM:\Software\Policies\Microsoft\Windows\Explorer","HKCU:\Software\Policies\Microsoft\Windows\Explorer"; 
-                
-            # Download blank Start Menu file
-            Write-Host "`t        - Downloading Start Menu file..." -f Yellow;
-            (New-Object net.webclient).Downloadfile("$link", "$file"); 
-                            
-            # Unlock start menu, disable pinning, replace with blank file
-            Write-Host "`t        - Unlocking and replacing current file..." -f Yellow;
-            $keys | % { if(!(test-path $_)){ New-Item -Path $_ -Force | Out-Null; Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 1; Set-ItemProperty -Path $_ -Name "StartLayoutFile" -Value $File } }
-            
-            # Restart explorer
-            Restart-Explorer
-
-            # Enable pinning
-            Write-Host "`t        - Fixing pinning..." -f Yellow
-            $keys | % { Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 0 }
-            
-            #Restart explorer
-            Restart-Explorer
-
-            # Save menu to all users
-            Write-Host "`t        - Save changes to all users.." -f Yellow
-            Import-StartLayout -LayoutPath $File -MountPath $env:SystemDrive\
-
-            # Clean up after script
-            Remove-Item $File
-            Write-Host "`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;
-        
-    # Clean Taskbar
-        Write-Host "`t    Cleaning Taskbar:" -f Green
-        Start-Sleep -s 5
-        
-            Write-Host "`t        - Setting registrykeys.." -f Yellow
-            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesChanges" -Type "Dword" -Value "3"
-            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesRemovedChanges" -Type "Dword" -Value "32"
-            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesVersion" -Type "Dword"-Value "3" 
-            Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name Favorites -Value ([byte[]](0xFF)) -Force | Out-Null
-            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Type "DWord" -Value "0"
-            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type "Dword" -Value "0" 
-            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type "DWord" -Value "0" 
-            Add-Reg -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Feeds" -Name "ShellFeedsTaskbarViewMode" -Type "DWord" -Value "2"
-            Write-Host "`t        - Removing shortcuts.." -f Yellow
-            $PinnedPath = Join-path -Path ([Environment]::GetFolderPath("ApplicationData")) -Childpath "\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*"
-            If (test-path $PinnedPath){Remove-Item -Path $PinnedPath -Recurse -Force }
-            Restart-Explorer
-            Write-Host "`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;
+            Write-Host "`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;       
 
     # Cleaning printers
         Write-Host "`t    Cleaning Printers:" -f Green
