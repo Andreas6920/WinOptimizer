@@ -327,22 +327,22 @@ Function Install-AppUpdater {
     Function Start-WinAntiBloat {
         $Link = $win_antibloat
         $filepath = Join-path -Path $basefolder -ChildPath "win_antibloat.ps1"
-        if(!(test-path $filpath)){Invoke-WebRequest -Uri $Link -OutFile $Path -UseBasicParsing}
-        Import-Module $filpath
+        if(!(test-path $filepath)){Invoke-WebRequest -Uri $Link -OutFile $Path -UseBasicParsing}
+        Import-Module $filepath
         Add-Hash -Name "win_antibloat"}
 
     Function Start-WinSecurity {
         $Link = $win_security
         $filepath = Join-path -Path $basefolder -ChildPath "win_security.ps1"
-        if(!(test-path $filpath)){Invoke-WebRequest -Uri $Link -OutFile $Path -UseBasicParsing}
-        Import-Module $filpath
+        if(!(test-path $filepath)){Invoke-WebRequest -Uri $Link -OutFile $Path -UseBasicParsing}
+        Import-Module $filepath
         Add-Hash -Name "win_security"}
 
     Function Start-WinSettings {
         $Link = $win_security
         $filepath = Join-path -Path $basefolder -ChildPath "win_security.ps1"
-        if(!(test-path $filpath)){Invoke-WebRequest -Uri $Link -OutFile $Path -UseBasicParsing}
-        Import-Module $filpath
+        if(!(test-path $filepath)){Invoke-WebRequest -Uri $Link -OutFile $Path -UseBasicParsing}
+        Import-Module $filepath
         Add-Hash -Name "win_settings"}
 
 
