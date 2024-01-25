@@ -1,3 +1,8 @@
+
+
+
+
+
 Function Restart-Explorer {
             <# When explorer restarts with the regular stop-process function, the active PowerShell loses focus,
             which means you'll have to click on the window in order to enter your input. here's the hotfix. #>
@@ -310,6 +315,39 @@ Function Install-AppUpdater {
     $User = If ($Args[0]) {$Args[0]} Else {[Environment]::UserName}
     Register-ScheduledTask -TaskName $Taskname -Action $Taskaction -Settings $Tasksettings -Trigger $Tasktrigger -User $User -RunLevel Highest -Force | Out-Null
 }
+
+
+
+
+        $win_antibloat = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/win_antibloat.ps1"
+        $win_security = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/win_security.ps1"
+        $win_settings = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/win_settings.ps1"
+        $Basefolder = Join-path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -Childpath "WinOptimizer"
+
+    Function Start-WinAntiBloat {
+        $Link = $win_antibloat
+        $filepath = Join-path -Path $basefolder -ChildPath "win_antibloat.ps1"
+        if(!(test-path $filpath)){Invoke-WebRequest -Uri $Link -OutFile $Path -UseBasicParsing}
+        Import-Module $filpath
+        Add-Hash -Name "win_antibloat"}
+
+    Function Start-WinSecurity {
+        $Link = $win_security
+        $filepath = Join-path -Path $basefolder -ChildPath "win_security.ps1"
+        if(!(test-path $filpath)){Invoke-WebRequest -Uri $Link -OutFile $Path -UseBasicParsing}
+        Import-Module $filpath
+        Add-Hash -Name "win_security"}
+
+    Function Start-WinSettings {
+        $Link = $win_security
+        $filepath = Join-path -Path $basefolder -ChildPath "win_security.ps1"
+        if(!(test-path $filpath)){Invoke-WebRequest -Uri $Link -OutFile $Path -UseBasicParsing}
+        Import-Module $filpath
+        Add-Hash -Name "win_settings"}
+
+
+
+
 
 Function Start-WinOptimizerUI {
 
