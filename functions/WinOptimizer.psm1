@@ -349,7 +349,7 @@ Function Install-AppUpdater {
 
 
 
-Function Start-WinOptimizerUI {
+Function Start-WinOptimizer {
 
 $intro = 
 "
