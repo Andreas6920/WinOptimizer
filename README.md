@@ -30,6 +30,6 @@ Optimize your windows system by removing bloat (like Xbox, Minecraft, bing, ads)
 open powershell <b>AS ADMIN</b> and run:
 ```
 
-$a = "$env:TMP\win.ps1"; iwr -useb https://git.io/JzrB5 -O $a; ipmo $a; Start-WinOptimizerUI
+iwr -useb https://git.io/JzrB5 -O "$env:TMP\Winoptimizer.ps1"; ipmo "$env:TMP\Winoptimizer.ps1"; Start-WinOptimizer
 
 ```
