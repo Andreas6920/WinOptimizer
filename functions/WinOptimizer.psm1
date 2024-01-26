@@ -417,13 +417,13 @@ do {
             0 { exit }
             1 { .\win_antibloat.ps1; Add-Hash -Name "win_antibloat";
                 .\win_security.ps1; Add-Hash -Name "win_security";
-                .\win_security.ps1; Add-Hash -Name "win_security";
-                Install-App; Start-WinOptimizerUI;}
-            2 { .\win_antibloat.ps1; Add-Hash -Name "win_antibloat";  Start-WinOptimizerUI; }
-            3 { .\win_security.ps1; Add-Hash -Name "win_security";  Start-WinOptimizerUI; }
-            4 { .\win_settings.ps1; Add-Hash -Name "win_settings";  Start-WinOptimizerUI; }
-            5 {  Install-App; Start-WinOptimizerUI;}
-            Default {  Write-Host "INVALID OPTION. TRY AGAIN.." -f red; Start-Sleep -s 2; Start-WinOptimizerUI } 
+                .\win_settings.ps1; Add-Hash -Name "win_security";
+                Install-App; Start-WinOptimizer;}
+            2 { .\win_antibloat.ps1; Add-Hash -Name "win_antibloat";  Start-WinOptimizer; }
+            3 { .\win_security.ps1; Add-Hash -Name "win_security";  Start-WinOptimizer; }
+            4 { .\win_settings.ps1; Add-Hash -Name "win_settings";  Start-WinOptimizer; }
+            5 {  Install-App; Start-WinOptimizer;}
+            Default {  Write-Host "INVALID OPTION. TRY AGAIN.." -f red; Start-Sleep -s 2; Start-WinOptimizer } 
         }
 }
 

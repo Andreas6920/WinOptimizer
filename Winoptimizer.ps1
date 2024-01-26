@@ -3,6 +3,9 @@
     $admin_permissions_check = $admin_permissions_check.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
     if ($admin_permissions_check) {
     
+        # Execution policy
+        Set-ExecutionPolicy -ExecutionPolicy "Bypass" -Scope "Process" -Force
+
         # TLS upgrade
             Clear-Host
             [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
