@@ -356,26 +356,25 @@ Function Install-AppUpdater {
         $Basefolder = Join-path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -Childpath "WinOptimizer"
 
     Function Start-WinAntiBloat {
-        $Link = $win_antibloat
-        $filepath = Join-path -Path $basefolder -ChildPath "win_antibloat.ps1"
-        if(!(test-path $filepath)){Invoke-WebRequest -Uri $Link -OutFile $Path -UseBasicParsing}
-        Import-Module $filepath
-        Add-Hash -Name "win_antibloat"}
+            $Link = $win_antibloat
+            $Filepath = Join-path -Path $basefolder -ChildPath "win_antibloat.ps1"
+            if(!(test-path $Filepath)){New-Item -Path $Filepath -Force | Out-Null}
+        Invoke-WebRequest -Uri $Link -OutFile $Filepath -UseBasicParsing
+        Import-Module $Filepath; Add-Hash -Name "win_antibloat"}
 
     Function Start-WinSecurity {
-        $Link = $win_security
-        $filepath = Join-path -Path $basefolder -ChildPath "win_security.ps1"
-        if(!(test-path $filepath)){Invoke-WebRequest -Uri $Link -OutFile $Path -UseBasicParsing}
-        Import-Module $filepath
-        Add-Hash -Name "win_security"}
+            $Link = $win_security
+            $Filepath = Join-path -Path $basefolder -ChildPath "win_security.ps1"
+            if(!(test-path $Filepath)){New-Item -Path $Filepath -Force | Out-Null}
+        Invoke-WebRequest -Uri $Link -OutFile $Filepath -UseBasicParsing
+        Import-Module $Filepath; Add-Hash -Name "win_security"}
 
     Function Start-WinSettings {
-        $Link = $win_security
-        $filepath = Join-path -Path $basefolder -ChildPath "win_security.ps1"
-        if(!(test-path $filepath)){Invoke-WebRequest -Uri $Link -OutFile $Path -UseBasicParsing}
-        Import-Module $filepath
-        Add-Hash -Name "win_settings"}
-
+            $Link = $win_settings
+            $Filepath = Join-path -Path $basefolder -ChildPath "win_settings.ps1"
+            if(!(test-path $Filepath)){New-Item -Path $Filepath -Force | Out-Null}
+        Invoke-WebRequest -Uri $Link -OutFile $Filepath -UseBasicParsing
+        Import-Module $Filepath; Add-Hash -Name "win_settings"}
 
 
 
@@ -415,14 +414,11 @@ do {
         $option = Read-Host
         Switch ($option) { 
             0 { exit }
-            1 { .\win_antibloat.ps1; Add-Hash -Name "win_antibloat";
-                .\win_security.ps1; Add-Hash -Name "win_security";
-                .\win_settings.ps1; Add-Hash -Name "win_security";
-                Install-App; Start-WinOptimizer;}
-            2 { .\win_antibloat.ps1; Add-Hash -Name "win_antibloat";  Start-WinOptimizer; }
-            3 { .\win_security.ps1; Add-Hash -Name "win_security";  Start-WinOptimizer; }
-            4 { .\win_settings.ps1; Add-Hash -Name "win_settings";  Start-WinOptimizer; }
-            5 {  Install-App; Start-WinOptimizer;}
+            1 { Start-WinAntiBloat; Start-WinSecurity; Start-WinSettings; Start-WinOptimizer}
+            2 { Start-WinAntiBloat; Start-WinOptimizer; }
+            3 { Start-WinSecurity; Start-WinOptimizer; }
+            4 { Start-WinSettings; Start-WinOptimizer; }
+            5 { Install-App; Start-WinOptimizer;}
             Default {  Write-Host "INVALID OPTION. TRY AGAIN.." -f red; Start-Sleep -s 2; Start-WinOptimizer } 
         }
 }
