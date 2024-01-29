@@ -1,19 +1,18 @@
-﻿#Install
+﻿# Execution policy
+    Set-ExecutionPolicy -Scope Process Unrestricted -Force
+#Install
     $admin_permissions_check = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
     $admin_permissions_check = $admin_permissions_check.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
     if ($admin_permissions_check) {
     
-        # Execution policy
-        Set-ExecutionPolicy -ExecutionPolicy "Bypass" -Scope "Process" -Force
-
         # TLS upgrade
             Clear-Host
             [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
             Write-host "Loading" -NoNewline
 
-        # Install Shit
+        # Install module
             $BaseFolder = Join-path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -Childpath "WinOptimizer"
-            if(!(test-path $BaseFolder)){Write-host "." -NoNewline; new-item -itemtype Directory -Path $BaseFolder -ErrorAction SilentlyContinue | Out-Null }
+            if(!(test-path $BaseFolder)){Write-host "." -NoNewline; new-item -itemtype Directory -Path $BaseFolder -Force -ErrorAction SilentlyContinue | Out-Null }
 
             $modulepath = $env:PSmodulepath.split(";")[1]
             $module = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/functions/WinOptimizer.psm1"
@@ -26,10 +25,6 @@
             (New-Object net.webclient).Downloadfile($module, $filedestination)
             # Install module
             Import-module -name $filename
-    
-
-        # Preparing Functions
-        
         
     }
     else {
