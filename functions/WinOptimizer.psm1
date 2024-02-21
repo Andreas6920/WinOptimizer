@@ -214,7 +214,7 @@ Function Install-App {
             elseif("opera" -match "$requested_app"){$header = "Opera"; $package = "opera"; Write-host "`t- $Header";} 
             elseif("vivaldi" -match "$requested_app"){$header = "Vivaldi"; $package = "vivaldi"; Write-host "`t- $Header";}
         # Tools
-            elseif("office2016" -match "$requested_app"){$header = "Microsoft Office 2016"; $package = "microsoft-office-deployment --params="+'"'+'+"' + "'/64bit /ProofingToolLanguage:da-dk,en-us'"; Write-host "`t- $Header";} 
+            elseif("Microsoftoffice2016" -match "$requested_app"){$header = "Microsoft Office 2016"; Write-host "`t- $Header";} 
             elseif("dropbox" -match "$requested_app"){$header = "Dropbox"; $package = "dropbox"; Write-host "`t- $Header";} 
             elseif("drive" -match "$requested_app"){$header = "Google Drive"; $package = "googledrive"; Write-host "`t- $Header";} 
             elseif("teamviewer" -match "$requested_app"){$header = "TeamViewer"; $package = "teamviewer"; Write-host "`t- $Header";} 
