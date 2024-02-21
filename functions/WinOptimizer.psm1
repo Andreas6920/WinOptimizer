@@ -259,8 +259,7 @@ Function Install-App {
 
    # Execute installer script
         Write-Host "Starting installation script" -f Yellow
-        #Start-Job -Name "Installation" -ScriptBlock  { Start-Process Powershell -argument "-Ep bypass -Windowstyle Hidden -file `"""C:\ProgramData\WinOptimizer\win_appinstaller\app_installerscript.ps1""`"" } | Out-Null
-        Start-Job -Name "Installation" -ScriptBlock  { Start-Process Powershell -argument "-Ep bypass -NoExit -file `"""C:\ProgramData\WinOptimizer\win_appinstaller\app_installerscript.ps1""`"" } | Out-Null
+        Start-Job -Name "Installation" -ScriptBlock  { Start-Process Powershell -argument "-Ep bypass -Windowstyle Hidden -file `"""C:\ProgramData\WinOptimizer\win_appinstaller\app_installerscript.ps1""`"" } | Out-Null
         Write-Host "Installing applications. (This may take a while)" -f Yellow
         Wait-Job -Name "Installation"  | Out-Null
     
