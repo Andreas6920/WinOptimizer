@@ -214,7 +214,7 @@ Function Install-App {
             elseif("opera" -match "$requested_app"){$header = "Opera"; $package = "opera"; Write-host "`t- $Header";} 
             elseif("vivaldi" -match "$requested_app"){$header = "Vivaldi"; $package = "vivaldi"; Write-host "`t- $Header";}
         # Tools
-            elseif("Microsoftoffice2016" -match "$requested_app"){$header = "Microsoft Office 2016"; Write-host "`t- $Header";} 
+            elseif("microsoftoffice2016" -match "$requested_app"){$header = "Microsoft Office 2016"; Write-host "`t- $Header";} 
             elseif("dropbox" -match "$requested_app"){$header = "Dropbox"; $package = "dropbox"; Write-host "`t- $Header";} 
             elseif("drive" -match "$requested_app"){$header = "Google Drive"; $package = "googledrive"; Write-host "`t- $Header";} 
             elseif("teamviewer" -match "$requested_app"){$header = "TeamViewer"; $package = "teamviewer"; Write-host "`t- $Header";} 
@@ -223,7 +223,7 @@ Function Install-App {
             elseif("Greenshot" -match "$requested_app"){$header = "Greenshot"; $package = "greenshot"; Write-host "`t- $Header";}
             elseif("sharex" -match "$requested_app"){$header = "ShareX"; $package = "sharex"; Write-host "`t- $Header";}
             elseif("gimp" -match "$requested_app"){$header = "Gimp"; $package = "gimp"; Write-host "`t- $Header";}
-            elseif("adobe" -match "$requested_app"){$header = "Adobe Acrobat Reader"; $package = "adobereader"; Write-host "`t- $Header";}
+            elseif("adobereader" -match "$requested_app"){$header = "Adobe Acrobat Reader"; $package = "adobereader"; Write-host "`t- $Header";}
         # Media Player
             elseif("spotify" -match "$requested_app"){$header = "Spotify"; $package = "Spotify"; Write-host "`t- $Header";}
             elseif("vlc" -match "$requested_app"){$header = "VLC"; $package = "VLC"; Write-host "`t- $Header";}
