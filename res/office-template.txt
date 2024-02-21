@@ -13,7 +13,7 @@
 # Installation
     Get-AppxPackage | Where-Object Name -Match "Microsoft.MicrosoftOfficeHub|Microsoft.Office.OneNote" | Remove-AppxPackage;
     Microsoft.MicrosoftOfficeHub","Microsoft.Office.OneNote" | %{ if (Get-AppxPackage | Where-Object Name -Like $_){Get-AppxPackage | Where-Object Name -Like $_ | Remove-AppxPackage; Start-Sleep -S 5}}
-    choco install microsoft-office-deployment --params="'/64bit /ProofingToolLanguage:da-dk,en-us'" -y;
+    choco install microsoft-office-deployment --params="'/Product:ProfessionalRetail /64bit /ProofingToolLanguage:da-dk,en-us'" -y;
 
 # Windows notification 2
     Add-Type -AssemblyName System.Windows.Forms
