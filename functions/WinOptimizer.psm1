@@ -254,8 +254,8 @@ Function Install-App {
             elseif("ubisoft" -match "$requested_app"){$header = "Ubisoft Connect"; $package = "ubisoft-connect";  Write-host "`t- $Header";}
 
     # Add entries to template, insert template in installer script
-        Add-content -Value (invoke-webrequest "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/app-template.txt").Content.replace('REPLACE-ME-NAME', $header).replace('REPLACE-ME-APP', $package) -Path $appinstallerscript}
-
+        if($header -eq "Microsoft Office 2016"){Add-content -Value (invoke-webrequest "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/office-template.txt").Content -Path $appinstallerscript}
+        else{Add-content -Value (invoke-webrequest "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/app-template.txt").Content.replace('REPLACE-ME-NAME', $header).replace('REPLACE-ME-APP', $package) -Path $appinstallerscript}}
 
    # Execute installer script
         Write-Host "Starting installation script" -f Yellow
