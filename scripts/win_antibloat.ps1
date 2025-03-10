@@ -1,7 +1,4 @@
-﻿    # Funktion til at få det aktuelle tidspunkt
-    function Get-LogDate {return (Get-Date -f "yyyy/MM/dd HH:MM:ss")}
-    
-    Write-Host "`n[$(Get-LogDate)]`tREMOVING WINDOWS BLOAT:" -f Green
+﻿    Write-Host "`n[$(Get-LogDate)]`tREMOVING WINDOWS BLOAT:" -f Green
     Start-Sleep -s 3
     Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 

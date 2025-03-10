@@ -47,6 +47,9 @@ Function Restart-Explorer {
             Add-Type -AssemblyName Microsoft.VisualBasic
             [Microsoft.VisualBasic.Interaction]::AppActivate($windowname)}
 
+Function Get-LogDate {
+        return (Get-Date -f "[yyyy/MM/dd HH:mm:ss]")}
+
 Function Start-Menu {
             <# When you're choosing the UI version of this script, the menu options will grey out if the exact script
             has aldready been ran on the system.. Yep, spent way to much time on this feature.#>
