@@ -1,7 +1,7 @@
 ﻿    # Funktion til at få det aktuelle tidspunkt
     function Get-LogDate {return (Get-Date -f "yyyy/MM/dd HH:MM:ss")}
     
-    Write-Host "`n[$(Get-LogDate)]`tREMOVING WINDOWS BLOAT" -f Green
+    Write-Host "`n[$(Get-LogDate)]`tREMOVING WINDOWS BLOAT:" -f Green
     Start-Sleep -s 3
     Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 
@@ -27,7 +27,6 @@
             Write-Host "[$(Get-LogDate)]`t        - Removing shortcuts.." -f Yellow
             $PinnedPath = Join-path -Path ([Environment]::GetFolderPath("ApplicationData")) -Childpath "\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*"
             If (test-path $PinnedPath){Remove-Item -Path $PinnedPath -Recurse -Force }
-            Restart-Explorer
             Write-Host "[$(Get-LogDate)]`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;
 
     # Clean start menu
@@ -246,7 +245,7 @@
 
             Write-Host "[$(Get-LogDate)]`t        - Removing bloat printers:" -f Yellow
             $Bloatprinters = "Fax","OneNote for Windows 10","Microsoft XPS Document Writer", "Microsoft Print to PDF" 
-            $Bloatprinters | % {if(Get-Printer | Where-Object Name -cMatch $_){Write-Host "`t            - Uninstalling: $_" -f Yellow; Remove-Printer $_; Start-Sleep -s 2}}
+            $Bloatprinters | % {if(Get-Printer | Where-Object Name -cMatch $_){Write-Host "[$(Get-LogDate)]`t            - Uninstalling: $_" -f Yellow; Remove-Printer $_; Start-Sleep -s 2}}
             Write-Host "[$(Get-LogDate)]`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;
 
         
