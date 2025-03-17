@@ -145,9 +145,9 @@ do {
             0 { exit }
             1 { Start-WinAntiBloat; Start-WinSecurity; Start-WinSettings; Start-WinOptimizer}
             2 { Start-WinAntiBloat; Start-WinOptimizer; }
-            3 { Start-WinSecurity; Start-WinOptimizer; }
-            4 { Start-WinSettings; Start-WinOptimizer; }
-            5 { Install-App; Start-WinOptimizer;}
+            3 { Start-WinSecurity;}
+            4 { Start-WinSettings;}
+            5 { Install-App;}
             Default {  Write-Host "INVALID OPTION. TRY AGAIN.." -f red; Start-Sleep -s 2; Start-WinOptimizer } 
         }
 }
