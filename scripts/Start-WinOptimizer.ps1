@@ -1,5 +1,5 @@
 ﻿Function Start-WinOptimizer {
-Write-Host "`n`tENHANCE WINDOWS Settings" -f Green
+Write-Host "`n$(Get-LogDate)`tENHANCE WINDOWS Settings" -f Green
 
     # Disable LockScreen ScreenSaver? To prevent missing first character
         Write-Host "$(Get-LogDate)`t        - Disabling screensaver sleep to prevent missing keystrokes" -f Green

@@ -205,7 +205,7 @@
 
         # End of function
             if($smb1beingdisabled){Wait-job -Name "Disable SMB1" | Out-Null;}
-            Write-Host "$(Get-LogDate)`tPrivacy optimizer complete. Your system is now more private and secure." -f Green
+            Write-Host "$(Get-LogDate)`t    - Privacy optimizer complete. Your system is now more private and secure." -f Yellow
             Start-Sleep 10
     
         }
