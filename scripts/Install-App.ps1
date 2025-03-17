@@ -127,8 +127,8 @@ Function Install-App {
             $env:Path = [System.Environment]::GetEnvironmentVariable('Path', [System.EnvironmentVariableTarget]::Machine)
             if (!(Get-Command choco -ErrorAction SilentlyContinue)) {Import-Module "$env:ProgramData\chocolatey\helpers\chocolateyInstaller.psm1"; Update-SessionEnvironment}
             
-            if ($installParams -ne "") {choco install $packageName --params=$installParams -y | Out-Null} 
-            else {choco install $packageName -y | Out-Null}
+            if ($installParams -ne "") {choco install $packageName --params=$installParams -y } 
+            else {choco install $packageName -y}
         
         } -ArgumentList $package, $params
 
