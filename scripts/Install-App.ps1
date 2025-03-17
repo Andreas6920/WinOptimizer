@@ -133,7 +133,7 @@ Function Install-App {
         } -ArgumentList $package, $params
 
         # Vent indtil installation er færdig
-        $job | Wait-Job | Out-Null
+        Wait-Job -Name $header | Out-Null
         Write-Host "$(Get-LogDate)`t- $header installation completed." -ForegroundColor Yellow
         }
 
