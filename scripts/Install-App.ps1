@@ -1,3 +1,5 @@
+
+
 Function Install-App {
     param (
         [Parameter(Mandatory=$false)]
@@ -64,14 +66,26 @@ Function Install-App {
         $requested_apps = $Name -split "[,;\s]+" | Where-Object {$_ -ne ""}
 
     # Installér Chocolatey, hvis det ikke er installeret
-    if (!($requested_app -eq "cancel")){
-    if (!(Test-Path "$env:ProgramData\Chocolatey")) {
-        Write-Host "$(Get-LogDate)`t- Installing Chocolatey..." -ForegroundColor Yellow
-        Start-Job -Name "Install_Choco" -ScriptBlock {
-            Set-ExecutionPolicy Bypass -Scope Process -Force
-            [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-            Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))} | Wait-Job | Out-Null
-        Import-Module "$env:ProgramData\chocolatey\helpers\chocolateyInstaller.psm1"; Update-SessionEnvironment}}
+    if (!($requested_app -eq "cancel")) {
+        if (!(Test-Path "$env:ProgramData\Chocolatey")) {
+            Write-Host "`n$(Get-LogDate)`tSETTING UP SYSTEM" -f Green; Start-Sleep -S 2
+            Write-Host "$(Get-LogDate)`t    Forbereder systemet:" -f Green
+            Write-Host "$(Get-LogDate)`t        - Installerer Chocolatey." -f Yellow;
+            # Start job
+            [void](Start-Job -Name "Install_Choco" -ScriptBlock {
+                Set-ExecutionPolicy Bypass -Scope Process -Force
+                [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+                Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))})
+
+            # Vent på at jobbet er færdigt, men uden output
+            Wait-Job -Name "Install_Choco" | Out-Null
+
+            # Import Chocolatey uden output
+            Import-Module "$env:ProgramData\chocolatey\helpers\chocolateyInstaller.psm1" -ErrorAction SilentlyContinue
+            Update-SessionEnvironment | Out-Null
+            Write-Host "$(Get-LogDate)`t        - Chocolatey Installation Complete." -f Yellow;
+        }
+    }
 
     # Installér Visual C++ Redistributable, hvis valgt
     if ($IncludeVisualPlusplus) { Write-Host "$(Get-LogDate)`t- Installere versionerne Visual C++ Redistributable..." -ForegroundColor Yellow
@@ -97,24 +111,14 @@ Function Install-App {
                 Write-Host "$(Get-LogDate)`t- Visual C++ installation completed." -ForegroundColor Yellow}
 
     # Tjek og korriger inputs
+        Write-Host "$(Get-LogDate)`t    Installerer Applikationer:" -ForegroundColor Green
         foreach ($requested_app in $requested_apps) {
-            
+
             # Office installation
-            if ($requested_app -match "office") {
-                    $header = "Microsoft Office 2016 Retail"
-                    Write-Host "$(Get-LogDate)`t- Installerer $header." -ForegroundColor Yellow
-                    Start-Job -Name $header -ScriptBlock {
-                        # Refresh
-                            $env:Path = [System.Environment]::GetEnvironmentVariable('Path', [System.EnvironmentVariableTarget]::Machine)
-                            if (!(Get-Command choco -ErrorAction SilentlyContinue)) {Import-Module "$env:ProgramData\chocolatey\helpers\chocolateyInstaller.psm1"; Update-SessionEnvironment}
-                        # Remove existing office bloat
-                            "Microsoft.MicrosoftOfficeHub","Microsoft.Office.OneNote" | %{ if (Get-AppxPackage | Where-Object Name -Like $_){Get-AppxPackage | Where-Object Name -Like $_ | Remove-AppxPackage; Start-Sleep -S 5}}
-                        # Install real Office 2016
-                            choco install microsoft-office-deployment --params="'/Product:ProfessionalRetail /64bit /ProofingToolLanguage:da-dk,en-us'" -y}
-                        # Færdig
-                        Write-Host "$(Get-LogDate)`t- $header installateret." -ForegroundColor Yellow                    
-                    
-                    }
+             if ($requested_app -match "office") {
+                $header = "Microsoft Office"
+                $package = "microsoft-office-deployment"
+                $params = "'/Product:ProfessionalRetail /64bit /ProofingToolLanguage:da-dk,en-us'" }
             
             # korriger inputs
             elseif ($apps.ContainsKey($requested_app)) {
@@ -128,29 +132,23 @@ Function Install-App {
             continue}
             
     # Installation start
-    Write-Host "$(Get-LogDate)`t- Installing $header..." -ForegroundColor Yellow
-
-        # Installation som job
-        $job = Start-Job -Name $header -ScriptBlock {
-            param($packageName, $installParams)
-            
-            # Refresh
-            $env:Path = [System.Environment]::GetEnvironmentVariable('Path', [System.EnvironmentVariableTarget]::Machine)
-            if (!(Get-Command choco -ErrorAction SilentlyContinue)) {Import-Module "$env:ProgramData\chocolatey\helpers\chocolateyInstaller.psm1"; Update-SessionEnvironment}
-            
-            if ($installParams -ne "") {choco install $packageName --params=$installParams -y } 
-            else {choco install $packageName -y}
-        
+    Write-Host "$(Get-LogDate)`t        - Installerer $header`:" -f Yellow;
+    $job = Start-Job -Name $header -ScriptBlock {
+                param($packageName, $installParams)
+                # Refresh
+                $env:Path = [System.Environment]::GetEnvironmentVariable('Path', [System.EnvironmentVariableTarget]::Machine)
+                if (!(Get-Command choco -ErrorAction SilentlyContinue)) {Import-Module "$env:ProgramData\chocolatey\helpers\chocolateyInstaller.psm1"; Update-SessionEnvironment}
+                if ($installParams -ne "") {choco install $packageName --params=$installParams -y | Out-Null} 
+                else {choco install $packageName -y }
         } -ArgumentList $package, $params
-
+ 
         # Vent indtil installation er færdig
         Wait-Job -Name $header | Out-Null
-        Write-Host "$(Get-LogDate)`t- $header installation completed." -ForegroundColor Yellow
+        Write-Host "$(Get-LogDate)`t        - Fuldført." -f Yellow;
         }
-
     # Installer auto-opdateringsværktøj, hvis flagget er angivet
     if ($EnableAutoupdate) {
-        Write-Host "$(Get-LogDate)`t- Enabling auto-update..." -ForegroundColor Yellow
+        Write-Host "$(Get-LogDate)`t    Opsætter automatisk opdatereing:" -f Green
 
         # Download Script
         $appupdaterlink = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app-updater.ps1"
@@ -166,7 +164,7 @@ Function Install-App {
         $User = [Environment]::UserName
         Register-ScheduledTask -TaskName $Taskname -Action $Taskaction -Settings $Tasksettings -Trigger $Tasktrigger -User $User -RunLevel Highest -Force | Out-Null
 
-        Write-Host "$(Get-LogDate)`t- Auto-update enabled." -ForegroundColor Yellow
+        Write-Host "$(Get-LogDate)`t        - Fuldført." -f Yellow;
     }
 }
 
