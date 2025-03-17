@@ -13,7 +13,7 @@
         Write-Host "$(Get-LogDate)`t    Cleaning Taskbar:" -f Green
         Start-Sleep -s 5
         
-            Write-Host "$(Get-LogDate)`t        - Setting registrykeys.." -f Yellow
+            Write-Host "$(Get-LogDate)`t        - Setting registrykeys." -f Yellow
             Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesChanges" -Type "Dword" -Value "3"
             Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesRemovedChanges" -Type "Dword" -Value "32"
             Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesVersion" -Type "Dword"-Value "3" 
@@ -37,25 +37,25 @@
             $keys = "HKLM:\Software\Policies\Microsoft\Windows\Explorer","HKCU:\Software\Policies\Microsoft\Windows\Explorer"; 
                 
             # Download blank Start Menu file
-            Write-Host "$(Get-LogDate)`t        - Downloading Start Menu file..." -f Yellow;
+            Write-Host "$(Get-LogDate)`t        - Downloading Start Menu file." -f Yellow;
             (New-Object net.webclient).Downloadfile("$link", "$file"); 
                             
             # Unlock start menu, disable pinning, replace with blank file
-            Write-Host "$(Get-LogDate)`t        - Unlocking and replacing current file..." -f Yellow;
+            Write-Host "$(Get-LogDate)`t        - Unlocking and replacing current file." -f Yellow;
             $keys | % { if(!(test-path $_)){ New-Item -Path $_ -Force | Out-Null; Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 1; Set-ItemProperty -Path $_ -Name "StartLayoutFile" -Value $File } }
             
             # Restart explorer
             Restart-Explorer
 
             # Enable pinning
-            Write-Host "$(Get-LogDate)`t        - Fixing pinning..." -f Yellow
+            Write-Host "$(Get-LogDate)`t        - Fixing pinning." -f Yellow
             $keys | % { Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 0 }
             
             #Restart explorer
             Restart-Explorer
 
             # Save menu to all users
-            Write-Host "$(Get-LogDate)`t        - Save changes to all users.." -f Yellow
+            Write-Host "$(Get-LogDate)`t        - Save changes to all users." -f Yellow
             Import-StartLayout -LayoutPath $File -MountPath $env:SystemDrive\
 
             # Clean up after script
