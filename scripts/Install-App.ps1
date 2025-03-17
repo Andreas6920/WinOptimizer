@@ -114,38 +114,56 @@ Function Install-App {
         Write-Host "$(Get-LogDate)`t    Installerer Applikationer:" -ForegroundColor Green
         foreach ($requested_app in $requested_apps) {
 
-            # Office installation
+            
+           <# # Office installation
              if ($requested_app -match "office") {
                 $header = "Microsoft Office"
                 $package = "microsoft-office-deployment"
-                $params = "'/Product:ProfessionalRetail /64bit /ProofingToolLanguage:da-dk,en-us'" }
+                $params = "'/Product:ProfessionalRetail /64bit /ProofingToolLanguage:da-dk,en-us'" } #>
             
-            # korriger inputs
-            elseif ($apps.ContainsKey($requested_app)) {
-                $app_info = $apps[$requested_app] -split "\|"
-                $header = $app_info[0]
-                $package = $app_info[1]
-                $params = ""}
-            
-            # Invalid input
-            else {Write-Host "$(Get-LogDate)`t- Applikationen '$requested_app' invalid. Springer over..." -ForegroundColor Yellow
-            continue}
-            
-            # Installation start
-            Write-Host "$(Get-LogDate)`t        - Installerer $header`:" -f Yellow;
-            $job = Start-Job -Name $header -ScriptBlock {
-                param($packageName, $installParams)
-                # Refresh
+        # Office installation
+        if ($requested_app -match "office") {
+            $header = "Microsoft Office 2016 Retail"
+            Write-Host "$(Get-LogDate)`t- Installing $header..." -ForegroundColor Yellow
+
+            # Start installationen som et job og vent på det fuldfører
+            Start-Job -ScriptBlock {
+                # Refresh environment variables for Chocolatey
                 $env:Path = [System.Environment]::GetEnvironmentVariable('Path', [System.EnvironmentVariableTarget]::Machine)
                 if (!(Get-Command choco -ErrorAction SilentlyContinue)) {Import-Module "$env:ProgramData\chocolatey\helpers\chocolateyInstaller.psm1"; Update-SessionEnvironment}
-                if ($installParams -ne "") {choco install $packageName --params=$installParams -y | Out-Null} 
-                else {choco install $packageName -y }
-            } -ArgumentList $package, $params
-        
-            # Vent indtil installation er færdig
-            Wait-Job -Name $header | Out-Null
-            Write-Host "$(Get-LogDate)`t        - Fuldført." -f Yellow;
-        }
+                # Fjern eksisterende Office-apps
+                "Microsoft.MicrosoftOfficeHub", "Microsoft.Office.OneNote" | ForEach-Object {if (Get-AppxPackage | Where-Object Name -Like $_) {
+                Get-AppxPackage | Where-Object Name -Like $_ | Remove-AppxPackage
+                Start-Sleep -Seconds 3}}
+                # Installer Office 2016
+                choco install microsoft-office-deployment --params "'/Product:ProfessionalRetail /64bit /ProofingToolLanguage:da-dk,en-us'" -y | Out-Null} | Wait-Job | Out-Null
+            Write-Host "$(Get-LogDate)`t- Installation of $header completed." -ForegroundColor Green}
+
+        # korriger inputs
+        elseif ($apps.ContainsKey($requested_app)) {
+            $app_info = $apps[$requested_app] -split "\|"
+            $header = $app_info[0]
+            $package = $app_info[1]
+            $params = ""}
+
+        # Invalid input
+        else {Write-Host "$(Get-LogDate)`t- Applikationen '$requested_app' invalid. Springer over..." -ForegroundColor Yellow
+        continue}
+            
+        # Installerer applikationer
+        Write-Host "$(Get-LogDate)`t        - Installerer $header`:" -f Yellow;
+        $job = Start-Job -Name $header -ScriptBlock {
+            param($packageName, $installParams)
+            # Refresh
+            $env:Path = [System.Environment]::GetEnvironmentVariable('Path', [System.EnvironmentVariableTarget]::Machine)
+            if (!(Get-Command choco -ErrorAction SilentlyContinue)) {Import-Module "$env:ProgramData\chocolatey\helpers\chocolateyInstaller.psm1"; Update-SessionEnvironment}
+            if ($installParams -ne "") {choco install $packageName --params=$installParams -y | Out-Null} 
+            else {choco install $packageName -y }
+        } -ArgumentList $package, $params
+    
+        # Vent indtil installation er færdig
+        Wait-Job -Name $header | Out-Null
+        Write-Host "$(Get-LogDate)`t        - Fuldført." -f Yellow;}
 
     # Automatisk opdatering af applikationer
         if ($EnableAutoupdate) {
