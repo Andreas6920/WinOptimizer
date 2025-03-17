@@ -16,7 +16,7 @@
         
         # Create Base Folder
             $BaseFolder = Join-path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -Childpath "WinOptimizer"
-            if(!(test-path $BaseFolder)){Write-host "." -NoNewline; new-item -itemtype Directory -Path $BaseFolder -ErrorAction SilentlyContinue | Out-Null }        
+            if(!(test-path $BaseFolder)){Write-host "." -NoNewline; New-Item -itemtype Directory -Path $BaseFolder -ErrorAction SilentlyContinue | Out-Null }        
 
 Function Restart-Explorer {
             <# When explorer restarts with the regular stop-process function, the active PowerShell loses focus,
@@ -130,15 +130,17 @@ Function Add-Hash {
             $scripts = @(   "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Start-WinAntiBloat.ps1"
                             "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Start-WinSecurity.ps1"
                             "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Start-WinOptimizer.ps1"
-                            "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app_install.ps1"
+                            "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Install-App.ps1"
                             )
             Foreach ($script in $scripts) {
-                # Download Scripts
-                    Write-host "." -NoNewline;
+                # Download and install functions
                     $filename = [System.IO.Path]::GetFileNameWithoutExtension((Split-Path $url -Leaf))
                     $filedestination = join-path $BaseFolder -Childpath $filename
-                    Invoke-RestMethod -uri $script -OutFile $filedestination
-                    Import-Module $filedestination; Add-Hash -Name "filename"
+                        if(!(test-path $Filepath)){
+                                New-Item -Path $Filepath -Force | Out-Null
+                                Invoke-RestMethod -uri $script -OutFile $filedestination
+                                Import-module -name $filedestination; Add-Hash -Name $filename
+                                Write-Host "." -NoNewline}
                 # Creating Missing Regpath
                     $reg_install = "HKLM:\Software\WinOptimizer"
                     If(!(Test-Path $reg_install)) {New-Item -Path $reg_install -Force | Out-Null;}

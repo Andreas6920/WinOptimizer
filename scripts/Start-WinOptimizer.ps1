@@ -1,4 +1,4 @@
-﻿function Start-WinOptimizer {
+﻿Function Start-WinOptimizer {
 Write-Host "`n`tENHANCE WINDOWS Settings" -f Green
 
     # Remove login screensaver
