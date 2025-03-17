@@ -110,7 +110,7 @@ Function Install-App {
                 Wait-Job -Name "Visual C++" | Out-Null
                 Write-Host "$(Get-LogDate)`t- Visual C++ installation completed." -ForegroundColor Yellow}
 
-    # Tjek og korriger inputs
+    # Hver indtastning
         Write-Host "$(Get-LogDate)`t    Installerer Applikationer:" -ForegroundColor Green
         foreach ($requested_app in $requested_apps) {
 
@@ -131,41 +131,45 @@ Function Install-App {
             else {Write-Host "$(Get-LogDate)`t- Applikationen '$requested_app' invalid. Springer over..." -ForegroundColor Yellow
             continue}
             
-    # Installation start
-    Write-Host "$(Get-LogDate)`t        - Installerer $header`:" -f Yellow;
-    $job = Start-Job -Name $header -ScriptBlock {
+            # Installation start
+            Write-Host "$(Get-LogDate)`t        - Installerer $header`:" -f Yellow;
+            $job = Start-Job -Name $header -ScriptBlock {
                 param($packageName, $installParams)
                 # Refresh
                 $env:Path = [System.Environment]::GetEnvironmentVariable('Path', [System.EnvironmentVariableTarget]::Machine)
                 if (!(Get-Command choco -ErrorAction SilentlyContinue)) {Import-Module "$env:ProgramData\chocolatey\helpers\chocolateyInstaller.psm1"; Update-SessionEnvironment}
                 if ($installParams -ne "") {choco install $packageName --params=$installParams -y | Out-Null} 
                 else {choco install $packageName -y }
-        } -ArgumentList $package, $params
- 
-        # Vent indtil installation er færdig
-        Wait-Job -Name $header | Out-Null
-        Write-Host "$(Get-LogDate)`t        - Fuldført." -f Yellow;
+            } -ArgumentList $package, $params
+        
+            # Vent indtil installation er færdig
+            Wait-Job -Name $header | Out-Null
+            Write-Host "$(Get-LogDate)`t        - Fuldført." -f Yellow;
         }
-    # Installer auto-opdateringsværktøj, hvis flagget er angivet
-    if ($EnableAutoupdate) {
-        Write-Host "$(Get-LogDate)`t    Opsætter automatisk opdatereing:" -f Green
 
-        # Download Script
-        $appupdaterlink = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app-updater.ps1"
-        $appupdaterpath = Join-Path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -ChildPath "WinOptimizer\win_appinstaller\app-updater.ps1"
-        New-Item -Path $appupdaterpath -Force | Out-Null
-        Invoke-WebRequest -Uri $appupdaterlink -OutFile $appupdaterpath -UseBasicParsing
+    # Automatisk opdatering af applikationer
+        if ($EnableAutoupdate) {
+            Write-Host "$(Get-LogDate)`t    Opsætter automatisk opdatereing:" -f Green
 
-        # Setting Scheduled Task
-        $Taskname = "WinOptimizer - Patching Desktop Applications"
-        $Taskaction = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-ep bypass -w hidden -file $appupdaterpath"
-        $Tasksettings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit '03:00:00' -AllowStartIfOnBatteries -RunOnlyIfNetworkAvailable -DontStopIfGoingOnBatteries -DontStopOnIdleEnd
-        $Tasktrigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek 'Monday','Tuesday','Wednesday','Thursday','Friday' -At 11:50
-        $User = [Environment]::UserName
-        Register-ScheduledTask -TaskName $Taskname -Action $Taskaction -Settings $Tasksettings -Trigger $Tasktrigger -User $User -RunLevel Highest -Force | Out-Null
+            # Download Script
+            $appupdaterlink = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app-updater.ps1"
+            $appupdaterpath = Join-Path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -ChildPath "WinOptimizer\app-updater.ps1"
+            New-Item -Path $appupdaterpath -Force | Out-Null
+            Write-Host "$(Get-LogDate)`t        - Downloader script." -f Yellow;
+            Invoke-WebRequest -Uri $appupdaterlink -OutFile $appupdaterpath -UseBasicParsing
 
-        Write-Host "$(Get-LogDate)`t        - Fuldført." -f Yellow;
-    }
+            # Setting Scheduled Task
+            $Taskname = "WinOptimizer - Patching Desktop Applications"
+            $Taskaction = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-ep bypass -w hidden -file $appupdaterpath"
+            $Tasksettings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit '03:00:00' -AllowStartIfOnBatteries -RunOnlyIfNetworkAvailable -DontStopIfGoingOnBatteries -DontStopOnIdleEnd
+            $Tasktrigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek 'Monday','Tuesday','Wednesday','Thursday','Friday' -At 11:50
+            $User = [Environment]::UserName
+            Write-Host "$(Get-LogDate)`t        - Planlæg opgave." -f Yellow;
+            Register-ScheduledTask -TaskName $Taskname -Action $Taskaction -Settings $Tasksettings -Trigger $Tasktrigger -User $User -RunLevel Highest -Force | Out-Null
+
+            Write-Host "$(Get-LogDate)`t        - Opgavenavn: $Taskname" -f Yellow;
+            Write-Host "$(Get-LogDate)`t        - Fuldført." -f Yellow;
+        }
 }
 
 # Eksempel på hvordan du kan kalde funktionen:
