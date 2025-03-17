@@ -1,3 +1,4 @@
+# Prepare
 
         # TLS upgrade
             [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -15,25 +16,7 @@
         
         # Create Base Folder
             $BaseFolder = Join-path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -Childpath "WinOptimizer"
-            if(!(test-path $BaseFolder)){Write-host "." -NoNewline; new-item -itemtype Directory -Path $BaseFolder -ErrorAction SilentlyContinue | Out-Null }
-
-        # Preparing Scripts
-            $scripts = @(   "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/win_antibloat.ps1"
-                            "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/win_security.ps1"
-                            "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/win_settings.ps1"
-                            "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app_install.ps1"
-                            )
-            Foreach ($script in $scripts) {
-                # Download Scripts
-                    Write-host "." -NoNewline;
-                    $filename = split-path $script -Leaf
-                    $filedestination = join-path $BaseFolder -Childpath $filename
-                    (New-Object net.webclient).Downloadfile("$script", "$filedestination")
-                # Creating Missing Regpath
-                    $reg_install = "HKLM:\Software\WinOptimizer"
-                    If(!(Test-Path $reg_install)) {New-Item -Path $reg_install -Force | Out-Null;}
-                # Creating Missing Regkeys
-                    if (!((Get-Item -Path $reg_install).Property -match $filename)){Set-ItemProperty -Path $reg_install -Name $filename -Type String -Value 0}}
+            if(!(test-path $BaseFolder)){Write-host "." -NoNewline; new-item -itemtype Directory -Path $BaseFolder -ErrorAction SilentlyContinue | Out-Null }        
 
 Function Restart-Explorer {
             <# When explorer restarts with the regular stop-process function, the active PowerShell loses focus,
@@ -142,6 +125,31 @@ Function Add-Hash {
 
 
 
+## Scripts
+
+            $scripts = @(   "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Start-WinAntiBloat.ps1"
+                            "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Start-WinSecurity.ps1"
+                            "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Start-WinOptimizer.ps1"
+                            "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app_install.ps1"
+                            )
+            Foreach ($script in $scripts) {
+                # Download Scripts
+                    Write-host "." -NoNewline;
+                    $filename = [System.IO.Path]::GetFileNameWithoutExtension((Split-Path $url -Leaf))
+                    $filedestination = join-path $BaseFolder -Childpath $filename
+                    Invoke-RestMethod -uri $script -OutFile $filedestination
+                    Import-Module $filedestination; Add-Hash -Name "filename"
+                # Creating Missing Regpath
+                    $reg_install = "HKLM:\Software\WinOptimizer"
+                    If(!(Test-Path $reg_install)) {New-Item -Path $reg_install -Force | Out-Null;}
+                # Creating Missing Regkeys
+                    if (!((Get-Item -Path $reg_install).Property -match $filename)){Set-ItemProperty -Path $reg_install -Name $filename -Type String -Value 0}}
+
+
+
+
+
+    <#
 
         $win_antibloat = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/win_antibloat.ps1"
         $win_security = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/win_security.ps1"
@@ -149,12 +157,14 @@ Function Add-Hash {
         $app_installer = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app_install.ps1"
         $Basefolder = Join-path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -Childpath "WinOptimizer"
 
+    
     Function Start-WinAntiBloat {
-            $Link = $win_antibloat
+             $Link = $win_antibloat
             $Filepath = Join-path -Path $basefolder -ChildPath "win_antibloat.ps1"
             if(!(test-path $Filepath)){New-Item -Path $Filepath -Force | Out-Null}
-        Invoke-WebRequest -Uri $Link -OutFile $Filepath -UseBasicParsing
-        Import-Module $Filepath; Add-Hash -Name "win_antibloat"}
+            Invoke-WebRequest -Uri $Link -OutFile $Filepath -UseBasicParsing
+            Import-Module $Filepath; Add-Hash -Name "win_antibloat"
+           
 
     Function Start-WinSecurity {
             $Link = $win_security
@@ -177,7 +187,7 @@ Function Add-Hash {
         Invoke-WebRequest -Uri $Link -OutFile $Filepath -UseBasicParsing
         Import-Module $Filepath; Add-Hash -Name "install_app"}
 
-
+#>
 
 
 Function Start-WinOptimizer {

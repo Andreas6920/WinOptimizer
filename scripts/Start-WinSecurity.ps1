@@ -1,4 +1,4 @@
-﻿function Start-WinSecurity {
+﻿Function Start-WinSecurity {
 
     Write-Host "[$(Get-LogDate)]`n`tENHANCE WINDOWS PRIVACY" -f Green
      
