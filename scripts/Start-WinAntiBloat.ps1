@@ -1,5 +1,5 @@
 ﻿Function Start-WinAntiBloat {
-    Write-Host "`n$(Get-LogDate)`tREMOVING WINDOWS BLOAT:" -f Green
+    Write-Host "`n$(Get-LogDate)`tREMOVING WINDOWS BLOAT" -f Green
     Start-Sleep -s 3
     Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 
