@@ -57,7 +57,7 @@ Function Install-App {
     
     # Hvis INTET er sat
     if (-not $Name -and -not $Default -and -not $EnableAutoupdate -and -not $IncludeVisualPlusplus) {
-        Write-Host "`t- Enter applications (comma-separated): " -NoNewline -ForegroundColor Yellow
+        Write-Host "[$(Get-LogDate)]`t- Enter applications (comma-separated): " -NoNewline -ForegroundColor Yellow
         $Name = Read-Host}
 
     # Opdel input fra pipeline
@@ -66,7 +66,7 @@ Function Install-App {
     # Installér Chocolatey, hvis det ikke er installeret
     if (!($requested_app -eq "cancel")){
     if (!(Test-Path "$env:ProgramData\Chocolatey")) {
-        Write-Host "`t- Installing Chocolatey..." -ForegroundColor Yellow
+        Write-Host "[$(Get-LogDate)]`t- Installing Chocolatey..." -ForegroundColor Yellow
         Start-Job -Name "Install_Choco" -ScriptBlock {
             Set-ExecutionPolicy Bypass -Scope Process -Force
             [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
@@ -74,7 +74,7 @@ Function Install-App {
         Import-Module "$env:ProgramData\chocolatey\helpers\chocolateyInstaller.psm1"; Update-SessionEnvironment}}
 
     # Installér Visual C++ Redistributable, hvis valgt
-    if ($IncludeVisualPlusplus) { Write-Host "`t- Installere versionerne Visual C++ Redistributable..." -ForegroundColor Yellow
+    if ($IncludeVisualPlusplus) { Write-Host "[$(Get-LogDate)]`t- Installere versionerne Visual C++ Redistributable..." -ForegroundColor Yellow
         Start-Job -Name "Visual C++" -ScriptBlock { 
             # Download
                 $link = "https://drive.google.com/uc?export=download&confirm=uc-download-link&id=1mHvNVA_pI0XnWyjRDNee0vhQxLp6agp_"
@@ -94,7 +94,7 @@ Function Install-App {
                 ./vcredist2015_2017_2019_2022_x64.exe /passive /norestart | Out-Null}
             # Vent indtil installation er færdig
                 Wait-Job -Name "Visual C++" | Out-Null
-                Write-Host "`t- Visual C++ installation completed." -ForegroundColor Yellow
+                Write-Host "[$(Get-LogDate)]`t- Visual C++ installation completed." -ForegroundColor Yellow
 
     # Tjek og korriger inputs
         foreach ($requested_app in $requested_apps) {
@@ -113,11 +113,11 @@ Function Install-App {
                 $params = ""}
             
             # Invalid input
-            else {Write-Host "`t- Applikationen '$requested_app' invalid. Springer over..." -ForegroundColor Yellow
+            else {Write-Host "[$(Get-LogDate)]`t- Applikationen '$requested_app' invalid. Springer over..." -ForegroundColor Yellow
             continue}
             
     # Installation start
-    Write-Host "`t- Installing $header..." -ForegroundColor Yellow
+    Write-Host "[$(Get-LogDate)]`t- Installing $header..." -ForegroundColor Yellow
 
         # Installation som job
         $job = Start-Job -Name $header -ScriptBlock {
@@ -134,12 +134,12 @@ Function Install-App {
 
         # Vent indtil installation er færdig
         $job | Wait-Job | Out-Null
-        Write-Host "`t- $header installation completed." -ForegroundColor Yellow
+        Write-Host "[$(Get-LogDate)]`t- $header installation completed." -ForegroundColor Yellow
         }
 
     # Installer auto-opdateringsværktøj, hvis flagget er angivet
     if ($EnableAutoupdate) {
-        Write-Host "`t- Enabling auto-update..." -ForegroundColor Yellow
+        Write-Host "[$(Get-LogDate)]`t- Enabling auto-update..." -ForegroundColor Yellow
 
         # Download Script
         $appupdaterlink = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app-updater.ps1"
@@ -155,7 +155,7 @@ Function Install-App {
         $User = [Environment]::UserName
         Register-ScheduledTask -TaskName $Taskname -Action $Taskaction -Settings $Tasksettings -Trigger $Tasktrigger -User $User -RunLevel Highest -Force | Out-Null
 
-        Write-Host "`t- Auto-update enabled." -ForegroundColor Yellow
+        Write-Host "[$(Get-LogDate)]`t- Auto-update enabled." -ForegroundColor Yellow
     }
 }}
 
