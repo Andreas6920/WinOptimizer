@@ -22,7 +22,7 @@
             $scripts = @(   "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/win_antibloat.ps1"
                             "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/win_security.ps1"
                             "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/win_settings.ps1"
-                            "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app_Install.ps1"
+                            "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app_install.ps1"
                             )
             Foreach ($script in $scripts) {
                 # Download Scripts
@@ -121,8 +121,6 @@ Function Add-Reg {
     # If reg key does not exist, create it
     else{Set-ItemProperty -Path $path -Name $Name -Value $Value -Type $Type -Force | Out-Null}
     }
-
-
 
 
 Function Add-Hash {
