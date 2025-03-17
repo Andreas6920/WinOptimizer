@@ -1,6 +1,5 @@
 
         # TLS upgrade
-            Clear-Host
             [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
             Write-host "Loading" -NoNewline
 
@@ -167,6 +166,7 @@ Function Install-AppUpdater {
         $win_antibloat = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/win_antibloat.ps1"
         $win_security = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/win_security.ps1"
         $win_settings = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/win_settings.ps1"
+        $app_installer = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app_install.ps1"
         $Basefolder = Join-path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -Childpath "WinOptimizer"
 
     Function Start-WinAntiBloat {
@@ -189,6 +189,13 @@ Function Install-AppUpdater {
             if(!(test-path $Filepath)){New-Item -Path $Filepath -Force | Out-Null}
         Invoke-WebRequest -Uri $Link -OutFile $Filepath -UseBasicParsing
         Import-Module $Filepath; Add-Hash -Name "win_settings"}
+
+    Function Install-App {
+            $Link = $app_installer
+            $Filepath = Join-path -Path $basefolder -ChildPath "app_install.ps1"
+            if(!(test-path $Filepath)){New-Item -Path $Filepath -Force | Out-Null}
+        Invoke-WebRequest -Uri $Link -OutFile $Filepath -UseBasicParsing
+        Import-Module $Filepath; Add-Hash -Name "install_app"}
 
 
 
