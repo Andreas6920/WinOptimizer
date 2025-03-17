@@ -94,7 +94,7 @@ Function Install-App {
                 ./vcredist2015_2017_2019_2022_x64.exe /passive /norestart | Out-Null}
             # Vent indtil installation er færdig
                 Wait-Job -Name "Visual C++" | Out-Null
-                Write-Host "$(Get-LogDate)`t- Visual C++ installation completed." -ForegroundColor Yellow
+                Write-Host "$(Get-LogDate)`t- Visual C++ installation completed." -ForegroundColor Yellow}
 
     # Tjek og korriger inputs
         foreach ($requested_app in $requested_apps) {
@@ -157,7 +157,7 @@ Function Install-App {
 
         Write-Host "$(Get-LogDate)`t- Auto-update enabled." -ForegroundColor Yellow
     }
-}}
+}
 
 # Eksempel på hvordan du kan kalde funktionen:
 # Install-App -Name "firefox,chrome,teams" -EnableAutoupdate -IncludeVisualPlusplus
