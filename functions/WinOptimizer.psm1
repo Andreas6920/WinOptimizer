@@ -11,8 +11,9 @@
         
         # Install Nuget
             if(!(test-path "C:\Program Files\PackageManagement\ProviderAssemblies\nuget\2.8.5.208")){
-                $ProgressPreference = "SilentlyContinue"; Start-Sleep -S 1; Write-host "." -NoNewline;  
-                Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force | Out-Null}
+                $ProgressPreference = "SilentlyContinue"; Start-Sleep -S 1;  -NoNewline;  
+                Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force | Out-Null
+                Write-host "@"}
         
         # Create Base Folder
             $BaseFolder = Join-path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -Childpath "WinOptimizer"
@@ -34,31 +35,6 @@ Function Restart-Explorer {
 Function Get-LogDate {
         return (Get-Date -f "[yyyy/MM/dd HH:mm:ss]")}
 
-Function Start-Menu {
-            <# When you're choosing the UI version of this script, the menu options will grey out if the exact script
-            has aldready been ran on the system.. Yep, spent way to much time on this feature.#>
-            param (
-                [Parameter(Mandatory=$true)]
-                [string]$Name,
-                [Parameter(Mandatory=$true)]
-                [string]$Number,
-                [Parameter(Mandatory=$false)]
-                [string]$Rename)
-
-            $Base = Join-path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -Childpath "WinOptimizer"
-            $path = Join-Path -Path $Base -Childpath "$Name.ps1"
-            $file = "$Name.ps1"
-            $filehash = (Get-FileHash $path).Hash
-            $reg_install = "HKLM:\Software\WinOptimizer"
-            $reghash = (get-ItemProperty -Path $reg_install -Name $file).$file
-
-            if($filehash -eq $reghash){$color = "Gray"}
-            elseif($filehash -ne $reghash){$color = "White"}
-            if($reghash -eq "0"){$color = "White"}
-            
-            if($rename) {   Write-Host "`t[$number] - $rename" -ForegroundColor $color  }
-            else {          Write-Host "`t[$number] - $name" -ForegroundColor $color    }}
-
 Function Start-Input{
     $code = @"
 [DllImport("user32.dll")]
@@ -78,121 +54,26 @@ public static extern bool BlockInput(bool fBlockIt);
     }
 
 
-Function Add-Reg {
+## Other bigger modules
+            
+    $modules = @(   "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Start-WinAntiBloat.ps1"
+                    "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Start-WinSecurity.ps1"
+                    "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Start-WinOptimizer.ps1"
+                    "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Install-App.ps1"
+                    )
+    
+    Foreach ($module in $modules) {
+        # Download and install functions
+            $BaseFolder = Join-path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -Childpath "WinOptimizer"
+                if(!(test-path $BaseFolder)){Write-host "." -NoNewline; New-Item -itemtype Directory -Path $BaseFolder -ErrorAction SilentlyContinue | Out-Null }        
+            $filename = Split-Path $module -Leaf
+            $modulename = [System.IO.Path]::GetFileNameWithoutExtension((Split-Path $module -Leaf))
+            $filedestination = join-path $BaseFolder -Childpath $filename
+                if(!(test-path $filedestination)){
+                        Invoke-RestMethod -uri $module -OutFile $filedestination
+                        Import-module -name $filedestination;
+                        Write-Host "." -NoNewline}
         
-        param (
-            [Parameter(Mandatory=$true)]
-            [string]$Path,
-            [Parameter(Mandatory=$true)]
-            [string]$Name,
-            [Parameter(Mandatory=$true)]
-            [ValidateSet('String', 'ExpandString', 'Binary', 'DWord', 'MultiString', 'Qword',' Unknown')]
-            [String]$Type,
-            [Parameter(Mandatory=$true)]
-            [string]$Value
-        )
-
-    # If base reg exists
-    If (!(Test-Path $path)){New-Item -Path $path -Force | Out-Null}; 
-    
-    # If reg key exists
-    if((Get-Item -Path $path).Property -match $name){
-      # If value is not the same, change it
-        if ((Get-ItemPropertyValue $path -Name $name) -ne $Value){Set-ItemProperty -Path $path -Name $Name -Value $Value -Type $Type -Force | Out-Null}}
-    
-    # If reg key does not exist, create it
-    else{Set-ItemProperty -Path $path -Name $Name -Value $Value -Type $Type -Force | Out-Null}
-    }
-
-
-Function Add-Hash {
-        <# When you're choosing the UI version of this script, the menu options will grey out if the exact script
-        has aldready been ran on the system.. Yep, spent way to much time on this feature.#>
-        param (
-            [Parameter(Mandatory=$true)]
-            [string]$Name)
-
-        $Base = Join-path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -Childpath "WinOptimizer"
-        $path = Join-Path -Path $Base -Childpath "$Name.ps1"
-        $file = "$Name.ps1"
-        $filehash = (Get-FileHash $path).Hash
-        $reg_install = "HKLM:\Software\WinOptimizer"
-         #$reghash = (get-ItemProperty -Path $reg_install -Name $file).$file
-
-        Set-ItemProperty -Path $reg_install -Name $file -Type String -Value $filehash        
-        
-    }
-
-
-
-## Scripts
-
-            $scripts = @(   "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Start-WinAntiBloat.ps1"
-                            "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Start-WinSecurity.ps1"
-                            "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Start-WinOptimizer.ps1"
-                            "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Install-App.ps1"
-                            )
-            Foreach ($script in $scripts) {
-                # Download and install functions
-                    $filename = [System.IO.Path]::GetFileNameWithoutExtension((Split-Path $url -Leaf))
-                    $filedestination = join-path $BaseFolder -Childpath $filename
-                        if(!(test-path $Filepath)){
-                                New-Item -Path $Filepath -Force | Out-Null
-                                Invoke-RestMethod -uri $script -OutFile $filedestination
-                                Import-module -name $filedestination; Add-Hash -Name $filename
-                                Write-Host "." -NoNewline}
-                # Creating Missing Regpath
-                    $reg_install = "HKLM:\Software\WinOptimizer"
-                    If(!(Test-Path $reg_install)) {New-Item -Path $reg_install -Force | Out-Null;}
-                # Creating Missing Regkeys
-                    if (!((Get-Item -Path $reg_install).Property -match $filename)){Set-ItemProperty -Path $reg_install -Name $filename -Type String -Value 0}}
-
-
-
-
-
-    <#
-
-        $win_antibloat = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/win_antibloat.ps1"
-        $win_security = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/win_security.ps1"
-        $win_settings = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/win_settings.ps1"
-        $app_installer = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app_install.ps1"
-        $Basefolder = Join-path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -Childpath "WinOptimizer"
-
-    
-    Function Start-WinAntiBloat {
-             $Link = $win_antibloat
-            $Filepath = Join-path -Path $basefolder -ChildPath "win_antibloat.ps1"
-            if(!(test-path $Filepath)){New-Item -Path $Filepath -Force | Out-Null}
-            Invoke-WebRequest -Uri $Link -OutFile $Filepath -UseBasicParsing
-            Import-Module $Filepath; Add-Hash -Name "win_antibloat"
-           
-
-    Function Start-WinSecurity {
-            $Link = $win_security
-            $Filepath = Join-path -Path $basefolder -ChildPath "win_security.ps1"
-            if(!(test-path $Filepath)){New-Item -Path $Filepath -Force | Out-Null}
-        Invoke-WebRequest -Uri $Link -OutFile $Filepath -UseBasicParsing
-        Import-Module $Filepath; Add-Hash -Name "win_security"}
-
-    Function Start-WinSettings {
-            $Link = $win_settings
-            $Filepath = Join-path -Path $basefolder -ChildPath "win_settings.ps1"
-            if(!(test-path $Filepath)){New-Item -Path $Filepath -Force | Out-Null}
-        Invoke-WebRequest -Uri $Link -OutFile $Filepath -UseBasicParsing
-        Import-Module $Filepath; Add-Hash -Name "win_settings"}
-
-    Function Install-App {
-            $Link = $app_installer
-            $Filepath = Join-path -Path $basefolder -ChildPath "app_install.ps1"
-            if(!(test-path $Filepath)){New-Item -Path $Filepath -Force | Out-Null}
-        Invoke-WebRequest -Uri $Link -OutFile $Filepath -UseBasicParsing
-        Import-Module $Filepath; Add-Hash -Name "install_app"}
-
-#>
-
-
-Function Start-WinOptimizer {
 
 $intro = 
 "
@@ -202,7 +83,7 @@ $intro =
 | |/ |/ / / / / / /_/ / /_/ / /_/ / / / / / / / / /_/  __/ /    
 |__/|__/_/_/ /_/\____/ .___/\__/_/_/ /_/ /_/_/ /___/\___/_/     
                     /_/                                         
-Version 3.0
+Version 4.0
 Creator: Andreas6920 | https://github.com/Andreas6920/
                                                                                                                                                     
  "
@@ -214,11 +95,11 @@ do {
     Set-Location (Join-path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -Childpath "WinOptimizer")
     Clear-Host
     Write-Host $intro -f Yellow 
-    Write-Host "`t[1] - All"
-    Start-Menu -Name "win_antibloat" -Number "2" -Rename "Clean Windows"
-    Start-Menu -Name "win_security" -Number "3" -Rename "Secure Windows"
-    Start-Menu -Name "win_settings" -Number "4" -Rename "Configure Windows"
-    Write-Host "`t[5] - Install Applications"
+    Write-Host "`t[1]`tAll"
+    Write-Host "`t[2]`tStart-AntiBloat"
+    Write-Host "`t[3]`tStart-WinSecurity"
+    Write-Host "`t[4]`tStart-WinSettings"
+    Write-Host "`t[5]`tInstall-App"
     Write-Host ""
     Write-Host "`t[0] - Quit"
     Write-Host ""
@@ -236,9 +117,8 @@ do {
         }
 }
 
-while ($option -ne 5 )
+while ($option -ne 5 )}
 
 
 
 
-}
