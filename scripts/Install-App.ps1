@@ -57,8 +57,8 @@ Function Install-App {
     
     # Hvis INTET er sat
     if (-not $Name -and -not $Default -and -not $EnableAutoupdate -and -not $IncludeVisualPlusplus) {
-        Write-Host "$(Get-LogDate)`t- Enter applications (comma-separated): " -NoNewline -ForegroundColor Yellow
-        $Name = Read-Host}
+            Write-Host "$(Get-LogDate)`t- Enter applications (comma-separated): " -NoNewline -ForegroundColor Yellow
+            $Name = Read-Host}
 
     # Opdel input fra pipeline
         $requested_apps = $Name -split "[,;\s]+" | Where-Object {$_ -ne ""}
@@ -101,9 +101,20 @@ Function Install-App {
             
             # Office installation
             if ($requested_app -match "office") {
-                $header = "Microsoft Office"
-                $package = "microsoft-office-deployment"
-                $params = "'/Product:ProfessionalRetail /64bit /ProofingToolLanguage:da-dk,en-us'" }
+                    $header = "Microsoft Office 2016 Retail"
+                    Write-Host "$(Get-LogDate)`t- Installerer $header." -ForegroundColor Yellow
+                    Start-Job -Name $header -ScriptBlock {
+                        # Refresh
+                            $env:Path = [System.Environment]::GetEnvironmentVariable('Path', [System.EnvironmentVariableTarget]::Machine)
+                            if (!(Get-Command choco -ErrorAction SilentlyContinue)) {Import-Module "$env:ProgramData\chocolatey\helpers\chocolateyInstaller.psm1"; Update-SessionEnvironment}
+                        # Remove existing office bloat
+                            "Microsoft.MicrosoftOfficeHub","Microsoft.Office.OneNote" | %{ if (Get-AppxPackage | Where-Object Name -Like $_){Get-AppxPackage | Where-Object Name -Like $_ | Remove-AppxPackage; Start-Sleep -S 5}}
+                        # Install real Office 2016
+                            choco install microsoft-office-deployment --params="'/Product:ProfessionalRetail /64bit /ProofingToolLanguage:da-dk,en-us'" -y}
+                        # Færdig
+                        Write-Host "$(Get-LogDate)`t- $header installateret." -ForegroundColor Yellow                    
+                    
+                    }
             
             # korriger inputs
             elseif ($apps.ContainsKey($requested_app)) {
