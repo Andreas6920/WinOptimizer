@@ -1,42 +1,38 @@
 ﻿Function Start-WinOptimizer {
 Write-Host "`n`tENHANCE WINDOWS Settings" -f Green
 
-    # Remove login screensaver
-        Write-Host "`t    - Disabling Defender positive notifications" -f Green
-        Add-Reg -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender\Reporting" -Name "DisableEnhancedNotifications" -Type "DWORD" -Value "1"
-    
     # Disable LockScreen ScreenSaver? To prevent missing first character
-        Write-Host "`t    - Disabling screensaver sleep to prevent missing keystrokes" -f Green
+        Write-Host "$(Get-LogDate)`t        - Disabling screensaver sleep to prevent missing keystrokes" -f Green
         Add-Reg -Path "HKLM:\Software\Policies\Microsoft\Windows\Personalization" -Name "Personalization" -Type "DWORD" -Value "1"
     
     # Taskbar: Hide Searchbox
-        Write-Host "`t    - Taskbar: Hide the searchbox" -f Green
+        Write-Host "$(Get-LogDate)`t        - Taskbar: Hide the searchbox" -f Green
         Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type "DWORD" -Value "0"
         Restart-Explorer
         
     # Taskbar: Hide task view button
-        Write-Host "`t    - Taskbar: Hide task view" -f Green
+        Write-Host "$(Get-LogDate)`t        - Taskbar: Hide task view" -f Green
         Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\MultiTaskingView" -Name "ShowTaskViewButton" -Type "DWORD" -Value "0"
         Restart-Explorer
 
     # Show file extensions
-        Write-Host "`t    - Show file extensions" -f Green
+        Write-Host "$(Get-LogDate)`t        - Show file extensions" -f Green
         Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type "DWORD" -Value "0"
             
     # Show hidden files
-        Write-Host "`t    - Show hidden files" -f Green
+        Write-Host "$(Get-LogDate)`t        - Show hidden files" -f Green
         Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type "DWORD" -Value "1"
         
     # Change Explorer to "This PC"
-        Write-Host "`t    - Change explorer to 'This PC' instead of 'Documents'" -f Green
+        Write-Host "$(Get-LogDate)`t        - Change explorer to 'This PC' instead of 'Documents'" -f Green
         Add-Reg -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type "DWORD" -Value "1"
         
     # Start Menu: Disable Bing Search Results
-        Write-Host "`t    - Disabling bing search results in windows search menu" -f Green
+        Write-Host "$(Get-LogDate)`t        - Disabling bing search results in windows search menu" -f Green
         Add-Reg -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -Type "DWORD" -Value "0"
 
     # Remove 3D objects
-        Write-Host "`t    - Disabling 3D Objects app" -f Green
+        Write-Host "$(Get-LogDate)`t        - Disabling 3D Objects app" -f Green
         $3Dlocation32bit = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}"
         $3Dlocation64bit = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A"
         If((test-path $3Dlocation32bit )){remove-item $3Dlocation32bit}

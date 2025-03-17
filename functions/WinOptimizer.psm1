@@ -1,23 +1,58 @@
 # Prepare
 
+        # Timestamps for actions
+            Function Get-LogDate {
+            return (Get-Date -f "[yyyy/MM/dd HH:mm:ss]")}
+
         # TLS upgrade
             [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-            Write-host "Loading" -NoNewline
+            Write-Host "$(Get-LogDate)`t- Upgrading TLS" -f Green
 
         # Disable Explorer first run
             $RegistryKey = "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main"
             If (!(Test-Path $RegistryKey)) {New-Item -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Force | Out-Null}
-            if(!(Get-Item "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main\" | ? Property -EQ "DisableFirstRunCustomize")){Write-host "." -NoNewline; Set-ItemProperty -Path  "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Value 1}
+            if(!(Get-Item "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main\" | ? Property -EQ "DisableFirstRunCustomize")){Write-Host "$(Get-LogDate)`t- Disabling explorer first run" -f Green; Set-ItemProperty -Path  "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Value 1}
         
         # Install Nuget
             if(!(test-path "C:\Program Files\PackageManagement\ProviderAssemblies\nuget\2.8.5.208")){
-                $ProgressPreference = "SilentlyContinue"; Start-Sleep -S 1;  -NoNewline;  
-                Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force | Out-Null
-                Write-host "@"}
+                Write-Host "$(Get-LogDate)`t- Installing Nuget" -f Green
+                $ProgressPreference = "SilentlyContinue"; 
+                Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force | Out-Null;
+                Start-Sleep -S 1;}
         
         # Create Base Folder
+            Write-Host "$(Get-LogDate)`t- Setting up root folder" -f Green
             $BaseFolder = Join-path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -Childpath "WinOptimizer"
-            if(!(test-path $BaseFolder)){Write-host "." -NoNewline; New-Item -itemtype Directory -Path $BaseFolder -ErrorAction SilentlyContinue | Out-Null }        
+            if(!(test-path $BaseFolder)){New-Item -itemtype Directory -Path $BaseFolder -ErrorAction SilentlyContinue | Out-Null }        
+
+Write-Host "$(Get-LogDate)`t- Installing modules" -f Green -nonewline
+
+
+Function Add-Reg {
+ 
+         param (
+             [Parameter(Mandatory=$true)]
+             [string]$Path,
+             [Parameter(Mandatory=$true)]
+             [string]$Name,
+             [Parameter(Mandatory=$true)]
+             [ValidateSet('String', 'ExpandString', 'Binary', 'DWord', 'MultiString', 'Qword',' Unknown')]
+             [String]$Type,
+             [Parameter(Mandatory=$true)]
+             [string]$Value
+         )
+ 
+            # If base reg exists
+            If (!(Test-Path $path)){New-Item -Path $path -Force | Out-Null}; 
+        
+            # If reg key exists
+            if((Get-Item -Path $path).Property -match $name){
+            # If value is not the same, change it
+                if ((Get-ItemPropertyValue $path -Name $name) -ne $Value){Set-ItemProperty -Path $path -Name $Name -Value $Value -Type $Type -Force | Out-Null}}
+        
+            # If reg key does not exist, create it
+            else{Set-ItemProperty -Path $path -Name $Name -Value $Value -Type $Type -Force | Out-Null}
+            }
 
 Function Restart-Explorer {
             <# When explorer restarts with the regular stop-process function, the active PowerShell loses focus,
@@ -31,9 +66,7 @@ Function Restart-Explorer {
             $windowname = $Host.UI.RawUI.WindowTitle
             Add-Type -AssemblyName Microsoft.VisualBasic
             [Microsoft.VisualBasic.Interaction]::AppActivate($windowname)}
-
-Function Get-LogDate {
-        return (Get-Date -f "[yyyy/MM/dd HH:mm:ss]")}
+            Write-Host "." -f Green -nonewline
 
 Function Start-Input{
     $code = @"
@@ -43,6 +76,7 @@ public static extern bool BlockInput(bool fBlockIt);
     $userInput = Add-Type -MemberDefinition $code -Name UserInput -Namespace UserInput -PassThru
     $userInput::BlockInput($false)
     }
+Write-Host "." -f Green -nonewline
 
 Function Stop-Input{
     $code = @"
@@ -52,6 +86,7 @@ public static extern bool BlockInput(bool fBlockIt);
     $userInput = Add-Type -MemberDefinition $code -Name UserInput -Namespace UserInput -PassThru
     $userInput::BlockInput($true)
     }
+Write-Host "." -f Green -nonewline
 
 
 ## Other bigger modules
@@ -72,7 +107,8 @@ public static extern bool BlockInput(bool fBlockIt);
                 if(!(test-path $filedestination)){
                         Invoke-RestMethod -uri $module -OutFile $filedestination
                         Import-module -name $filedestination;
-                        Write-Host "." -NoNewline}
+                        Write-Host "." -f Green -nonewline}}
+                        Write-Host "." -f Green
         
 
 $intro = 
@@ -92,7 +128,6 @@ Creator: Andreas6920 | https://github.com/Andreas6920/
 # Start Menu
 
 do {
-    Set-Location (Join-path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -Childpath "WinOptimizer")
     Clear-Host
     Write-Host $intro -f Yellow 
     Write-Host "`t[1]`tAll"
@@ -117,7 +152,7 @@ do {
         }
 }
 
-while ($option -ne 5 )}
+while ($option -ne 5 )
 
 
 
