@@ -1,4 +1,4 @@
-﻿
+﻿function Start-WinSecurity {
 
     Write-Host "[$(Get-LogDate)]`n`tENHANCE WINDOWS PRIVACY" -f Green
      
@@ -208,4 +208,4 @@
             Write-Host "[$(Get-LogDate)]`tPrivacy optimizer complete. Your system is now more private and secure." -f Green
             Start-Sleep 10
     
-        
+        }

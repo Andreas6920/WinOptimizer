@@ -1,4 +1,5 @@
-﻿Write-Host "`n`tENHANCE WINDOWS Settings" -f Green
+﻿function Start-WinOptimizer {
+Write-Host "`n`tENHANCE WINDOWS Settings" -f Green
 
     # Remove login screensaver
         Write-Host "`t    - Disabling Defender positive notifications" -f Green
@@ -113,4 +114,4 @@
     
     #End of function
     Write-Host "`tWindows customizer completed. Your system is now customized." -f Green
-    Start-Sleep 10
+    Start-Sleep 10}
