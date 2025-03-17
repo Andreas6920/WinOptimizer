@@ -9,6 +9,8 @@ Function Install-App {
         [Parameter(Mandatory=$false)]
         [switch]$IncludeVisualPlusplus,
         [Parameter(Mandatory=$false)]
+        [switch]$MicrosoftOffice2016Retail,
+        [Parameter(Mandatory=$false)]
         [switch]$Default)
 
     # Standardliste, hvis -Default vælges
@@ -87,6 +89,8 @@ Function Install-App {
         }
     }
 
+    Write-Host "$(Get-LogDate)`t    Installerer Applikationer:" -ForegroundColor Green
+
     # Installér Visual C++ Redistributable, hvis valgt
     if ($IncludeVisualPlusplus) { Write-Host "$(Get-LogDate)`t- Installere versionerne Visual C++ Redistributable..." -ForegroundColor Yellow
         Start-Job -Name "Visual C++" -ScriptBlock { 
@@ -110,21 +114,10 @@ Function Install-App {
                 Wait-Job -Name "Visual C++" | Out-Null
                 Write-Host "$(Get-LogDate)`t- Visual C++ installation completed." -ForegroundColor Yellow}
 
-    # Hver indtastning
-        Write-Host "$(Get-LogDate)`t    Installerer Applikationer:" -ForegroundColor Green
-        foreach ($requested_app in $requested_apps) {
-
-            
-           <# # Office installation
-             if ($requested_app -match "office") {
-                $header = "Microsoft Office"
-                $package = "microsoft-office-deployment"
-                $params = "'/Product:ProfessionalRetail /64bit /ProofingToolLanguage:da-dk,en-us'" } #>
-            
-        # Office installation
-        if ($requested_app -match "office") {
+    # Office installation
+        if ($MicrosoftOffice2016Retail){
             $header = "Microsoft Office 2016 Retail"
-            Write-Host "$(Get-LogDate)`t- Installing $header..." -ForegroundColor Yellow
+            Write-Host "$(Get-LogDate)`t        - Installerer $header`." -f Yellow;
 
             # Start installationen som et job og vent på det fuldfører
             Start-Job -ScriptBlock {
@@ -137,7 +130,20 @@ Function Install-App {
                 Start-Sleep -Seconds 3}}
                 # Installer Office 2016
                 choco install microsoft-office-deployment --params "'/Product:ProfessionalRetail /64bit /ProofingToolLanguage:da-dk,en-us'" -y | Out-Null} | Wait-Job | Out-Null
-            Write-Host "$(Get-LogDate)`t- Installation of $header completed." -ForegroundColor Green}
+            Write-Host "$(Get-LogDate)`t        - Fuldført." -f Yellow;}
+
+    # Hver indtastning
+        
+        foreach ($requested_app in $requested_apps) {
+
+            
+           <# # Office installation
+             if ($requested_app -match "office") {
+                $header = "Microsoft Office"
+                $package = "microsoft-office-deployment"
+                $params = "'/Product:ProfessionalRetail /64bit /ProofingToolLanguage:da-dk,en-us'" } #>
+            
+        
 
         # korriger inputs
         elseif ($apps.ContainsKey($requested_app)) {
