@@ -1,4 +1,13 @@
+<# 
+    Forbedringstiltag:
+        - Efterfølgende:
+            - Hvis acrobate er installeret, sæt som pdf åbner
+            - Hvis ShareX er installeret, opsæt konfigurationer
+        - AM opsætning?
+        - Dot.Net opsætning?
+        - Visual++ opsætning?
 
+#>
 
 Function Install-App {
     param (
