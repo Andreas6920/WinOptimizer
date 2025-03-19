@@ -110,7 +110,7 @@ Write-Host "." -f Green -nonewline
                         Write-Host "." -f Green -nonewline}}
                         Write-Host "." -f Green
         
-
+Function Start-WinOptimizer {        
 $intro = 
 "
  _       ___       ____        __  _           _                
@@ -153,6 +153,7 @@ do {
 }
 
 while ($option -ne 5 )
+}
 
 
 
