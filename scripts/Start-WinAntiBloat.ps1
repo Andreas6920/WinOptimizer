@@ -147,34 +147,38 @@
 
 
     # Disabling services
-        Write-Host "$(Get-LogDate)`t    Cleaning Startup services:" -f Green
-        Start-Sleep -s 3
-        $services = @(
-            "diagnosticshub.standardcollector.service" # Microsoft (R) Diagnostics Hub Standard Collector Service
-            "DiagTrack"                                # Diagnostics Tracking Service
-            "dmwappushservice"                         # WAP Push Message Routing Service (see known issues)
-            "lfsvc"                                    # Geolocation Service
-            "MapsBroker"                               # Downloaded Maps Manager
-            "ndu"                                      # Windows Network Data Usage Monitor
-            "NetTcpPortSharing"                        # Net.Tcp Port Sharing Service
-            "RemoteAccess"                             # Routing and Remote Access
-            "RemoteRegistry"                           # Remote Registry
-            "SharedAccess"                             # Internet Connection Sharing (ICS)
-            "TrkWks"                                   # Distributed Link Tracking Client
-            "WbioSrvc"                                 # Windows Biometric Service (required for Fingerprint reader / facial detection)
-            "WMPNetworkSvc"                            # Windows Media Player Network Sharing Service
-            "XblAuthManager"                           # Xbox Live Auth Manager
-            "XblGameSave"                              # Xbox Live Game Save Service
-            "XboxNetApiSvc"                            # Xbox Live Networking Service
-            )
+    Write-Host "$(Get-LogDate)`t    Cleaning Startup services:" -f Green
+    Start-Sleep -s 3
 
-         foreach ($service in $services) {
-         if((Get-Service -Name $service | Where-Object Starttype -ne Disabled)){
-         Write-Host "$(Get-LogDate)`t        - Disabling: $service" -f Yellow
-         Get-Service | Where-Object name -eq $service | Set-Service -StartupType Disabled}}
-         Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;
+    $services = @(
+        "diagnosticshub.standardcollector.service" # Microsoft (R) Diagnostics Hub Standard Collector Service
+        "DiagTrack"                                # Diagnostics Tracking Service
+        "dmwappushservice"                         # WAP Push Message Routing Service (see known issues)
+        "lfsvc"                                    # Geolocation Service
+        "MapsBroker"                               # Downloaded Maps Manager
+        "ndu"                                      # Windows Network Data Usage Monitor
+        "NetTcpPortSharing"                        # Net.Tcp Port Sharing Service
+        "RemoteAccess"                             # Routing and Remote Access
+        "RemoteRegistry"                           # Remote Registry
+        "SharedAccess"                             # Internet Connection Sharing (ICS)
+        "TrkWks"                                   # Distributed Link Tracking Client
+        "WbioSrvc"                                 # Windows Biometric Service (required for Fingerprint reader / facial detection)
+        "WMPNetworkSvc"                            # Windows Media Player Network Sharing Service
+        "XblAuthManager"                           # Xbox Live Auth Manager
+        "XblGameSave"                              # Xbox Live Game Save Service
+        "XboxNetApiSvc"                            # Xbox Live Networking Service
+    )
 
+    foreach ($service in $services) {
+        try {$currentService = Get-Service -Name $service -ErrorAction Stop
+            if ($currentService.StartType -ne 'Disabled') {
+                Write-Host "$(Get-LogDate)`t        - Disabling: $service" -f Yellow
+                Set-Service -Name $service -StartupType Disabled}}
+        catch {Write-Host "$(Get-LogDate)`t        - Service not found: $service (Ignoring)" -f Red}
+    }
 
+    Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow
+    Start-Sleep -S 3
 
     # Clean Task Scheduler
         Write-Host "$(Get-LogDate)`t    Cleaning Scheduled tasks:" -f Green

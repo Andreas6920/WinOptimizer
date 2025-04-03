@@ -4,10 +4,6 @@
             Function Get-LogDate {
             return (Get-Date -f "[yyyy/MM/dd HH:mm:ss]")}
 
-        # TLS upgrade
-            [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-            Write-Host "$(Get-LogDate)`t- Upgrading TLS" -f Green
-
         # Disable Explorer first run
             $RegistryKey = "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main"
             If (!(Test-Path $RegistryKey)) {New-Item -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Force | Out-Null}
