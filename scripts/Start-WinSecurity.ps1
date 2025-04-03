@@ -80,36 +80,35 @@
             Add-Reg -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppCompat" -Name "AITEnable" -Type "DWORD" -Value "0"
             Start-Sleep -s 2
 
+        # Send Microsoft a request to delete collected data about you.
+            
+            # Kontrollér om Windows-versionen er 10
+            $OSVersion = (Get-CimInstance Win32_OperatingSystem).Version
+            if ($OSVersion -like "10.*"){
+                #lock keyboard and mouse to avoid disruption while navigating in GUI.
+                Write-Host "$(Get-LogDate)`t    Submitting request to Microsoft to delete data about you." -f Green
 
+                #start navigating
+                Stop-Input | Out-Null
+                Start-Sleep -s 2
+                $app = New-Object -ComObject Shell.Application
+                $key = New-Object -com Wscript.Shell
+                $app.open("ms-settings:privacy-feedback")
+                $key.AppActivate("Settings") | out-null
+                Start-Sleep -s 2
+                $key.SendKeys("{TAB}")
+                $key.SendKeys("{TAB}")
+                $key.SendKeys("{TAB}")
+                $key.SendKeys("{TAB}")
+                $key.SendKeys("{TAB}")
+                Start-Sleep -s 2
+                $key.SendKeys("{ENTER}")
+                Start-Sleep -s 3
+                $key.SendKeys("%{F4}")
+                Start-Sleep -s 2
+                Start-Input | Out-Null}
 
-
-
-    # Send Microsoft a request to delete collected data about you.
-        
-        #lock keyboard and mouse to avoid disruption while navigating in GUI.
-        Write-Host "$(Get-LogDate)`t    Submitting request to Microsoft to delete data about you." -f Green
-        
-        #start navigating
-        Stop-Input | Out-Null
-        Start-Sleep -s 2
-        $app = New-Object -ComObject Shell.Application
-        $key = New-Object -com Wscript.Shell
-        $app.open("ms-settings:privacy-feedback")
-        $key.AppActivate("Settings") | out-null
-        Start-Sleep -s 2
-        $key.SendKeys("{TAB}")
-        $key.SendKeys("{TAB}")
-        $key.SendKeys("{TAB}")
-        $key.SendKeys("{TAB}")
-        $key.SendKeys("{TAB}")
-        Start-Sleep -s 2
-        $key.SendKeys("{ENTER}")
-        Start-Sleep -s 3
-        $key.SendKeys("%{F4}")
-        Start-Sleep -s 2
-        Start-Input | Out-Null
-        
-        # Windows hardening
+    # Windows hardening
         Write-Host "`n$(Get-LogDate)`tENHANCE WINDOWS SECURITY" -f Green
         
         # Disable automatic setup of network connected devices
