@@ -125,10 +125,8 @@ Function Install-App {
                     Invoke-Expression $scriptContent} -ArgumentList $modifiedContent
 
                 # Vent til jobbet er færdigt
-                Wait-Job -Name $header | Out-Null}
-
-                Write-Host "$(Get-LogDate)`t    Applikationer Installeret." -f Green
-
+                Wait-Job -Name $header | Out-Null
+                
                 Add-Type -AssemblyName System.Windows.Forms
                 $global:balmsg = New-Object System.Windows.Forms.NotifyIcon
                 $path = (Get-Process -id $pid).Path
@@ -138,6 +136,12 @@ Function Install-App {
                 $balmsg.BalloonTipTitle = "Installation fuldendt"
                 $balmsg.Visible = $true
                 $balmsg.ShowBalloonTip(20000)
+                
+                }
+
+                Write-Host "$(Get-LogDate)`t    Applikationer Installeret." -f Green
+
+                
         }
 
 
