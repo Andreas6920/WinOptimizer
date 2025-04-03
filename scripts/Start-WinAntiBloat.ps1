@@ -140,7 +140,7 @@
             foreach ($Bloat in $Bloatware) {
                 $bloat_name = (Get-AppxPackage | Where-Object Name -Like $Bloat).Name
                 if (Get-AppxPackage | Where-Object Name -Like $Bloat){Write-Host "$(Get-LogDate)`t        - Removing: " -f Yellow -nonewline; Write-Host "$bloat_name".Split(".")[1].Split("}")[0].Replace('Microsoft','') -f Yellow; Get-AppxPackage | Where-Object Name -Like $Bloat | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null}
-                Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online | Out-Null} 
+                Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Out-Null} 
             $ProgressPreference = "Continue" #unhide progressbar
             Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;
 
