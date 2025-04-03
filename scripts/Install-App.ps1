@@ -9,14 +9,6 @@
 
 #>
 
-
-## Remove when uploading
-
-    Set-ExecutionPolicy -Scope Process Unrestricted -Force
-    Function Get-LogDate { return (Get-Date -f "[yyyy/MM/dd HH:mm:ss]")}
-
-
-
 Function Install-App {
     param (
         [Parameter(Mandatory=$false)]
@@ -136,7 +128,7 @@ Function Install-App {
                 $balmsg.BalloonTipTitle = "Installation fuldendt"
                 $balmsg.Visible = $true
                 $balmsg.ShowBalloonTip(20000)
-                
+
                 }
 
                 Write-Host "$(Get-LogDate)`t    Applikationer Installeret." -f Green
