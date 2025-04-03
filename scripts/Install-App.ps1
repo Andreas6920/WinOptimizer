@@ -128,6 +128,16 @@ Function Install-App {
                 Wait-Job -Name $header | Out-Null}
 
                 Write-Host "$(Get-LogDate)`t    Applikationer Installeret." -f Green
+
+                Add-Type -AssemblyName System.Windows.Forms
+                $global:balmsg = New-Object System.Windows.Forms.NotifyIcon
+                $path = (Get-Process -id $pid).Path
+                $balmsg.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
+                $balmsg.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
+                $balmsg.BalloonTipText = "$($header) er nu installeret."
+                $balmsg.BalloonTipTitle = "Installation fuldendt"
+                $balmsg.Visible = $true
+                $balmsg.ShowBalloonTip(20000)
         }
 
 
