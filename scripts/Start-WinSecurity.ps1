@@ -128,7 +128,6 @@
             Add-Reg -Path "HKLM:\Software\policies\Microsoft\Windows NT\DNSClient" -Name "EnableMulticast" -Type "DWORD" -Value "0"
             Start-Sleep -s 2
 
-
         # Disable Wi-Fi Sense
             # https://www.blackhillsinfosec.com/how-to-disable-llmnr-why-you-want-to/
             Write-Host "$(Get-LogDate)`t        - Disabling Wi-Fi Sense." -f yellow
@@ -137,7 +136,6 @@
             Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi\AllowAutoConnectToWiFiSenseHotspots" -Name "Value" -Value 0
             Start-Sleep -s 2
 
-
         # Bad Neighbor - CVE-2020-16898 (Disable IPv6 DNS)
             # https://blog.rapid7.com/2020/10/14/there-goes-the-neighborhood-dealing-with-cve-2020-16898-a-k-a-bad-neighbor/
             Write-Host "$(Get-LogDate)`t        - Patching Bad Neighbor (CVE-2020-16898)." -f Yellow
@@ -145,8 +143,7 @@
             Set-NetIPInterface -AddressFamily IPv6 -InterfaceIndex $(Get-NetIPInterface -AddressFamily IPv6 | Select-Object -ExpandProperty InterfaceIndex) -RouterDiscovery Disabled -Dhcp Disabled
             # Prefer IPv4 over IPv6 (IPv6 is prefered by default)
             Add-Reg -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" -Name "DisabledComponents" -Type "DWORD" -Value "0x20"
-            Start-Sleep -s 2
-        
+            Start-Sleep -s 2        
 
         # Disabe SMB Compression - CVE-2020-0796
             # https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2020-0796
@@ -163,12 +160,6 @@
                 Disable-WindowsOptionalFeature -Online -FeatureName smb1protocol -NoRestart -WarningAction:SilentlyContinue | Out-Null
                 Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force -ea SilentlyContinue | Out-Null
                 Add-Reg -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" -Name "SMB1" -Type "DWORD" -Value "0"}
-
-        # Disable SMB v2
-            # https://docs.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3
-            Write-Host "$(Get-LogDate)`t        - Disabling SMB version 2 support." -f Yellow
-            Set-SmbServerConfiguration -EnableSMB2Protocol $false -Force -ea SilentlyContinue | Out-Null
-            Add-Reg -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" -Name "SMB2" -Type "DWORD" -Value "0"
 
         # Enable SMB Encryption
             # https://docs.microsoft.com/en-us/windows-server/storage/file-server/smb-security
