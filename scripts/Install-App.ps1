@@ -9,6 +9,13 @@
 
 #>
 
+
+## Remove when uploading
+
+    Set-ExecutionPolicy -Scope Process Unrestricted -Force
+    Function Get-LogDate { return (Get-Date -f "[yyyy/MM/dd HH:mm:ss]")}
+
+
 Function Install-App {
     param (
         [Parameter(Mandatory=$false)]
@@ -18,8 +25,6 @@ Function Install-App {
         [Parameter(Mandatory=$false)]
         [switch]$IncludeVisualPlusplus,
         [Parameter(Mandatory=$false)]
-        [switch]$MicrosoftOffice2016Retail,
-        [Parameter(Mandatory=$false)]
         [switch]$Default)
 
     # Standardliste, hvis -Default vælges
@@ -27,6 +32,7 @@ Function Install-App {
 
     # Liste over tilgængelige applikationer
     $apps = @{
+        "office" = "Microsoft Office 2016 Retail|microsoft-office-deployment"
         "firefox" = "Mozilla Firefox|firefox"
         "chrome" = "Google Chrome|googlechrome"
         "brave" = "Brave Browser|brave"
@@ -77,110 +83,53 @@ Function Install-App {
         $requested_apps = $Name -split "[,;\s]+" | Where-Object {$_ -ne ""}
 
     # Installér Chocolatey, hvis det ikke er installeret
-    if (!($requested_app -eq "cancel")) {
+    if ($name) {
         if (!(Test-Path "$env:ProgramData\Chocolatey")) {
             Write-Host "`n$(Get-LogDate)`tSETTING UP SYSTEM" -f Green; Start-Sleep -S 2
             Write-Host "$(Get-LogDate)`t    Forbereder systemet:" -f Green
             Write-Host "$(Get-LogDate)`t        - Installerer Chocolatey." -f Yellow;
             # Start job
-            [void](Start-Job -Name "Install_Choco" -ScriptBlock {
+            [void](Start-Job -Name "Chocolatey Installation" -ScriptBlock {
                 Set-ExecutionPolicy Bypass -Scope Process -Force
                 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
                 Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))})
 
             # Vent på at jobbet er færdigt, men uden output
-            Wait-Job -Name "Install_Choco" | Out-Null
+            Wait-Job -Name "Chocolatey Installation" | Out-Null
 
             # Import Chocolatey uden output
             Import-Module "$env:ProgramData\chocolatey\helpers\chocolateyInstaller.psm1" -ErrorAction SilentlyContinue
             Update-SessionEnvironment | Out-Null
-            Write-Host "$(Get-LogDate)`t        - Chocolatey Installation Complete." -f Yellow;
-        }
+            Write-Host "$(Get-LogDate)`t        - Complete." -f Yellow;}
     }
 
     Write-Host "$(Get-LogDate)`t    Installerer Applikationer:" -ForegroundColor Green
 
-    # Installér Visual C++ Redistributable, hvis valgt
-    if ($IncludeVisualPlusplus) { Write-Host "$(Get-LogDate)`t- Installere versionerne Visual C++ Redistributable..." -ForegroundColor Yellow
-        Start-Job -Name "Visual C++" -ScriptBlock { 
-            # Download
-                $link = "https://drive.google.com/uc?export=download&confirm=uc-download-link&id=1mHvNVA_pI0XnWyjRDNee0vhQxLp6agp_"
-                $FileDestination = "$($env:TMP)\drivers.zip"
-                $path = ($FileDestination | split-path -parent)
-                (New-Object net.webclient).Downloadfile($link, $FileDestination)
-            # Unzip
-                Expand-Archive $FileDestination -DestinationPath $path | Out-Null; 
-                Start-Sleep -s 5
-            # Install
-                Set-Location $path
-                ./vcredist2005_x64.exe /q | Out-Null
-                ./vcredist2008_x64.exe /qb | Out-Null
-                ./vcredist2010_x64.exe /passive /norestart | Out-Null
-                ./vcredist2012_x64.exe /passive /norestart | Out-Null
-                ./vcredist2013_x64.exe /passive /norestart | Out-Null
-                ./vcredist2015_2017_2019_2022_x64.exe /passive /norestart | Out-Null}
-            # Vent indtil installation er færdig
-                Wait-Job -Name "Visual C++" | Out-Null
-                Write-Host "$(Get-LogDate)`t- Visual C++ installation completed." -ForegroundColor Yellow}
 
-    # Office installation
-        if ($MicrosoftOffice2016Retail){
-            $header = "Microsoft Office 2016 Retail"
-            Write-Host "$(Get-LogDate)`t        - Installerer $header`." -f Yellow;
-
-            # Start installationen som et job og vent på det fuldfører
-            Start-Job -ScriptBlock {
-                # Refresh environment variables for Chocolatey
-                $env:Path = [System.Environment]::GetEnvironmentVariable('Path', [System.EnvironmentVariableTarget]::Machine)
-                if (!(Get-Command choco -ErrorAction SilentlyContinue)) {Import-Module "$env:ProgramData\chocolatey\helpers\chocolateyInstaller.psm1"; Update-SessionEnvironment}
-                # Fjern eksisterende Office-apps
-                "Microsoft.MicrosoftOfficeHub", "Microsoft.Office.OneNote" | ForEach-Object {if (Get-AppxPackage | Where-Object Name -Like $_) {
-                Get-AppxPackage | Where-Object Name -Like $_ | Remove-AppxPackage
-                Start-Sleep -Seconds 3}}
-                # Installer Office 2016
-                choco install microsoft-office-deployment --params "'/Product:ProfessionalRetail /64bit /ProofingToolLanguage:da-dk,en-us'" -y | Out-Null} | Wait-Job | Out-Null
-            Write-Host "$(Get-LogDate)`t        - Fuldført." -f Yellow;}
-
-    # Hver indtastning
+    # Installér applikation
         
         foreach ($requested_app in $requested_apps) {
 
-            
-           <# # Office installation
-             if ($requested_app -match "office") {
-                $header = "Microsoft Office"
-                $package = "microsoft-office-deployment"
-                $params = "'/Product:ProfessionalRetail /64bit /ProofingToolLanguage:da-dk,en-us'" } #>
-            
-        
-
-        # korriger inputs
-        elseif ($apps.ContainsKey($requested_app)) {
+            # Korriger inputs
             $app_info = $apps[$requested_app] -split "\|"
             $header = $app_info[0]
             $package = $app_info[1]
-            $params = ""}
+            $url = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/res/Template-AppInstall"
+                if ($header -eq "Microsoft Office 2016 Retail"){$url = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/res/Template-OfficeInstall"}
+                $content = irm $url
+                $modifiedContent = $content -replace "REPLACE-ME-APP", $package
 
-        # Invalid input
-        else {Write-Host "$(Get-LogDate)`t- Applikationen '$requested_app' invalid. Springer over..." -ForegroundColor Yellow
-        continue}
-            
-        # Installerer applikationer
-        Write-Host "$(Get-LogDate)`t        - Installerer $header`:" -f Yellow;
-        $job = Start-Job -Name $header -ScriptBlock {
-            param($packageName, $installParams)
-            # Refresh
-            $env:Path = [System.Environment]::GetEnvironmentVariable('Path', [System.EnvironmentVariableTarget]::Machine)
-            if (!(Get-Command choco -ErrorAction SilentlyContinue)) {Import-Module "$env:ProgramData\chocolatey\helpers\chocolateyInstaller.psm1"; Update-SessionEnvironment}
-            if ($installParams -ne "") {choco install $packageName --params=$installParams -y | Out-Null} 
-            else {choco install $packageName -y }
-        } -ArgumentList $package, $params
-    
-        # Vent indtil installation er færdig
-        Wait-Job -Name $header | Out-Null
-        Write-Host "$(Get-LogDate)`t        - Fuldført." -f Yellow;}
+            # Start et job, som kører det modificerede indhold direkte
+            Write-Host "$(Get-LogDate)`t        - $header." -f Yellow;
+            $job = Start-Job -Name $header -ScriptBlock {param ($scriptContent)
+                Invoke-Expression $scriptContent} -ArgumentList $modifiedContent
+
+            # Vent til jobbet er færdigt
+            Wait-Job -Name $header | Out-Null
+            Write-Host "$(Get-LogDate)`t        - Complete." -f Yellow;}
 
     # Automatisk opdatering af applikationer
+       
         if ($EnableAutoupdate) {
             Write-Host "$(Get-LogDate)`t    Opsætter automatisk opdatereing:" -f Green
 
@@ -203,6 +152,34 @@ Function Install-App {
             Write-Host "$(Get-LogDate)`t        - Opgavenavn: $Taskname" -f Yellow;
             Write-Host "$(Get-LogDate)`t        - Fuldført." -f Yellow;
         }
+
+
+<#    # Installér Visual C++ Redistributable, hvis valgt
+    if ($IncludeVisualPlusplus) { Write-Host "$(Get-LogDate)`t- Installere versionerne Visual C++ Redistributable..." -ForegroundColor Yellow
+        Start-Job -Name "Visual C++" -ScriptBlock { 
+            # Download
+                $link = "https://drive.google.com/uc?export=download&confirm=uc-download-link&id=1mHvNVA_pI0XnWyjRDNee0vhQxLp6agp_"
+                $FileDestination = "$($env:TMP)\drivers.zip"
+                $path = ($FileDestination | split-path -parent)
+                (New-Object net.webclient).Downloadfile($link, $FileDestination)
+            # Unzip
+                Expand-Archive $FileDestination -DestinationPath $path | Out-Null; 
+                Start-Sleep -s 5
+            # Install
+                Set-Location $path
+                ./vcredist2005_x64.exe /q | Out-Null
+                ./vcredist2008_x64.exe /qb | Out-Null
+                ./vcredist2010_x64.exe /passive /norestart | Out-Null
+                ./vcredist2012_x64.exe /passive /norestart | Out-Null
+                ./vcredist2013_x64.exe /passive /norestart | Out-Null
+                ./vcredist2015_2017_2019_2022_x64.exe /passive /norestart | Out-Null}
+            # Vent indtil installation er færdig
+                Wait-Job -Name "Visual C++" | Out-Null
+                Write-Host "$(Get-LogDate)`t- Visual C++ installation completed." -ForegroundColor Yellow} #>
+
+
+
+
 }
 
 # Eksempel på hvordan du kan kalde funktionen:
