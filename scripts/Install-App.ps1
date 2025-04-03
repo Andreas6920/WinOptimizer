@@ -16,6 +16,7 @@
     Function Get-LogDate { return (Get-Date -f "[yyyy/MM/dd HH:mm:ss]")}
 
 
+
 Function Install-App {
     param (
         [Parameter(Mandatory=$false)]
@@ -81,52 +82,54 @@ Function Install-App {
 
     # Opdel input fra pipeline
         $requested_apps = $Name -split "[,;\s]+" | Where-Object {$_ -ne ""}
+    
+    Write-Host "`n$(Get-LogDate)`tINSTALLING APPLICATIONS" -f Green; Start-Sleep -S 2
 
-    # Installér Chocolatey, hvis det ikke er installeret
-    if ($name) {
-        if (!(Test-Path "$env:ProgramData\Chocolatey")) {
-            Write-Host "`n$(Get-LogDate)`tSETTING UP SYSTEM" -f Green; Start-Sleep -S 2
-            Write-Host "$(Get-LogDate)`t    Forbereder systemet:" -f Green
-            Write-Host "$(Get-LogDate)`t        - Installerer Chocolatey." -f Yellow;
-            # Start job
-            [void](Start-Job -Name "Chocolatey Installation" -ScriptBlock {
-                Set-ExecutionPolicy Bypass -Scope Process -Force
-                [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-                Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))})
-
-            # Vent på at jobbet er færdigt, men uden output
-            Wait-Job -Name "Chocolatey Installation" | Out-Null
-
-            # Import Chocolatey uden output
-            Import-Module "$env:ProgramData\chocolatey\helpers\chocolateyInstaller.psm1" -ErrorAction SilentlyContinue
-            Update-SessionEnvironment | Out-Null
-            Write-Host "$(Get-LogDate)`t        - Complete." -f Yellow;}
-    }
-
-    Write-Host "$(Get-LogDate)`t    Installerer Applikationer:" -ForegroundColor Green
-
-
-    # Installér applikation
+    # Installér applikationer
         
-        foreach ($requested_app in $requested_apps) {
+        if ($Name){
+            # Installér Chocolatey hvis ikke den er
+            if (!(Test-Path "$env:ProgramData\Chocolatey")) {
+                Write-Host "$(Get-LogDate)`t    Forbereder systemet:" -f Green
+                Write-Host "$(Get-LogDate)`t        - Installerer Chocolatey." -f Yellow;
+                
+                # Start job
+                [void](Start-Job -Name "Chocolatey Installation" -ScriptBlock {
+                    Set-ExecutionPolicy Bypass -Scope Process -Force
+                    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+                    Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))})
 
-            # Korriger inputs
-            $app_info = $apps[$requested_app] -split "\|"
-            $header = $app_info[0]
-            $package = $app_info[1]
-            $url = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/res/Template-AppInstall"
-                if ($header -eq "Microsoft Office 2016 Retail"){$url = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/res/Template-OfficeInstall"}
-                $content = irm $url
-                $modifiedContent = $content -replace "REPLACE-ME-APP", $package
+                # Vent på at jobbet er færdigt, men uden output
+                Wait-Job -Name "Chocolatey Installation" | Out-Null
 
-            # Start et job, som kører det modificerede indhold direkte
-            Write-Host "$(Get-LogDate)`t        - $header." -f Yellow;
-            $job = Start-Job -Name $header -ScriptBlock {param ($scriptContent)
-                Invoke-Expression $scriptContent} -ArgumentList $modifiedContent
+                # Import Chocolatey uden output
+                Import-Module "$env:ProgramData\chocolatey\helpers\chocolateyInstaller.psm1" -ErrorAction SilentlyContinue
+                Update-SessionEnvironment | Out-Null}
 
-            # Vent til jobbet er færdigt
-            Wait-Job -Name $header | Out-Null
-            Write-Host "$(Get-LogDate)`t        - Complete." -f Yellow;}
+                Write-Host "$(Get-LogDate)`t    Installerer Applikationer:" -ForegroundColor Green 
+        
+                foreach ($requested_app in $requested_apps) {
+
+                # Korriger inputs
+                $app_info = $apps[$requested_app] -split "\|"
+                $header = $app_info[0]
+                $package = $app_info[1]
+                $url = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/res/Template-AppInstall"
+                    if ($header -eq "Microsoft Office 2016 Retail"){$url = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/res/Template-OfficeInstall"}
+                    $content = irm $url
+                    $modifiedContent = $content -replace "REPLACE-ME-APP", $package
+
+                # Start et job, som kører det modificerede indhold direkte
+                Write-Host "$(Get-LogDate)`t        - $header." -f Yellow;
+                $job = Start-Job -Name $header -ScriptBlock {param ($scriptContent)
+                    Invoke-Expression $scriptContent} -ArgumentList $modifiedContent
+
+                # Vent til jobbet er færdigt
+                Wait-Job -Name $header | Out-Null}
+
+                Write-Host "$(Get-LogDate)`t    Applikationer Installeret." -f Green
+        }
+
 
     # Automatisk opdatering af applikationer
        
