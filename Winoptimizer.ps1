@@ -13,15 +13,14 @@
     Write-Host "$(Get-LogDate)`tINSTALLING:" -ForegroundColor Green
 
 # TLS upgrade
-    Write-Host "$(Get-LogDate)`t    -Upgrading TLS connections to TLS 1.2" -f Green
+    Write-Host "$(Get-LogDate)`t    - Upgrading TLS connections to TLS 1.2" -ForegroundColor Green
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-    Write-Host "$(Get-LogDate)`t    -Loading" -ForegroundColor Green -NoNewline 
 
 # Install module
     # Create root folder for module
     $BaseFolder = Join-Path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -ChildPath "WinOptimizer"
     if (-not (Test-Path $BaseFolder)) {
-        Write-Host "." -ForegroundColor Green -NoNewline
+        Write-Host "$(Get-LogDate)`t    - Downloading module to $($BaseFolder)" -ForegroundColor Green
         New-Item -ItemType Directory -Path $BaseFolder -Force -ErrorAction SilentlyContinue | Out-Null}
 
     # Download module
