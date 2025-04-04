@@ -17,29 +17,26 @@
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 # Install module
+
     # Create root folder for module
-    $BaseFolder = Join-Path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -ChildPath "WinOptimizer"
-    if (-not (Test-Path $BaseFolder)) {
-        Write-Host "$(Get-LogDate)`t    - Downloading module to $($BaseFolder)" -ForegroundColor Green
-        New-Item -ItemType Directory -Path $BaseFolder -Force -ErrorAction SilentlyContinue | Out-Null}
+        $BaseFolder = Join-Path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -ChildPath "WinOptimizer"
+        if (-not (Test-Path $BaseFolder)) {
+            Write-Host "$(Get-LogDate)`t    - Downloading module to $($BaseFolder)" -ForegroundColor Green
+            New-Item -ItemType Directory -Path $BaseFolder -Force -ErrorAction SilentlyContinue | Out-Null}
 
     # Download module
-    $modulepath = $env:PSModulePath.Split(";")[1]
-    $module = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/functions/WinOptimizer.psm1"
-    $file = [System.IO.Path]::GetFileNameWithoutExtension($module)
-    $filedestination = Join-Path -Path $modulepath -ChildPath "$file/$file.psm1"
-    $filesubfolder = Split-Path -Path $filedestination -Parent
+        $modulepath = $env:PSModulePath.Split(";")[1]
+        $module = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/functions/WinOptimizer.psm1"
+        $file = [System.IO.Path]::GetFileNameWithoutExtension($module)
+        $filedestination = Join-Path -Path $modulepath -ChildPath "$file/$file.psm1"
+        $filesubfolder = Split-Path -Path $filedestination -Parent
 
-    if (-not (Test-Path $filesubfolder)) {
-        New-Item -ItemType Directory -Path $filesubfolder -Force | Out-Null
-        Start-Sleep -Seconds 1}
+        if (-not (Test-Path $filesubfolder)) {
+            New-Item -ItemType Directory -Path $filesubfolder -Force | Out-Null
+            Start-Sleep -Seconds 1}
 
     # Download module
-    (New-Object Net.WebClient).DownloadFile($module, $filedestination)
+        (New-Object Net.WebClient).DownloadFile($module, $filedestination)
 
     # Install module
-    Import-Module -Name $file
-
-        
-
- 
+        Import-Module -Name $file
