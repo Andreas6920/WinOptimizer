@@ -6,11 +6,15 @@
 
 # Execution policy
     Set-ExecutionPolicy -Scope Process Unrestricted -Force
-    
+
+# Timestamps for actions
+    Function Get-LogDate {
+    return (Get-Date -f "[yyyy/MM/dd HH:mm:ss]")}
+
 # TLS upgrade
-    Clear-Host
+    Write-Host "$(Get-LogDate)`t- Upgrading TLS connections to TLS 1.2" -f Green
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-    Write-host "Loading" -NoNewline
+    Write-Host "$(Get-LogDate)`t- Loading" -f Green -NoNewline 
 
 # Install module
     $BaseFolder = Join-path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -Childpath "WinOptimizer"
