@@ -7,21 +7,21 @@
         # Disable Explorer first run
             $RegistryKey = "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main"
             If (!(Test-Path $RegistryKey)) {New-Item -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Force | Out-Null}
-            if(!(Get-Item "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main\" | ? Property -EQ "DisableFirstRunCustomize")){Write-Host "$(Get-LogDate)`t- Disabling explorer first run" -f Green; Set-ItemProperty -Path  "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Value 1}
+            if(!(Get-Item "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main\" | ? Property -EQ "DisableFirstRunCustomize")){Write-Host "$(Get-LogDate)`t    - Disabling explorer first run" -ForegroundColor Green; Set-ItemProperty -Path  "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Value 1}
         
         # Install Nuget
             if(!(test-path "C:\Program Files\PackageManagement\ProviderAssemblies\nuget\2.8.5.208")){
-                Write-Host "$(Get-LogDate)`t- Installing Nuget" -f Green
+                Write-Host "$(Get-LogDate)`t    - Installing Nuget" -ForegroundColor Green
                 $ProgressPreference = "SilentlyContinue"; 
                 Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force | Out-Null;
                 Start-Sleep -S 1;}
         
         # Create Base Folder
-            Write-Host "$(Get-LogDate)`t- Setting up root folder" -f Green
+            Write-Host "$(Get-LogDate)`t    - Setting up root folder" -ForegroundColor Green
             $BaseFolder = Join-path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -Childpath "WinOptimizer"
             if(!(test-path $BaseFolder)){New-Item -itemtype Directory -Path $BaseFolder -ErrorAction SilentlyContinue | Out-Null }        
 
-Write-Host "$(Get-LogDate)`t- Installing modules" -f Green -nonewline
+Write-Host "$(Get-LogDate)`t    - Installing modules" -ForegroundColor Green -nonewline
 
 
 Function Add-Reg {
@@ -62,7 +62,7 @@ Function Restart-Explorer {
             $windowname = $Host.UI.RawUI.WindowTitle
             Add-Type -AssemblyName Microsoft.VisualBasic
             [Microsoft.VisualBasic.Interaction]::AppActivate($windowname)}
-            Write-Host "." -f Green -nonewline
+            Write-Host "." -ForegroundColor Green -nonewline
 
 Function Start-Input{
     $code = @"
@@ -72,7 +72,7 @@ public static extern bool BlockInput(bool fBlockIt);
     $userInput = Add-Type -MemberDefinition $code -Name UserInput -Namespace UserInput -PassThru
     $userInput::BlockInput($false)
     }
-Write-Host "." -f Green -nonewline
+Write-Host "." -ForegroundColor Green -nonewline
 
 Function Stop-Input{
     $code = @"
@@ -82,7 +82,7 @@ public static extern bool BlockInput(bool fBlockIt);
     $userInput = Add-Type -MemberDefinition $code -Name UserInput -Namespace UserInput -PassThru
     $userInput::BlockInput($true)
     }
-Write-Host "." -f Green -nonewline
+Write-Host "." -ForegroundColor Green -nonewline
 
 
 ## Other bigger modules
@@ -103,8 +103,8 @@ Write-Host "." -f Green -nonewline
                 if(!(test-path $filedestination)){
                         Invoke-RestMethod -uri $module -OutFile $filedestination
                         Import-module -name $filedestination;
-                        Write-Host "." -f Green -nonewline}}
-                        Write-Host "." -f Green
+                        Write-Host "." -ForegroundColor Green -nonewline}}
+                        Write-Host "." -ForegroundColor Green
         
 Function Start-WinOptimizer {        
 $intro = 
