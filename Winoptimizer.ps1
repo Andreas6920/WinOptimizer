@@ -10,7 +10,7 @@
 # Timestamps for actions
     Function Get-LogDate {
     return (Get-Date -f "[yyyy/MM/dd HH:mm:ss]")}
-    Write-Host "$(Get-LogDate)`tINSTALLING:" -ForegroundColor Green
+    Write-Host "$(Get-LogDate)`tSYSTEM INITIALIZATION" -ForegroundColor Green
 
 # TLS upgrade
     Write-Host "$(Get-LogDate)`t    - Upgrading TLS connections to TLS 1.2" -ForegroundColor Green
