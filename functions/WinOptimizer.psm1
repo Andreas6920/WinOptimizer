@@ -57,8 +57,6 @@ Function Restart-Explorer {
             Stop-Process -Name "Explorer" -Force -ErrorAction SilentlyContinue | Out-Null
             Start-Sleep -Seconds 2
             if(!(Get-Process -Name Explorer)){Start-Process Explorer -ErrorAction SilentlyContinue}}
-            #taskkill /IM explorer.exe /F | Out-Null -ErrorAction SilentlyContinue
-            #start explorer | Out-Null
             $windowname = $Host.UI.RawUI.WindowTitle
             Add-Type -AssemblyName Microsoft.VisualBasic
             [Microsoft.VisualBasic.Interaction]::AppActivate($windowname)}
@@ -106,11 +104,10 @@ Foreach ($ScriptURL in $ScriptURLs) {
     $ScriptLocation = Join-Path -Path $ScriptFolder -ChildPath $ScriptName
 
     try {   (New-Object Net.WebClient).DownloadFile($ScriptURL, $ScriptLocation)
-            Write-Host "Downloaded $ScriptName" -ForegroundColor Green
         
             # Kør scriptet (dot-sourcing for at importere funktioner hvis der er nogen)
             . $ScriptLocation
-            Write-Host "Imported $ScriptName" -ForegroundColor Green}
+            Write-Host "." -ForegroundColor Yellow -NoNewline}
     
     catch { Write-Host "Failed to download or import $ScriptName - $_" -ForegroundColor Red }
 }
@@ -128,7 +125,7 @@ $intro =
 | |/ |/ / / / / / /_/ / /_/ / /_/ / / / / / / / / /_/  __/ /    
 |__/|__/_/_/ /_/\____/ .___/\__/_/_/ /_/ /_/_/ /___/\___/_/     
                     /_/                                         
-Version 4.0
+Version 5.0
 Creator: Andreas6920 | https://github.com/Andreas6920/
                                                                                                                                                     
  "
@@ -152,11 +149,11 @@ do {
         $option = Read-Host
         Switch ($option) { 
             0 { exit }
-            1 { Start-WinAntiBloat; Start-WinSecurity; Start-WinSettings; Start-WinOptimizer}
-            2 { Start-WinAntiBloat; Start-WinOptimizer; }
-            3 { Start-WinSecurity;}
-            4 { Start-WinSettings;}
-            5 { Install-App;}
+            1 { Start-WinAntiBloat; Start-WinOptimizer; Start-WinSecurity; Start-WinSettings }
+            2 { Start-WinAntiBloat; Start-WinOptimizer }
+            3 { Start-WinSecurity }
+            4 { Start-WinSettings }
+            5 { Install-App }
             Default {  Write-Host "INVALID OPTION. TRY AGAIN.." -f red; Start-Sleep -s 2; Start-WinOptimizer } 
         }
 }
