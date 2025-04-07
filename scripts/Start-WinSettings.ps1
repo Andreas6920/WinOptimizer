@@ -1,4 +1,4 @@
-﻿Function Start-WinOptimizer {
+﻿Function Start-WinSettings {
 Write-Host "`n$(Get-LogDate)`tENHANCE WINDOWS Settings" -f Green
 
     # Windows settings
