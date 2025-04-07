@@ -1,4 +1,4 @@
-﻿# Ensure Admin Rights
+﻿# Confirm Admin rights
     If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
         {# Relaunch as an elevated process
         $Script = $MyInvocation.MyCommand.Path
@@ -15,7 +15,7 @@
 # TLS upgrade
     Write-Host "$(Get-LogDate)`t    - Opgradere forbindelsen til TLS 1.2" -ForegroundColor Green
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-W
+
 # Installér modul
     $ModuleUrl = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/functions/WinOptimizer.psm1"
     $ModuleName = [System.IO.Path]::GetFileNameWithoutExtension((Split-Path $ModuleUrl -Leaf))
