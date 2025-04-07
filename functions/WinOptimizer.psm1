@@ -24,31 +24,37 @@
         Write-Host "$(Get-LogDate)`t        - Installing functions" -ForegroundColor Yellow -nonewline
 
 
-Function Add-Reg {
- 
-         param (
-             [Parameter(Mandatory=$true)]
-             [string]$Path,
-             [Parameter(Mandatory=$true)]
-             [string]$Name,
-             [Parameter(Mandatory=$true)]
-             [ValidateSet('String', 'ExpandString', 'Binary', 'DWord', 'MultiString', 'Qword',' Unknown')]
-             [String]$Type,
-             [Parameter(Mandatory=$true)]
-             [string]$Value
-         )
- 
-            # If base reg exists
-            If (!(Test-Path $path)){New-Item -Path $path -Force | Out-Null}; 
+        Function Add-Reg {
+            param (
+                [Parameter(Mandatory=$true)]
+                [string]$Path,
+                [Parameter(Mandatory=$true)]
+                [string]$Name,
+                [Parameter(Mandatory=$true)]
+                [ValidateSet('String', 'ExpandString', 'Binary', 'DWord', 'MultiString', 'Qword', 'Unknown')]
+                [string]$Type,
+                [Parameter(Mandatory=$true)]
+                [string]$Value
+            )
         
-            # If reg key exists
-            if((Get-Item -Path $path).Property -match $name){
-            # If value is not the same, change it
-                if ((Get-ItemPropertyValue $path -Name $name) -ne $Value){Set-ItemProperty -Path $path -Name $Name -Value $Value -Type $Type -Force | Out-Null}}
+            try {
+                # Opret mappen hvis den ikke eksisterer
+                if (!(Test-Path $Path)) {New-Item -Path $Path -Force | Out-Null}
         
-            # If reg key does not exist, create it
-            else{Set-ItemProperty -Path $path -Name $Name -Value $Value -Type $Type -Force | Out-Null}
+                # Hent nuværende værdi hvis den eksisterer
+                $CurrentValue = $null
+                if (Get-ItemProperty -Path $Path -Name $Name -ErrorAction SilentlyContinue) {$CurrentValue = (Get-ItemPropertyValue -Path $Path -Name $Name -ErrorAction SilentlyContinue)}
+        
+                # Sæt eller opdater værdi hvis den er forskellig
+                if ($CurrentValue -ne $Value) {
+                    New-ItemProperty -Path $Path -Name $Name -PropertyType $Type -Value $Value -Force | Out-Null
+                    Write-Host "$(Get-LogDate)`t            - Registry '$Name' sat til '$Value'." -f Yellow;
+                }
+                else {Write-Host "$(Get-LogDate)`t            - Registry '$Name' er allerede sat til '$Value'" -ForegroundColor Yellow}
             }
+            catch {Write-Host "Fejl - Kan ikke modificere: $_" -ForegroundColor Red}
+        }
+        
 
 Function Restart-Explorer {
             <# When explorer restarts with the regular stop-process function, the active PowerShell loses focus,

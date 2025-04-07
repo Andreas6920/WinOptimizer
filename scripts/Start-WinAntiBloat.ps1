@@ -13,7 +13,7 @@
         Write-Host "$(Get-LogDate)`t    Cleaning Taskbar:" -f Green
         Start-Sleep -s 5
         
-            Write-Host "$(Get-LogDate)`t        - Setting registrykeys." -f Yellow
+            Write-Host "$(Get-LogDate)`t        - Setting registrykeys:" -f Yellow
             Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesChanges" -Type "Dword" -Value "3"
             Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesRemovedChanges" -Type "Dword" -Value "32"
             Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesVersion" -Type "Dword"-Value "3" 
@@ -22,7 +22,6 @@
             Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type "Dword" -Value "0" 
             Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type "DWord" -Value "0" 
             Add-Reg -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Feeds" -Name "ShellFeedsTaskbarViewMode" -Type "DWord" -Value "2"
-            Write-Host "$(Get-LogDate)`t        - Removing shortcuts.." -f Yellow
             $PinnedPath = Join-path -Path ([Environment]::GetFolderPath("ApplicationData")) -Childpath "\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*"
             If (test-path $PinnedPath){Remove-Item -Path $PinnedPath -Recurse -Force }
             Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;
