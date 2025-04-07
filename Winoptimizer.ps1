@@ -1,4 +1,4 @@
-﻿# Reinsure admin rights
+﻿# Ensure Admin Rights
     If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
         {# Relaunch as an elevated process
         $Script = $MyInvocation.MyCommand.Path
@@ -16,27 +16,29 @@
     Write-Host "$(Get-LogDate)`t    - Upgrading TLS connections to TLS 1.2" -ForegroundColor Green
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-# Install module
+# Installér modul
+$ModuleUrl = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/functions/WinOptimizer.psm1"
+$ModuleName = [System.IO.Path]::GetFileNameWithoutExtension((Split-Path $ModuleUrl -Leaf))
+$ModulePath = $env:PSModulePath.Split(";")[1]
+$ModuleFolder = Join-Path -Path $ModulePath -ChildPath $ModuleName
+$ModuleLocation = Join-Path -Path $Modulefolder -ChildPath (Split-Path $ModuleUrl -Leaf)
 
-    # Create root folder for module
-        $BaseFolder = Join-Path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -ChildPath "WinOptimizer"
-        if (-not (Test-Path $BaseFolder)) {
-            Write-Host "$(Get-LogDate)`t    - Downloading module to $($BaseFolder)" -ForegroundColor Green
-            New-Item -ItemType Directory -Path $BaseFolder -Force -ErrorAction SilentlyContinue | Out-Null}
+    # Opretter modulmappen, hvis den ikke eksisterer
+    if (-not (Test-Path $ModuleFolder)) {
+        New-Item -ItemType Directory -Path $ModuleFolder -Force | Out-Null}
 
-    # Download module
-        $modulepath = $env:PSModulePath.Split(";")[1]
-        $module = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/functions/WinOptimizer.psm1"
-        $file = [System.IO.Path]::GetFileNameWithoutExtension($module)
-        $filedestination = Join-Path -Path $modulepath -ChildPath "$file/$file.psm1"
-        $filesubfolder = Split-Path -Path $filedestination -Parent
+    # Download modulet
+    Write-Host "$(Get-LogDate)`t    - Henter modulet til $ModulePath" -ForegroundColor Green
+    (New-Object Net.WebClient).DownloadFile($ModuleUrl, $ModuleLocation)
+    
+    # Kontroller, om filen er blevet downloadet korrekt
+    if (Test-Path $ModuleLocation) {Write-Host "$(Get-LogDate)`t    - Module downloaded successfully." -ForegroundColor Green
 
-        if (-not (Test-Path $filesubfolder)) {
-            New-Item -ItemType Directory -Path $filesubfolder -Force | Out-Null
-            Start-Sleep -Seconds 1}
+        # Installer og importer modulet
+        try {
+            Import-Module -Name $ModuleName -Force -ErrorAction Stop
+            Write-Host "$(Get-LogDate)`t    - Modulet hentet." -ForegroundColor Green}
+        catch {
+            Write-Host "$(Get-LogDate)`t    - Failed to import module: $_" -ForegroundColor Red}} 
 
-    # Download module
-        (New-Object Net.WebClient).DownloadFile($module, $filedestination)
-
-    # Install module
-        Import-Module -Name $file
+    else {  Write-Host "$(Get-LogDate)`t    - Module download failed." -ForegroundColor Red }

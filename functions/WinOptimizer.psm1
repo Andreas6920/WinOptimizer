@@ -11,17 +11,17 @@
         
         # Install Nuget
             if(!(test-path "C:\Program Files\PackageManagement\ProviderAssemblies\nuget\2.8.5.208")){
-                Write-Host "$(Get-LogDate)`t    - Installing Nuget" -ForegroundColor Green
+                Write-Host "$(Get-LogDate)`t        - Installing Nuget" -ForegroundColor Yellow
                 $ProgressPreference = "SilentlyContinue"; 
                 Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force | Out-Null;
                 Start-Sleep -S 1;}
         
         # Create Base Folder
-            Write-Host "$(Get-LogDate)`t    - Setting up root folder" -ForegroundColor Green
-            $BaseFolder = Join-path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -Childpath "WinOptimizer"
-            if(!(test-path $BaseFolder)){New-Item -itemtype Directory -Path $BaseFolder -ErrorAction SilentlyContinue | Out-Null }        
+            Write-Host "$(Get-LogDate)`t        - Setting up root folder" -ForegroundColor Yellow
+                $BaseFolder = Join-path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -Childpath "WinOptimizer"
+                if(!(test-path $BaseFolder)){New-Item -itemtype Directory -Path $BaseFolder -ErrorAction SilentlyContinue | Out-Null }        
 
-Write-Host "$(Get-LogDate)`t    - Installing modules" -ForegroundColor Green -nonewline
+        Write-Host "$(Get-LogDate)`t        - Installing functions" -ForegroundColor Yellow -nonewline
 
 
 Function Add-Reg {
@@ -62,7 +62,7 @@ Function Restart-Explorer {
             $windowname = $Host.UI.RawUI.WindowTitle
             Add-Type -AssemblyName Microsoft.VisualBasic
             [Microsoft.VisualBasic.Interaction]::AppActivate($windowname)}
-            Write-Host "." -ForegroundColor Green -nonewline
+            Write-Host "." -ForegroundColor Yellow -nonewline
 
 Function Start-Input{
     $code = @"
@@ -72,7 +72,7 @@ public static extern bool BlockInput(bool fBlockIt);
     $userInput = Add-Type -MemberDefinition $code -Name UserInput -Namespace UserInput -PassThru
     $userInput::BlockInput($false)
     }
-Write-Host "." -ForegroundColor Green -nonewline
+Write-Host "." -ForegroundColor Yellow -nonewline
 
 Function Stop-Input{
     $code = @"
@@ -82,7 +82,7 @@ public static extern bool BlockInput(bool fBlockIt);
     $userInput = Add-Type -MemberDefinition $code -Name UserInput -Namespace UserInput -PassThru
     $userInput::BlockInput($true)
     }
-Write-Host "." -ForegroundColor Green -nonewline
+Write-Host "." -ForegroundColor Yellow -nonewline
 
 
 ## Other bigger modules
@@ -103,8 +103,8 @@ Write-Host "." -ForegroundColor Green -nonewline
                 if(!(test-path $filedestination)){
                         Invoke-RestMethod -uri $module -OutFile $filedestination
                         Import-module -name $filedestination;
-                        Write-Host "." -ForegroundColor Green -nonewline}}
-                        Write-Host "." -ForegroundColor Green
+                        Write-Host "." -ForegroundColor Yellow -nonewline}}
+                        Write-Host "." -ForegroundColor Yellow
         
 Function Start-WinOptimizer {        
 $intro = 
