@@ -1,8 +1,8 @@
-﻿# Confirm Admin rights
-    If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
-        {# Relaunch as an elevated process
-        $Script = $MyInvocation.MyCommand.Path
-        Start-Process powershell.exe -Verb RunAs -ArgumentList "-ExecutionPolicy RemoteSigned", "-File `"$Script`""}
+﻿
+If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
+    {# Relaunch as an elevated process
+    $Script = $MyInvocation.MyCommand.Path
+    Start-Process powershell.exe -Verb RunAs -ArgumentList "-ExecutionPolicy RemoteSigned", "-File `"$Script`""}
 
 # Execution policy
     Set-ExecutionPolicy -Scope Process Unrestricted -Force
