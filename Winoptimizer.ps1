@@ -13,7 +13,7 @@
     Write-Host "$(Get-LogDate)`tSYSTEM INITIALIZATION" -ForegroundColor Green
 
 # TLS upgrade
-    Write-Host "$(Get-LogDate)`t    - Upgrading TLS connections to TLS 1.2" -ForegroundColor Green
+    Write-Host "$(Get-LogDate)`t    - Opgradere forbindelsen til TLS 1.2" -ForegroundColor Green
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 # Installér modul
@@ -35,8 +35,9 @@
 
         # Installer og importer modulet
             try {
+                Write-Host "$(Get-LogDate)`t    - Importere modulet:" -ForegroundColor Green
                 Import-Module -Name $ModuleName -Force -ErrorAction Stop
-                Write-Host "$(Get-LogDate)`t    - Modulet hentet." -ForegroundColor Green}
+                Write-Host "$(Get-LogDate)`t    - Installation komplet." -ForegroundColor Green}
             catch {
-                Write-Host "$(Get-LogDate)`t    - Failed to import module: $_" -ForegroundColor Red}} 
-        else {  Write-Host "$(Get-LogDate)`t    - Module download failed." -ForegroundColor Red }
+                Write-Host "$(Get-LogDate)`t    - Importering af modulet fejlet: $_" -ForegroundColor Red}} 
+        else {  Write-Host "$(Get-LogDate)`t    - Modulet kan ikke hentes." -ForegroundColor Red }

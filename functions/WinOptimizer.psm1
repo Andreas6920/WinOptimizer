@@ -7,7 +7,7 @@
         # Disable Explorer first run
             $RegistryKey = "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main"
             If (!(Test-Path $RegistryKey)) {New-Item -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Force | Out-Null}
-            if(!(Get-Item "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main\" | ? Property -EQ "DisableFirstRunCustomize")){Write-Host "$(Get-LogDate)`t    - Disabling explorer first run" -ForegroundColor Green; Set-ItemProperty -Path  "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Value 1}
+            if(!(Get-Item "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main\" | ? Property -EQ "DisableFirstRunCustomize")){ Write-Host "$(Get-LogDate)`t        - Disabling explorer first run." -ForegroundColor Yellow; Set-ItemProperty -Path  "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Value 1}
         
         # Install Nuget
             if(!(test-path "C:\Program Files\PackageManagement\ProviderAssemblies\nuget\2.8.5.208")){
@@ -75,7 +75,7 @@ public static extern bool BlockInput(bool fBlockIt);
 Write-Host "." -ForegroundColor Yellow -nonewline
 
 Function Stop-Input{
-    $code = @"
+    $WWcode = @"
 [DllImport("user32.dll")]
 public static extern bool BlockInput(bool fBlockIt);
 "@
@@ -86,25 +86,38 @@ Write-Host "." -ForegroundColor Yellow -nonewline
 
 
 ## Other bigger modules
-            
-    $modules = @(   "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Start-WinAntiBloat.ps1"
-                    "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Start-WinSecurity.ps1"
-                    "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Start-WinOptimizer.ps1"
-                    "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Install-App.ps1"
-                    )
+
+$ModulePath = $env:PSModulePath.Split(";")[1]
+$ScriptFolder = Join-Path -Path $ModulePath -ChildPath "WinOptimizer\Scripts"
+
+# Opret mappe
+if (-not (Test-Path $ScriptFolder)) { New-Item -ItemType Directory -Path $ScriptFolder -Force | Out-Null }
+
+$ScriptURLs = @(
+    "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Start-WinAntiBloat.ps1",
+    "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Start-WinSecurity.ps1",
+    "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Start-WinOptimizer.ps1",
+    "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Install-App.ps1"
+)
+
+Foreach ($ScriptURL in $ScriptURLs) {
+    # Download and save script files
+    $ScriptName = Split-Path $ScriptURL -Leaf
+    $ScriptLocation = Join-Path -Path $ScriptFolder -ChildPath $ScriptName
+
+    try {   (New-Object Net.WebClient).DownloadFile($ScriptURL, $ScriptLocation)
+            Write-Host "Downloaded $ScriptName" -ForegroundColor Green
+        
+            # Kør scriptet (dot-sourcing for at importere funktioner hvis der er nogen)
+            . $ScriptLocation
+            Write-Host "Imported $ScriptName" -ForegroundColor Green}
     
-    Foreach ($module in $modules) {
-        # Download and install functions
-            $BaseFolder = Join-path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -Childpath "WinOptimizer"
-                if(!(test-path $BaseFolder)){Write-host "." -NoNewline; New-Item -itemtype Directory -Path $BaseFolder -ErrorAction SilentlyContinue | Out-Null }        
-            $filename = Split-Path $module -Leaf
-            $modulename = [System.IO.Path]::GetFileNameWithoutExtension((Split-Path $module -Leaf))
-            $filedestination = join-path $BaseFolder -Childpath $filename
-                if(!(test-path $filedestination)){
-                        Invoke-RestMethod -uri $module -OutFile $filedestination
-                        Import-module -name $filedestination;
-                        Write-Host "." -ForegroundColor Yellow -nonewline}}
-                        Write-Host "." -ForegroundColor Yellow
+    catch { Write-Host "Failed to download or import $ScriptName - $_" -ForegroundColor Red }
+}
+
+
+
+Write-Host "." -ForegroundColor Yellow
         
 Function Start-WinOptimizer {        
 $intro = 
