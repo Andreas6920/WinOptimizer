@@ -255,12 +255,15 @@
             "XblGameSaveTask"
             "PcaPatchDbTask")
 
-            foreach ($BloatSchedule in $BloatSchedules) {
-            if ((Get-ScheduledTask | Where-Object state -ne Disabled | Where-Object TaskName -like $BloatSchedule)){
-            Write-Host "$(Get-LogDate)`t        - Disabling: $BloatSchedule" -f Yellow
-            Get-ScheduledTask | Where-Object Taskname -eq $BloatSchedule | Disable-ScheduledTask | Out-Null
-            Start-Sleep -S 1}}
-            Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;       
+        foreach ($TaskName in $BloatSchedules) {
+            $task = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
+            if ($task -and $task.State -ne "Disabled") {
+                Write-Host "$(Get-LogDate)`t        - Disabling: $TaskName" -f Yellow
+                try {Disable-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue | Out-Null} catch {}
+                Start-Sleep -Milliseconds 500}}
+        
+        Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow
+        Start-Sleep -Seconds 3   
 
     # Cleaning printers
         Write-Host "$(Get-LogDate)`t    Cleaning Printers:" -f Green
