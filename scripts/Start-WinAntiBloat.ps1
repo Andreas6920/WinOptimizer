@@ -128,16 +128,18 @@
             # Fjern brugerinstallerede apps
                 $matches = $InstalledAppx | Where-Object Name -like $bloat
                 foreach ($match in $matches) {
-                    Write-Host "$(Get-LogDate)`t        - Removing user app: $($match.Name)" -ForegroundColor Yellow
+                    $AppName = $match.Name -replace '^.*?\.', '' -replace '^Microsoft', ''
+                    Write-Host "$(Get-LogDate)`t        - Removing user app: $($AppName)" -ForegroundColor Yellow
                     Remove-AppxPackage -Package $match.PackageFullName -ErrorAction SilentlyContinue | Out-Null}
             
             # Fjern pre-provisioned apps (fremtidige brugere)
             $provMatches = $ProvisionedAppx | Where-Object DisplayName -like $bloat
             foreach ($prov in $provMatches) {
+                $AppName = $prov.DisplayName -replace '^.*?\.', '' -replace '^Microsoft', ''
                 if ($prov.PackageName -and $prov.PackageName -ne "") {
-                    Write-Host "$(Get-LogDate)`t        - Removing provisioned app: $($prov.DisplayName)" -ForegroundColor Yellow
+                    Write-Host "$(Get-LogDate)`t        - Removing provisioned app: $($AppName)" -ForegroundColor Yellow
                     try {Remove-AppxProvisionedPackage -Online -PackageName $prov.PackageName -ErrorAction Stop | Out-Null}
-                    catch {Write-Host "$(Get-LogDate)`t        - Failed to remove provisioned: $($prov.PackageName)" -ForegroundColor Red}}}
+                    catch {Write-Host "$(Get-LogDate)`t        - Failed to remove provisioned: $($AppName)" -ForegroundColor Red}}}
         }
 
         $ProgressPreference = "Continue"
