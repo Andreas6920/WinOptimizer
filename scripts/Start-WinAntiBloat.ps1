@@ -10,9 +10,11 @@
         $BuildNumber = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").CurrentBuildNumber
         if([int]$BuildNumber -ge 22000){$ThisIsWindows11 = $True; $ThisisWindows10 = $False;}
         else{$ThisIsWindows11 = $False; $ThisisWindows10 = $True;}
+            if($ThisisWindows10){$SystemVersion = "Windows 10"}
+            if($ThisisWindows11){$SystemVersion = "Windows 11"}
 
     # Start function
-        Write-Host "`n$(Get-LogDate)`tREMOVING WINDOWS BLOAT" -f Green
+        Write-Host "`n$(Get-LogDate)`tREMOVING WINDOWS BLOAT, $($SystemVersion)" -f Green
         Start-Sleep -s 3
         Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
     
