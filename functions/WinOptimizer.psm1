@@ -100,7 +100,6 @@ if (-not (Test-Path $ScriptFolder)) { New-Item -ItemType Directory -Path $Script
 $ScriptURLs = @(
     "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Start-WinAntiBloat.ps1",
     "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Start-WinSecurity.ps1",
-    "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Start-WinSettings.ps1",
     "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Install-App.ps1"
 )
 
