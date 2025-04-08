@@ -21,10 +21,6 @@ Write-Host "$(Get-LogDate)`t    Configure Windows:" -f Green
     Write-Host "$(Get-LogDate)`t        - Disabling screensaver sleep to prevent missing keystrokes" -f Yellow
     Add-Reg -Path "HKLM:\Software\Policies\Microsoft\Windows\Personalization" -Name "Personalization" -Type "DWORD" -Value "1"
 
-    # Taskbar: Hide Searchbox
-        Write-Host "$(Get-LogDate)`t        - Taskbar: Hide the searchbox" -f Yellow
-        Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type "DWORD" -Value "0"
-
     # Show file extensions
         Write-Host "$(Get-LogDate)`t        - Show file extensions" -f Yellow
         Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type "DWORD" -Value "0"
@@ -72,6 +68,7 @@ Write-Host "$(Get-LogDate)`t    Configure Windows:" -f Green
                     Write-Host "`t`t- YES. Enabling Dark Mode" -f Green
                     $keys = "AppsUseLightTheme","SystemUsesLightTheme"; 
                     $keys | % {Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "$_" -Type "DWORD" -Value "0"}
+                    Restart-Explorer
                 }
                 N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
             }   
