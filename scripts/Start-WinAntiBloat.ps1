@@ -198,16 +198,16 @@
         "XboxNetApiSvc"                            # Xbox Live Networking Service
     )
 
-    foreach ($service in $services) {
-        try {$currentService = Get-Service -Name $service -ErrorAction Stop
-            if ($currentService.StartType -ne 'Disabled') {
-                Write-Host "$(Get-LogDate)`t        - Disabling: $service" -f Yellow
-                Set-Service -Name $service -StartupType Disabled}}
-        catch {Write-Host "$(Get-LogDate)`t        - Service not found: $service (Ignoring)" -f Red}
-    }
-
-    Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow
-    Start-Sleep -S 3
+    foreach ($serviceName in $Services) {
+        try {   $svc = Get-Service -Name $serviceName -ErrorAction Stop
+            
+                if ($svc.StartType -ne 'Disabled') {
+                    Write-Host "$(Get-LogDate)`t        - Disabling: $serviceName" -ForegroundColor Yellow
+                    Set-Service -Name $serviceName -StartupType Disabled -ErrorAction SilentlyContinue}} 
+                catch {Write-Host "$(Get-LogDate)`t        - Service not found: $serviceName (skipped)" -ForegroundColor DarkGray}}
+    
+    Write-Host "$(Get-LogDate)`t        - Cleaning complete." -ForegroundColor Yellow
+    Start-Sleep -Seconds 2
 
     # Clean Task Scheduler
         Write-Host "$(Get-LogDate)`t    Cleaning Scheduled tasks:" -f Green
