@@ -126,18 +126,21 @@
 
         foreach ($bloat in $Bloatware) {
             # Fjern brugerinstallerede apps
-            $matches = $InstalledAppx | Where-Object Name -like $bloat
-            foreach ($match in $matches) {
-                Write-Host "$(Get-LogDate)`t        - Removing user app: $($match.Name)" -ForegroundColor Yellow
-                Remove-AppxPackage -Package $match.PackageFullName -ErrorAction SilentlyContinue | Out-Null}
-
+                $matches = $InstalledAppx | Where-Object Name -like $bloat
+                foreach ($match in $matches) {
+                    Write-Host "$(Get-LogDate)`t        - Removing user app: $($match.Name)" -ForegroundColor Yellow
+                    Remove-AppxPackage -Package $match.PackageFullName -ErrorAction SilentlyContinue | Out-Null}
+            
             # Fjern pre-provisioned apps (fremtidige brugere)
             $provMatches = $ProvisionedAppx | Where-Object DisplayName -like $bloat
             foreach ($prov in $provMatches) {
-                Write-Host "$(Get-LogDate)`t        - Removing provisioned app: $($prov.DisplayName)" -ForegroundColor Yellow
-                Remove-AppxProvisionedPackage -Online -PackageName $prov.PackageName -ErrorAction SilentlyContinue | Out-Null}}
+                if ($prov.PackageName -and $prov.PackageName -ne "") {
+                    Write-Host "$(Get-LogDate)`t        - Removing provisioned app: $($prov.DisplayName)" -ForegroundColor Yellow
+                    try {Remove-AppxProvisionedPackage -Online -PackageName $prov.PackageName -ErrorAction Stop | Out-Null}
+                    catch {Write-Host "$(Get-LogDate)`t        - Failed to remove provisioned: $($prov.PackageName)" -ForegroundColor Red}}}
 
         $ProgressPreference = "Continue"
+
         Write-Host "$(Get-LogDate)`t        - Cleaning complete." -ForegroundColor Yellow
         Start-Sleep -Seconds 3
 
