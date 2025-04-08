@@ -87,7 +87,7 @@
                     Invoke-RestMethod -Uri $FileUrl -OutFile $DestinationPath
                     Write-Host "$(Get-LogDate)`t        - Complete." -f Yellow
                     Write-Host "$(Get-LogDate)`t        - Restarting explorer." -f Yellow
-                    Start-Slee -S 2
+                    Start-Sleep -S 2
                     Restart-Explorer
                 } 
             catch { Write-Host "Failed to download file: $_" -ForegroundColor Red}}
