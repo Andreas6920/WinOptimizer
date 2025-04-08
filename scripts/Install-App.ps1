@@ -20,8 +20,15 @@ Function Install-App {
         [Parameter(Mandatory=$false)]
         [switch]$Default)
 
-    # Standardliste, hvis -Default vælges
-    if ($Default) {$Name = "chrome,7zip,vlc,adobereader"}
+    # Ensure admin rights
+	If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){
+    
+		# Relaunch as an elevated process
+		$Script = $MyInvocation.MyCommand.Path
+		Start-Process powershell.exe -Verb RunAs -ArgumentList "-ExecutionPolicy RemoteSigned", "-File `"$Script`""}
+	
+	# Standardliste, hvis -Default vælges
+    if ($Default) {$Name = "chrome,7zip,vlc,adobereader"}	
 
     # Liste over tilgængelige applikationer
     $apps = @{
