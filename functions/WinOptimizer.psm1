@@ -23,7 +23,6 @@
 
         Write-Host "$(Get-LogDate)`t        - Installing functions" -ForegroundColor Yellow -nonewline
 
-
         Function Add-Reg {
             param (
                 [Parameter(Mandatory=$true)]
@@ -34,25 +33,24 @@
                 [ValidateSet('String', 'ExpandString', 'Binary', 'DWord', 'MultiString', 'Qword', 'Unknown')]
                 [string]$Type,
                 [Parameter(Mandatory=$true)]
-                [string]$Value
-            )
+                [string]$Value    )
         
             try {
-                # Opret mappen hvis den ikke eksisterer
-                if (!(Test-Path $Path)) {New-Item -Path $Path -Force | Out-Null}
+                if (!(Test-Path $Path)) { New-Item -Path $Path -Force | Out-Null }
         
-                # Hent nuværende værdi hvis den eksisterer
                 $CurrentValue = $null
                 if (Get-ItemProperty -Path $Path -Name $Name -ErrorAction SilentlyContinue) {$CurrentValue = (Get-ItemPropertyValue -Path $Path -Name $Name -ErrorAction SilentlyContinue)}
         
-                # Sæt eller opdater værdi hvis den er forskellig
                 if ($CurrentValue -ne $Value) {
-                    New-ItemProperty -Path $Path -Name $Name -PropertyType $Type -Value $Value -Force | Out-Null
-                    Write-Host "$(Get-LogDate)`t            - Registry '$Name' sat til '$Value'." -f Yellow;
-                }
-                else {Write-Host "$(Get-LogDate)`t            - Registry '$Name' er allerede sat til '$Value'" -ForegroundColor Yellow}
-            }
-            catch {Write-Host "Fejl - Kan ikke modificere: $_" -ForegroundColor Red}
+                    New-ItemProperty -Path $Path -Name $Name -PropertyType $Type -Value $Value -Force -ErrorAction Stop | Out-Null
+                    Write-Host "$(Get-LogDate)`t            - Registry '$Name' sat til '$Value'." -ForegroundColor Yellow} 
+                else {Write-Host "$(Get-LogDate)`t            - Registry '$Name' er allerede sat til '$Value'" -ForegroundColor Yellow}}
+
+            catch {
+                if ($_.Exception.GetType().Name -eq "UnauthorizedAccessException") {
+                    # Undertrykker denne type fejl
+                    Write-Host "$(Get-LogDate)`t            - Adgang nægtet til '$Name'. Springer over." -ForegroundColor DarkGray}
+                else {Write-Host "Fejl - Kan ikke modificere '$Name': $_" -ForegroundColor Red}}
         }
         
 
