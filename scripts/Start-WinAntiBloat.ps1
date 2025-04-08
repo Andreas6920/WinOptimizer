@@ -23,56 +23,52 @@
         Write-Host "$(Get-LogDate)`t    Cleaning Taskbar:" -f Green
         Start-Sleep -s 5
         
-            Write-Host "$(Get-LogDate)`t        - Setting registrykeys:" -f Yellow
-            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesChanges" -Type "Dword" -Value "3"
-            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesRemovedChanges" -Type "Dword" -Value "32"
-            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesVersion" -Type "Dword"-Value "3" 
-            Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name Favorites -Value ([byte[]](0xFF)) -Force | Out-Null
-            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Type "DWord" -Value "0"
-            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type "Dword" -Value "0" 
-            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type "DWord" -Value "0" 
-            $PinnedPath = Join-path -Path ([Environment]::GetFolderPath("ApplicationData")) -Childpath "\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*"
-            If (test-path $PinnedPath){Remove-Item -Path $PinnedPath -Recurse -Force }
-            Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;
+        Write-Host "$(Get-LogDate)`t        - Setting registrykeys:" -f Yellow
+        Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesChanges" -Type "Dword" -Value "3"
+        Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesRemovedChanges" -Type "Dword" -Value "32"
+        Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesVersion" -Type "Dword"-Value "3" 
+        Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name Favorites -Value ([byte[]](0xFF)) -Force | Out-Null
+        Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Type "DWord" -Value "0"
+        Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type "Dword" -Value "0" 
+        Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type "DWord" -Value "0" 
+        $PinnedPath = Join-path -Path ([Environment]::GetFolderPath("ApplicationData")) -Childpath "\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*"
+        If (test-path $PinnedPath){Remove-Item -Path $PinnedPath -Recurse -Force }
+        Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;
 
     
     # Clean start menu
-    Write-Host "$(Get-LogDate)`t    Cleaning Start Menu:" -f Green    
-    
-        if($ThisIsWindows10){
-        
-            Start-Sleep -s 3
-    
-            # Prepare
-            $link = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/StartMenuLayout.xml"
-            $File = "$($env:SystemRoot)\StartMenuLayout.xml"
-            $keys = "HKLM:\Software\Policies\Microsoft\Windows\Explorer","HKCU:\Software\Policies\Microsoft\Windows\Explorer"; 
-                
-            # Download blank Start Menu file
-            Write-Host "$(Get-LogDate)`t        - Downloading Start Menu file." -f Yellow;
-            (New-Object net.webclient).Downloadfile("$link", "$file"); 
-                            
-            # Unlock start menu, disable pinning, replace with blank file
-            Write-Host "$(Get-LogDate)`t        - Unlocking and replacing current file." -f Yellow;
-            $keys | ForEach-Object { if(!(test-path $_)){ New-Item -Path $_ -Force | Out-Null; Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 1; Set-ItemProperty -Path $_ -Name "StartLayoutFile" -Value $File } }
-            
-            # Restart explorer
-            Restart-Explorer
+        Write-Host "$(Get-LogDate)`t    Cleaning Start Menu:" -f Green    
+            if($ThisIsWindows10){
+                # Prepare
+                    $link = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/StartMenuLayout.xml"
+                    $File = "$($env:SystemRoot)\StartMenuLayout.xml"
+                    $keys = "HKLM:\Software\Policies\Microsoft\Windows\Explorer","HKCU:\Software\Policies\Microsoft\Windows\Explorer"; 
+                        
+                # Download blank Start Menu file
+                    Write-Host "$(Get-LogDate)`t        - Downloading Start Menu file." -f Yellow;
+                    (New-Object net.webclient).Downloadfile("$link", "$file"); 
+                                    
+                # Unlock start menu, disable pinning, replace with blank file
+                    Write-Host "$(Get-LogDate)`t        - Unlocking and replacing current file." -f Yellow;
+                    $keys | ForEach-Object { if(!(test-path $_)){ New-Item -Path $_ -Force | Out-Null; Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 1; Set-ItemProperty -Path $_ -Name "StartLayoutFile" -Value $File } }
+                    
+                # Restart explorer
+                    Restart-Explorer
 
-            # Enable pinning
-            Write-Host "$(Get-LogDate)`t        - Fixing pinning." -f Yellow
-            $keys | ForEach-Object { Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 0 }
-            
-            #Restart explorer
-            Restart-Explorer
+                # Enable pinning
+                    Write-Host "$(Get-LogDate)`t        - Fixing pinning." -f Yellow
+                    $keys | ForEach-Object { Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 0 }
+                    
+                #Restart explorer
+                    Restart-Explorer
 
-            # Save menu to all users
-            Write-Host "$(Get-LogDate)`t        - Save changes to all users." -f Yellow
-            Import-StartLayout -LayoutPath $File -MountPath $env:SystemDrive\
+                # Save menu to all users
+                    Write-Host "$(Get-LogDate)`t        - Save changes to all users." -f Yellow
+                    Import-StartLayout -LayoutPath $File -MountPath $env:SystemDrive\
 
-            # Clean up after script
-            Remove-Item $File
-            Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;}
+                # Clean up after script
+                    Remove-Item $File
+                    Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;}
 
         If($ThisIsWindows11){
 
@@ -82,95 +78,69 @@
             $DestinationPath = "C:\Users\$CurrentUser\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState\start2.bin"
 
             # Download og gem filen
-            try {   Write-Host "$(Get-LogDate)`t        - Downloading new start menu template." -f Yellow
-                    Invoke-RestMethod -Uri $FileUrl -OutFile $DestinationPath
-                    Write-Host "$(Get-LogDate)`t        - Complete." -f Yellow
-                    Write-Host "$(Get-LogDate)`t        - Restarting explorer." -f Yellow
-                    Start-Sleep -S 2
-                    Restart-Explorer} 
-            catch { Write-Host "Failed to download file: $_" -ForegroundColor Red}}
+                try {   Write-Host "$(Get-LogDate)`t        - Downloading new start menu template." -f Yellow
+                        Invoke-RestMethod -Uri $FileUrl -OutFile $DestinationPath
+                        Write-Host "$(Get-LogDate)`t        - Complete." -f Yellow
+                        Write-Host "$(Get-LogDate)`t        - Restarting explorer." -f Yellow
+                        Start-Sleep -S 2
+                        Restart-Explorer} 
+                catch { Write-Host "Failed to download file: $_" -ForegroundColor Red}}
 
-    # Clean Apps and features
-        # List
-        Write-Host "$(Get-LogDate)`t    Cleaning Bloatware:" -f Green
-        Start-Sleep -s 5
-        $Bloatware = @(		
-            ## Microsoft Bloat ##
-            "*autodesksketch*"
-            "*oneconnect*"
-            "*plex*"
-            "*print3d*"
-            "Microsoft.3DBuilder"
-            "Microsoft.Getstarted"
-            "Microsoft.Microsoft3DViewer"
-            "Microsoft.MicrosoftOfficeHub"
-            "Microsoft.Office.OneNote"
-            "Microsoft.MicrosoftSolitaireCollection"
-            "Microsoft.MicrosoftStickyNotes"
-            "Microsoft.MixedReality.Portal"
-            "Microsoft.Music.Preview"
-            "Microsoft.People"
-            "Microsoft.PeopleExperienceHost"
-            "Microsoft.WindowsFeedbackHub"
-            "Microsoft.WindowsMaps"
-            "Microsoft.WindowsMaps"
-            "Microsoft.ZuneMusic"
-            "Microsoft.ZuneVideo"
-            "Microsoft.windowscommunicationsapps"
-            "Microsoft.Wallet"
-            "Microsoft.GetHelp"
-            "Microsoft.Getstarted"
-            "CBSPreview"
-                                                
-            ## Xbox Bloat ##
-            "Microsoft.Xbox.TCUI"
-            "Microsoft.XboxApp"
-            "Microsoft.XboxGameCallableUI"
-            "Microsoft.XboxGameOverlay"
-            "Microsoft.XboxGamingOverlay"
-            "Microsoft.XboxIdentityProvider"
-            "Microsoft.XboxSpeechToTextOverlay"
-                                                
-            ## Bing Bloat ##
-            "*Bing*"
-            "Microsoft.Bing*"
-            "Microsoft.BingFinance"
-            "Microsoft.BingFoodAndDrink"
-            "Microsoft.BingHealthAndFitness"
-            "Microsoft.BingNews"
-            "Microsoft.BingSports"
-            "Microsoft.BingTravel"
-            "Microsoft.BingWeather"
+   # Clean Apps and features
+        Write-Host "$(Get-LogDate)`t    Cleaning Bloatware:" -ForegroundColor Green
+        Start-Sleep -Seconds 3
 
-            ## Games ##
-            "*Bubblewitch*"
-            "*Candycrush*"
-            "*Disney*"
-            "*Empires*"
-            "*Minecraft*"
-            "*Royal revolt*"
-                                
-            ## Other crap ##
-            "*ActiproSoftwareLLC*"
-            "*AdobeSystemsIncorporated.AdobePhotoshopExpress*"
-            "*Duolingo-LearnLanguagesforFree*"
-            "*EclipseManager*"
-            "*Facebook*"
-            "*Flipboard*"
-            "*PandoraMediaInc*"
-            "*Skype*"
-            "*Spotify*"
-            "*Twitter*"
-            "*Wunderlist*")
+        # Liste over kendte bloatware apps
+        $Bloatware = @(
+            # Microsoft bloat
+            "*autodesksketch*", "*oneconnect*", "*plex*", "*print3d*",
+            "Microsoft.3DBuilder", "Microsoft.Getstarted", "Microsoft.Microsoft3DViewer",
+            "Microsoft.MicrosoftOfficeHub", "Microsoft.Office.OneNote", "Microsoft.MicrosoftSolitaireCollection",
+            "Microsoft.MicrosoftStickyNotes", "Microsoft.MixedReality.Portal", "Microsoft.Music.Preview",
+            "Microsoft.People", "Microsoft.PeopleExperienceHost", "Microsoft.WindowsFeedbackHub",
+            "Microsoft.WindowsMaps", "Microsoft.ZuneMusic", "Microsoft.ZuneVideo",
+            "Microsoft.windowscommunicationsapps", "Microsoft.Wallet", "Microsoft.GetHelp", "CBSPreview",
 
-            # Remove listed
-            $ProgressPreference = "SilentlyContinue" # hide progressbar
-            foreach ($Bloat in $Bloatware) {
-                $bloat_name = (Get-AppxPackage | Where-Object Name -Like $Bloat).Name
-                if (Get-AppxPackage | Where-Object Name -Like $Bloat){Write-Host "$(Get-LogDate)`t        - Removing: " -f Yellow -nonewline; Write-Host "$bloat_name".Split(".")[1].Split("}")[0].Replace('Microsoft','') -f Yellow; Get-AppxPackage | Where-Object Name -Like $Bloat | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null}
-                Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Out-Null} 
-            $ProgressPreference = "Continue" #unhide progressbar
-            Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;
+            # Xbox bloat
+            "Microsoft.Xbox.TCUI", "Microsoft.XboxApp", "Microsoft.XboxGameCallableUI",
+            "Microsoft.XboxGameOverlay", "Microsoft.XboxGamingOverlay", "Microsoft.XboxIdentityProvider",
+            "Microsoft.XboxSpeechToTextOverlay",
+
+            # Bing bloat
+            "*Bing*", "Microsoft.BingFinance", "Microsoft.BingFoodAndDrink",
+            "Microsoft.BingHealthAndFitness", "Microsoft.BingNews", "Microsoft.BingSports",
+            "Microsoft.BingTravel", "Microsoft.BingWeather",
+
+            # Games
+            "*Bubblewitch*", "*Candycrush*", "*Disney*", "*Empires*", "*Minecraft*", "*Royal revolt*",
+
+            # Other
+            "*ActiproSoftwareLLC*", "*AdobePhotoshopExpress*", "*Duolingo*", "*EclipseManager*",
+            "*Facebook*", "*Flipboard*", "*PandoraMediaInc*", "*Skype*", "*Spotify*", "*Twitter*", "*Wunderlist*")
+
+        $ProgressPreference = "SilentlyContinue"
+
+        # Hent app-lister én gang
+        $InstalledAppx      = Get-AppxPackage
+        $ProvisionedAppx    = Get-AppxProvisionedPackage -Online
+
+        foreach ($bloat in $Bloatware) {
+            # Fjern brugerinstallerede apps
+            $matches = $InstalledAppx | Where-Object Name -like $bloat
+            foreach ($match in $matches) {
+                Write-Host "$(Get-LogDate)`t        - Removing user app: $($match.Name)" -ForegroundColor Yellow
+                Remove-AppxPackage -Package $match.PackageFullName -ErrorAction SilentlyContinue | Out-Null}
+
+            # Fjern pre-provisioned apps (fremtidige brugere)
+            $provMatches = $ProvisionedAppx | Where-Object DisplayName -like $bloat
+            foreach ($prov in $provMatches) {
+                Write-Host "$(Get-LogDate)`t        - Removing provisioned app: $($prov.DisplayName)" -ForegroundColor Yellow
+                Remove-AppxProvisionedPackage -Online -PackageName $prov.PackageName -ErrorAction SilentlyContinue | Out-Null}}
+
+        $ProgressPreference = "Continue"
+        Write-Host "$(Get-LogDate)`t        - Cleaning complete." -ForegroundColor Yellow
+        Start-Sleep -Seconds 3
+
 
 
 
