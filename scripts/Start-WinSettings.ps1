@@ -1,5 +1,8 @@
 Function Start-WinSettings {
-
+    param (
+        [switch]$EnableDarkMode
+    )
+    
     # Ensure admin rights
 	If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){
 		# Relaunch as an elevated process
@@ -18,31 +21,35 @@ Write-Host "`n$(Get-LogDate)`tENHANCE WINDOWS SETTINGS, $($SystemVersion)" -f Gr
 Write-Host "$(Get-LogDate)`t    Configure Windows:" -f Green
 
     # Disable LockScreen ScreenSaver? To prevent missing first character
-    Write-Host "$(Get-LogDate)`t        - Disabling screensaver sleep to prevent missing keystrokes" -f Yellow
-    Add-Reg -Path "HKLM:\Software\Policies\Microsoft\Windows\Personalization" -Name "Personalization" -Type "DWORD" -Value "1"
+        Write-Host "$(Get-LogDate)`t        - Disabling screensaver sleep to prevent missing keystrokes" -f Yellow
+        Add-Reg -Path "HKLM:\Software\Policies\Microsoft\Windows\Personalization" -Name "Personalization" -Type "DWORD" -Value "1"
+        Start-Sleep -S 2
 
     # Show file extensions
         Write-Host "$(Get-LogDate)`t        - Show file extensions" -f Yellow
         Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type "DWORD" -Value "0"
+        Start-Sleep -S 2
             
     # Show hidden files
         Write-Host "$(Get-LogDate)`t        - Show hidden files" -f Yellow
         Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type "DWORD" -Value "1"
+        Start-Sleep -S 2
         
     # Change Explorer to "This PC"
         Write-Host "$(Get-LogDate)`t        - Change explorer to 'This PC' instead of 'Documents'" -f Yellow
         Add-Reg -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type "DWORD" -Value "1"
+        Start-Sleep -S 2
         
     # Start Menu: Disable Bing Search Results
         Write-Host "$(Get-LogDate)`t        - Disabling bing search results in windows search menu" -f Yellow
         Add-Reg -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -Type "DWORD" -Value "0"
-
+        Start-Sleep -S 2
 
         if($ThisIsWindows10){
-
             # Taskbar: Hide task view button
                 Write-Host "$(Get-LogDate)`t        - Taskbar: Hide task view" -f Yellow
                 Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\MultiTaskingView" -Name "ShowTaskViewButton" -Type "DWORD" -Value "0"
+                Start-Sleep -S 2
 
             # Remove 3D objects
                 Write-Host "$(Get-LogDate)`t        - Disabling 3D Objects app" -f Yellow
@@ -50,30 +57,22 @@ Write-Host "$(Get-LogDate)`t    Configure Windows:" -f Green
                 $3Dlocation64bit = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A"
                 If((test-path $3Dlocation32bit )){remove-item $3Dlocation32bit}
                 If((test-path $3Dlocation64bit )){remove-item $3Dlocation64bit}
-        }
+                Start-Sleep -S 2}
 
         if($ThisIsWindows11){
-            # Remove 3D objects
+            # Move Taskbar to the left side
             Write-Host "$(Get-LogDate)`t        - Move taskbar icons to left" -f Yellow
             Add-Reg -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Type "DWord" -Value "0"
-        }
+            Start-Sleep -S 2}
 
-
-    # Enable Windows Dark Mode
-        Do {
-            Write-Host "`t- Enable Dark Mode (y/n)" -f Green -nonewline;
-            $answer = Read-Host " " 
-            Switch ($answer) { 
-                Y {
-                    Write-Host "`t`t- YES. Enabling Dark Mode" -f Green
-                    $keys = "AppsUseLightTheme","SystemUsesLightTheme"; 
-                    $keys | % {Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "$_" -Type "DWORD" -Value "0"}
-                    Restart-Explorer
-                }
-                N { Write-Host "`t`t- NO. Skipping this step." -f Red } 
-            }   
-        } While ($answer -notin "y", "n")                        
+    if($EnableDarkMode){    
+        Write-Host "$(Get-LogDate)`t        - Enabling Dark Mode" -f Yellow
+        Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Type "DWORD" -Value "0"
+        Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Type "DWORD" -Value "0"
+        Start-Sleep -S 2
+        Restart-Explorer}
     
+
     #End of function
     Write-Host "`tWindows customizer completed. Your system is now customized." -f Green
     Start-Sleep 10}
