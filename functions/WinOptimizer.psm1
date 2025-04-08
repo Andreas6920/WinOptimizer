@@ -49,7 +49,7 @@
             catch {
                 if ($_.Exception.GetType().Name -eq "UnauthorizedAccessException") {
                     # Undertrykker denne type fejl
-                    Write-Host "$(Get-LogDate)`t            - Adgang nægtet til '$Name'. Springer over." -ForegroundColor DarkGray}
+                    Write-Host "$(Get-LogDate)`t            - Manglende adgang til '$Name'. Springer over." -ForegroundColor Red}
                 else {Write-Host "Fejl - Kan ikke modificere '$Name': $_" -ForegroundColor Red}}
         }
         

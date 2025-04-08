@@ -31,7 +31,6 @@
             Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Type "DWord" -Value "0"
             Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type "Dword" -Value "0" 
             Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type "DWord" -Value "0" 
-            # Add-Reg -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Feeds" -Name "ShellFeedsTaskbarViewMode" -Type "DWord" -Value "2"
             $PinnedPath = Join-path -Path ([Environment]::GetFolderPath("ApplicationData")) -Childpath "\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*"
             If (test-path $PinnedPath){Remove-Item -Path $PinnedPath -Recurse -Force }
             Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;
