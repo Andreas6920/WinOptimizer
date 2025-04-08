@@ -36,9 +36,11 @@
 
     
     # Clean start menu
+    Write-Host "$(Get-LogDate)`t    Cleaning Start Menu:" -f Green    
+    
         if($ThisisWindows10){
-        Write-Host "$(Get-LogDate)`t    Cleaning Start Menu:" -f Green
-        Start-Sleep -s 3
+        
+            Start-Sleep -s 3
     
             # Prepare
             $link = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/StartMenuLayout.xml"
@@ -51,14 +53,14 @@
                             
             # Unlock start menu, disable pinning, replace with blank file
             Write-Host "$(Get-LogDate)`t        - Unlocking and replacing current file." -f Yellow;
-            $keys | % { if(!(test-path $_)){ New-Item -Path $_ -Force | Out-Null; Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 1; Set-ItemProperty -Path $_ -Name "StartLayoutFile" -Value $File } }
+            $keys | ForEach-Object { if(!(test-path $_)){ New-Item -Path $_ -Force | Out-Null; Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 1; Set-ItemProperty -Path $_ -Name "StartLayoutFile" -Value $File } }
             
             # Restart explorer
             Restart-Explorer
 
             # Enable pinning
             Write-Host "$(Get-LogDate)`t        - Fixing pinning." -f Yellow
-            $keys | % { Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 0 }
+            $keys | ForEach-Object { Set-ItemProperty -Path $_ -Name "LockedStartLayout" -Value 0 }
             
             #Restart explorer
             Restart-Explorer
@@ -70,6 +72,23 @@
             # Clean up after script
             Remove-Item $File
             Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;}
+
+        If($ThisisWindows11){
+
+            Start-Sleep -s 3
+            $FileUrl = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/start2.bin"
+            $CurrentUser = $env:USERNAME
+            $DestinationPath = "C:\Users\$CurrentUser\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState\start2.bin"
+
+            # Download og gem filen
+            try {   Write-Host "$(Get-LogDate)`t        - Downloading new start menu template." -f Yellow
+                    Invoke-RestMethod -Uri $FileUrl -OutFile $DestinationPath
+                    Write-Host "$(Get-LogDate)`t        - Complete." -f Yellow
+                    Write-Host "$(Get-LogDate)`t        - Restarting explorer." -f Yellow
+                    Start-Slee -S 2
+                    Restart-Explorer
+                } 
+            catch { Write-Host "Failed to download file: $_" -ForegroundColor Red}}
 
     # Clean Apps and features
         # List
