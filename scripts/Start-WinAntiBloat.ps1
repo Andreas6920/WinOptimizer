@@ -8,10 +8,10 @@
 
     # Tjek om systemet er Windows 11 baseret eller 10
         $BuildNumber = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").CurrentBuildNumber
-        if([int]$BuildNumber -ge 22000){$ThisIsWindows11 = $True; $ThisisWindows10 = $False;}
-        else{$ThisIsWindows11 = $False; $ThisisWindows10 = $True;}
-            if($ThisisWindows10){$SystemVersion = "Windows 10"}
-            if($ThisisWindows11){$SystemVersion = "Windows 11"}
+        if([int]$BuildNumber -ge 22000){$ThisIsWindows11 = $True; $ThisIsWindows10 = $False;}
+        else{$ThisIsWindows11 = $False; $ThisIsWindows10 = $True;}
+            if($ThisIsWindows10){$SystemVersion = "Windows 10"}
+            if($ThisIsWindows11){$SystemVersion = "Windows 11"}
 
     # Start function
         Write-Host "`n$(Get-LogDate)`tREMOVING WINDOWS BLOAT, $($SystemVersion)" -f Green
@@ -40,7 +40,7 @@
     # Clean start menu
     Write-Host "$(Get-LogDate)`t    Cleaning Start Menu:" -f Green    
     
-        if($ThisisWindows10){
+        if($ThisIsWindows10){
         
             Start-Sleep -s 3
     
@@ -75,7 +75,7 @@
             Remove-Item $File
             Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;}
 
-        If($ThisisWindows11){
+        If($ThisIsWindows11){
 
             Start-Sleep -s 3
             $FileUrl = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/start2.bin"
