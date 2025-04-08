@@ -57,19 +57,10 @@ Write-Host "$(Get-LogDate)`t    Configure Windows:" -f Green
         }
 
         if($ThisIsWindows11){
-            
-            # Remove Widgets froms taskbar
-                Write-Host "$(Get-LogDate)`t        - Remove Widgets app icon in taskbar" -f Yellow
-                Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -name "TaskbarDa" -Type "DWORD" -Value "0"
-            
-            # Hide Task View in taskbar
-                Write-Host "$(Get-LogDate)`t        - Remove Task View in taskbar" -f Yellow
-                Add-Reg -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -name "HideTaskViewButton" -Type "DWORD" -Value "1"
-
+            # Remove 3D objects
+            Write-Host "$(Get-LogDate)`t        - Move taskbar icons to left" -f Yellow
+            Add-Reg -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Type "DWord" -Value "0"
         }
-
-    
-
 
 
     # Enable Windows Dark Mode
