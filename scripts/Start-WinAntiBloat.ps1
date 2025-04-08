@@ -141,9 +141,6 @@
         Write-Host "$(Get-LogDate)`t        - Cleaning complete." -ForegroundColor Yellow
         Start-Sleep -Seconds 3
 
-
-
-
     # Disabling services
     Write-Host "$(Get-LogDate)`t    Cleaning Startup services:" -f Green
     Start-Sleep -s 3
