@@ -1,17 +1,22 @@
 Function Start-WinSettings {
 
-# Ensure admin rights
-If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){
-    
-    # Relaunch as an elevated process
-    $Script = $MyInvocation.MyCommand.Path
-    Start-Process powershell.exe -Verb RunAs -ArgumentList "-ExecutionPolicy RemoteSigned", "-File `"$Script`""}
+    # Ensure admin rights
+	If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){
+		# Relaunch as an elevated process
+		$Script = $MyInvocation.MyCommand.Path
+		Start-Process powershell.exe -Verb RunAs -ArgumentList "-ExecutionPolicy RemoteSigned", "-File `"$Script`""}
 
-Write-Host "`n$(Get-LogDate)`tENHANCE WINDOWS Settings" -f Green
+    # Tjek om systemet er Windows 11 baseret eller 10
+        $BuildNumber = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").CurrentBuildNumber
+        if([int]$BuildNumber -ge 22000){$ThisIsWindows11 = $True; $ThisIsWindows10 = $False;}
+        else{$ThisIsWindows11 = $False; $ThisIsWindows10 = $True;}
+            if($ThisIsWindows10){$SystemVersion = "Windows 10"}
+            if($ThisIsWindows11){$SystemVersion = "Windows 11"}
+
+Write-Host "`n$(Get-LogDate)`tENHANCE WINDOWS SETTINGS, $($SystemVersion)" -f Green
 
     # Windows settings
-        Write-Host "$(Get-LogDate)`t    COnfigure Windows:" -f Green
-
+        Write-Host "$(Get-LogDate)`t    Configure Windows:" -f Green
 
     # Disable LockScreen ScreenSaver? To prevent missing first character
         Write-Host "$(Get-LogDate)`t        - Disabling screensaver sleep to prevent missing keystrokes" -f Yellow
