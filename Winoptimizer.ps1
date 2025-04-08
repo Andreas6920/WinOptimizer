@@ -1,4 +1,4 @@
-﻿# Ensure admin rights
+# Ensure admin rights
 If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){
     
     # Relaunch as an elevated process
