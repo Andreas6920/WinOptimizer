@@ -155,7 +155,7 @@ do {
         Switch ($option) { 
             0 { exit }
             1 { Start-WinAntiBloat; Start-WinOptimizer; Start-WinSecurity; Start-WinSettings }
-            2 { Start-WinAntiBloat; Start-WinOptimizer }
+            2 { Start-WinAntiBloat }
             3 { Start-WinSecurity }
             4 { Start-WinSettings }
             5 { Install-App }
