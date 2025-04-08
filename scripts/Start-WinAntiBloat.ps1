@@ -138,6 +138,7 @@
                     Write-Host "$(Get-LogDate)`t        - Removing provisioned app: $($prov.DisplayName)" -ForegroundColor Yellow
                     try {Remove-AppxProvisionedPackage -Online -PackageName $prov.PackageName -ErrorAction Stop | Out-Null}
                     catch {Write-Host "$(Get-LogDate)`t        - Failed to remove provisioned: $($prov.PackageName)" -ForegroundColor Red}}}
+        }
 
         $ProgressPreference = "Continue"
 
