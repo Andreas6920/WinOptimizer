@@ -1,14 +1,21 @@
-Function Start-WinAntiBloat {
-    Write-Host "`n$(Get-LogDate)`tREMOVING WINDOWS BLOAT" -f Green
-    Start-Sleep -s 3
-    Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+﻿Function Start-WinAntiBloat {
 
     # Ensure admin rights
 	If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){
-    
 		# Relaunch as an elevated process
 		$Script = $MyInvocation.MyCommand.Path
 		Start-Process powershell.exe -Verb RunAs -ArgumentList "-ExecutionPolicy RemoteSigned", "-File `"$Script`""}
+
+    # Tjek om systemet er Windows 11 baseret eller 10
+        $BuildNumber = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").CurrentBuildNumber
+        if([int]$BuildNumber -ge 22000){$ThisIsWindows11 = $True; $ThisisWindows10 = $False;}
+        else{$ThisIsWindows11 = $False; $ThisisWindows10 = $True;}
+
+    # Start function
+        Write-Host "`n$(Get-LogDate)`tREMOVING WINDOWS BLOAT" -f Green
+        Start-Sleep -s 3
+        Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+    
 
     # Clean Taskbar
         Write-Host "$(Get-LogDate)`t    Cleaning Taskbar:" -f Green
@@ -27,7 +34,9 @@ Function Start-WinAntiBloat {
             If (test-path $PinnedPath){Remove-Item -Path $PinnedPath -Recurse -Force }
             Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;
 
+    
     # Clean start menu
+        if($ThisisWindows10){
         Write-Host "$(Get-LogDate)`t    Cleaning Start Menu:" -f Green
         Start-Sleep -s 3
     
@@ -60,7 +69,7 @@ Function Start-WinAntiBloat {
 
             # Clean up after script
             Remove-Item $File
-            Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;
+            Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;}
 
     # Clean Apps and features
         # List
