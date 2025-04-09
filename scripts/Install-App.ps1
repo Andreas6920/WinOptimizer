@@ -89,8 +89,8 @@ Function Install-App {
         if ($Name){
             # Installér Chocolatey hvis ikke den er
             if (!(Test-Path "$env:ProgramData\Chocolatey")) {
-                Write-Host "$(Get-LogDate)`t    Forbereder systemet:" -f Green
-                Write-Host "$(Get-LogDate)`t        - Installerer Chocolatey." -f Yellow;
+                Write-Host "$(Get-LogDate)`t    System preparation:" -f Green
+                Write-Host "$(Get-LogDate)`t        - Installing Chocolatey." -f Yellow;
                 
                 # Start job
                 [void](Start-Job -Name "Chocolatey Installation" -ScriptBlock {
@@ -105,7 +105,7 @@ Function Install-App {
                 Import-Module "$env:ProgramData\chocolatey\helpers\chocolateyInstaller.psm1" -ErrorAction SilentlyContinue
                 Update-SessionEnvironment | Out-Null}
 
-                Write-Host "$(Get-LogDate)`t    Installerer Applikationer:" -ForegroundColor Green 
+                Write-Host "$(Get-LogDate)`t    Installing application:" -ForegroundColor Green 
         
                 foreach ($requested_app in $requested_apps) {
 
@@ -138,7 +138,7 @@ Function Install-App {
 
                 }
 
-                Write-Host "$(Get-LogDate)`t    Applikationer Installeret." -f Green
+                Write-Host "$(Get-LogDate)`t    Applications installed." -f Green
 
                 
         }
@@ -147,13 +147,13 @@ Function Install-App {
     # Automatisk opdatering af applikationer
        
         if ($EnableAutoupdate) {
-            Write-Host "$(Get-LogDate)`t    Opsætter automatisk opdatereing:" -f Green
+            Write-Host "$(Get-LogDate)`t    Enabling automatic patching:" -f Green
 
             # Download Script
             $appupdaterlink = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app-updater.ps1"
             $appupdaterpath = Join-Path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -ChildPath "WinOptimizer\app-updater.ps1"
             New-Item -Path $appupdaterpath -Force | Out-Null
-            Write-Host "$(Get-LogDate)`t        - Downloader script." -f Yellow;
+            Write-Host "$(Get-LogDate)`t        - Downloading script." -f Yellow;
             Invoke-WebRequest -Uri $appupdaterlink -OutFile $appupdaterpath -UseBasicParsing
 
             # Setting Scheduled Task
@@ -162,11 +162,12 @@ Function Install-App {
             $Tasksettings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit '03:00:00' -AllowStartIfOnBatteries -RunOnlyIfNetworkAvailable -DontStopIfGoingOnBatteries -DontStopOnIdleEnd
             $Tasktrigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek 'Monday','Tuesday','Wednesday','Thursday','Friday' -At 11:50
             $User = [Environment]::UserName
-            Write-Host "$(Get-LogDate)`t        - Planlæg opgave." -f Yellow;
+            Write-Host "$(Get-LogDate)`t        - Scheduling task." -f Yellow;
             Register-ScheduledTask -TaskName $Taskname -Action $Taskaction -Settings $Tasksettings -Trigger $Tasktrigger -User $User -RunLevel Highest -Force | Out-Null
 
-            Write-Host "$(Get-LogDate)`t        - Opgavenavn: $Taskname" -f Yellow;
-            Write-Host "$(Get-LogDate)`t        - Fuldført." -f Yellow;
+            Write-Host "$(Get-LogDate)`t            - Opgavenavn: $Taskname" -f Yellow;
+            Write-Host "$(Get-LogDate)`t            - Complete." -f Yellow;
+            Write-Host "$(Get-LogDate)`t        - Automatic patching for desktop applications is now enabled." -f Yellow;
         }
 
 
