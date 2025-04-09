@@ -43,14 +43,14 @@
         
                 if ($CurrentValue -ne $Value) {
                     New-ItemProperty -Path $Path -Name $Name -PropertyType $Type -Value $Value -Force -ErrorAction Stop | Out-Null
-                    Write-Host "$(Get-LogDate)`t            - Registry '$Name' sat til '$Value'." -ForegroundColor Yellow} 
-                else {Write-Host "$(Get-LogDate)`t            - Registry '$Name' er allerede sat til '$Value'" -ForegroundColor Yellow}}
+                    Write-Host "$(Get-LogDate)`t            - Setting '$Name' to '$Value'." -ForegroundColor Yellow} 
+                else {Write-Host "$(Get-LogDate)`t            - '$Name' is already '$Value'." -ForegroundColor Yellow}}
 
             catch {
                 if ($_.Exception.GetType().Name -eq "UnauthorizedAccessException") {
                     # Undertrykker denne type fejl
-                    Write-Host "$(Get-LogDate)`t            - Manglende adgang til '$Name'. Springer over." -ForegroundColor Red}
-                else {Write-Host "Fejl - Kan ikke modificere '$Name': $_" -ForegroundColor Red}}
+                    Write-Host "$(Get-LogDate)`t            - Access denied to modify '$Name'." -ForegroundColor Red}
+                else {Write-Host "`t            - ERROR - cannot modify '$Name': $_" -ForegroundColor Red}}
         }
         
 

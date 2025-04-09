@@ -74,5 +74,5 @@ Write-Host "$(Get-LogDate)`t    Configure Windows:" -f Green
     
 
     #End of function
-    Write-Host "`tWindows customizer completed. Your system is now customized." -f Green
-    Start-Sleep 10}
+    Write-Host "`n$(Get-LogDate)`tWINDOWS SETTINGS ENHANCEMENT COMPLETE" -f Green
+    Start-Sleep -S 5}

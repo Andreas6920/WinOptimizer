@@ -257,6 +257,6 @@
         
     #End of function
         Write-Host "$(Get-LogDate)`t    BLOAT REMOVER COMPLETE." -f Green
-        Start-Sleep 3
+        Start-Sleep 5
                 
 }

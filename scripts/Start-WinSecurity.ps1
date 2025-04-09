@@ -1,6 +1,22 @@
 ﻿Function Start-WinSecurity {
 
-    Write-Host "`n$(Get-LogDate)`tENHANCE WINDOWS PRIVACY" -f Green
+    # Ensure admin rights
+	If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){
+		# Relaunch as an elevated process
+		$Script = $MyInvocation.MyCommand.Path
+		Start-Process powershell.exe -Verb RunAs -ArgumentList "-ExecutionPolicy RemoteSigned", "-File `"$Script`""}
+
+    # Tjek om systemet er Windows 11 baseret eller 10
+        $BuildNumber = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").CurrentBuildNumber
+        if([int]$BuildNumber -ge 22000){$ThisIsWindows11 = $True; $ThisIsWindows10 = $False;}
+        else{$ThisIsWindows11 = $False; $ThisIsWindows10 = $True;}
+            if($ThisIsWindows10){$SystemVersion = "Windows 10"}
+            if($ThisIsWindows11){$SystemVersion = "Windows 11"}
+
+    # Start function
+        Write-Host "`n$(Get-LogDate)`tENHANCING WINDOWS PRIVACY, AND SECURITY $($SystemVersion)" -f Green
+        Start-Sleep -s 3
+        Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
      
 
     # Adding entries to hosts file
@@ -83,8 +99,7 @@
         # Send Microsoft a request to delete collected data about you.
             
             # Kontrollér om Windows-versionen er 10
-            $OSVersion = (Get-CimInstance Win32_OperatingSystem).Version
-            if ($OSVersion -like "10.*"){
+            if($ThisIsWindows10){
                 #lock keyboard and mouse to avoid disruption while navigating in GUI.
                 Write-Host "$(Get-LogDate)`t    Submitting request to Microsoft to delete data about you." -f Green
 
@@ -108,8 +123,7 @@
                 Start-Sleep -s 2
                 Start-Input | Out-Null}
 
-    # Windows hardening
-        Write-Host "`n$(Get-LogDate)`tENHANCE WINDOWS SECURITY" -f Green
+    # More security-focused options
         
         # Disable automatic setup of network connected devices
             Write-Host "$(Get-LogDate)`t        - Disabling auto setup network devices." -f Yellow
@@ -152,9 +166,9 @@
 
         # Disable SMB v1
             # https://docs.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3
-            Write-Host "$(Get-LogDate)`t        - Disabling SMB version 1 support." -f Yellow
             $smb1state = (Get-WindowsOptionalFeature -Online -FeatureName smb1protocol).State
             if ($smb1state -ne "Disabled"){
+                Write-Host "$(Get-LogDate)`t        - Disabling SMB version 1 support." -f Yellow
                 $smb1beingdisabled = $true
                 Write-Host "$(Get-LogDate)`t            - This may take a while.." -f Yellow
                 Disable-WindowsOptionalFeature -Online -FeatureName smb1protocol -NoRestart -WarningAction:SilentlyContinue | Out-Null
@@ -195,8 +209,7 @@
 
         # End of function
             if($smb1beingdisabled){Wait-job -Name "Disable SMB1" | Out-Null;}
-            
-        Write-Host "$(Get-LogDate)`t    Privacy optimizer complete. Your system is now more private and secure." -f Green
+        Write-Host "$(Get-LogDate)`t    PRIVACY AND SECURITY ENHANCEMENT COMPLETE." -f Green
         Start-Sleep 5
     
         }
