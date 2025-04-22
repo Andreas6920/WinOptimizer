@@ -9,6 +9,8 @@
 
 #>
 
+
+
 Function Install-App {
     param (
         [Parameter(Mandatory=$false)]
@@ -20,6 +22,11 @@ Function Install-App {
         [Parameter(Mandatory=$false)]
         [switch]$Default)
 
+    ## Fjern før upload, for test skyld
+        # Timestamps for actions
+        Function Get-LogDate {
+        return (Get-Date -f "[yyyy/MM/dd HH:mm:ss]")}
+
     # Ensure admin rights
 	If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){
     
@@ -28,14 +35,15 @@ Function Install-App {
 		Start-Process powershell.exe -Verb RunAs -ArgumentList "-ExecutionPolicy RemoteSigned", "-File `"$Script`""}
 	
 	# Standardliste, hvis -Default vælges
-    if ($Default) {$Name = "chrome,7zip,vlc,adobereader"}	
+    if ($Default) {$Name = "chrome,7zip,vlc"}	
 
     # Liste over tilgængelige applikationer
     $apps = @{
         "office" = "Microsoft Office 2016 Retail|microsoft-office-deployment"
-        "firefox" = "Mozilla Firefox|firefox"
         "chrome" = "Google Chrome|googlechrome"
         "brave" = "Brave Browser|brave"
+        "firefox" = "Mozilla Firefox|firefox"
+        "librewolf" = "LibreWolf|librewolf"
         "opera" = "Opera|opera"
         "vivaldi" = "Vivaldi|vivaldi"
         "dropbox" = "Dropbox|dropbox"
@@ -55,6 +63,7 @@ Function Install-App {
         "klite" = "K-lite|k-litecodecpackfull"
         "mpchc" = "MPC-HC|mpc-hc"
         "notepad" = "Notepad++|notepadplusplus"
+        "qbittorrent" = "qBittorrent|qbittorrent"
         "vscode" = "Visual Studio Code|vscode"
         "vim" = "Vim|vim"
         "putty" = "PuTTY|putty"
@@ -64,20 +73,73 @@ Function Install-App {
         "winscp" = "WinSCP|winscp"
         "mremoteng" = "MremoteNG|mremoteng"
         "wireshark" = "Wireshark|wireshark"
-        "git" = "Git|git"
+        "github" = "GitHub Desktop|github-desktop"
         "powershell" = "PowerShell Core|powershell-core"
-        "windowsterminal" = "Windows Terminal|microsoft-windows-terminal"
+        "terminal" = "Windows Terminal|microsoft-windows-terminal"
         "teams" = "Microsoft Teams|microsoft-teams"
         "zoom" = "Zoom|zoom"
         "webex" = "Webex|webex"
         "twitch" = "Twitch|twitch"
-        "ubisoft" = "Ubisoft Connect|ubisoft-connect"}
+        "ubisoft" = "Ubisoft Connect|ubisoft-connect"
+        "steam" = "Steam|steam"
+        "avg" = "AVG Antivirus Free|avgantivirusfree"
+        "avast" = "Avast Free Antivirus|avastfreeantivirus"
+        "malwarebytes" = "Malwarebytes|malwarebytes"
+        "eset" = "ESET Internet Security|eset-internet-security"
+        }
 
     
-    # Hvis INTET er sat
-    if (-not $Name -and -not $Default -and -not $EnableAutoupdate -and -not $IncludeVisualPlusplus) {
-            Write-Host "$(Get-LogDate)`t- Enter applications (comma-separated): " -NoNewline -ForegroundColor Yellow
-            $Name = Read-Host}
+    do {
+        if (-not $Name -and -not $Default -and -not $EnableAutoupdate -and -not $IncludeVisualPlusplus) {
+
+            Clear-Host
+            Write-Host "APP-INSTALLER`n" -ForegroundColor Green
+            Write-Host ""
+            Write-Host "`tBrowser                                            " -BackgroundColor Green -ForegroundColor Black
+            Write-Host "`tGoogle Chrome`t    Firefox`t    Brave" -ForegroundColor Green
+            Write-Host "`tVivaldi`t`t    Opera`t    LibreWolf" -ForegroundColor Green
+            Write-Host "`tTools for office/school                            " -BackgroundColor Green -ForegroundColor Black
+            Write-Host "`tMicrosoft Office    7-Zip`t    VLC" -ForegroundColor Green
+            Write-Host "`tTeams`t`t    Zoom`t    Webex" -ForegroundColor Green
+            Write-Host "`tAdobe Reader`t    Greenshot`t    ShareX" -ForegroundColor Green
+            Write-Host "`tSecurity                                            " -BackgroundColor Green -ForegroundColor Black
+            Write-Host "`tAVG Free`t    Avast Free`t    Malwarebytes" -ForegroundColor Green
+            Write-Host "`tTools for tech's                                    " -BackgroundColor Green -ForegroundColor Black
+            Write-Host "`tvscode`t`t    notepad++`t    mRemoteNG" -ForegroundColor Green
+            Write-Host "`tPuTTY`t`t    Tera Term`t    SuperPutty" -ForegroundColor Green
+            Write-Host "`tPowerShell Core`t    WinSCP`t    FileZilla" -ForegroundColor Green
+            Write-Host "`tEntertainment                                       " -BackgroundColor Green -ForegroundColor Black
+            Write-Host "`tSteam`t`t    UbiSoft`t    Twitch" -ForegroundColor Green
+            Write-Host "`tSpotify`t`t    Winamp`t    MPC-HC" -ForegroundColor Green
+            Write-Host "`tqBittorent" -ForegroundColor Green
+            Write-Host ""
+
+            Write-Host "Hvilke applikationer vil du installere? (comma-separated):" -NoNewline -ForegroundColor Green
+            $Name = Read-Host
+        }
+
+        $requested_apps = $Name -split "[,;\s]+" | Where-Object {$_ -ne ""}
+        $headersToInstall = @()
+
+        foreach ($app in $requested_apps) {
+            if ($apps.ContainsKey($app)) {
+                $headersToInstall += ($apps[$app] -split "\|")[0]
+            }
+        }
+
+        Write-Host "Scriptet vil installere følgende:" -ForegroundColor Cyan
+        foreach ($header in $headersToInstall) {
+            Write-Host "    - $header" -ForegroundColor Yellow
+        }
+
+        Write-Host "Vil du fortsætte? (y/n): " -NoNewline
+        $proceed = Read-Host
+
+        if ($proceed -eq "n") {
+            $Name = $null
+            Write-Host "Installation annulleret.`n`n" -ForegroundColor Red}
+
+    } while ($proceed -ne "y")
 
     # Opdel input fra pipeline
         $requested_apps = $Name -split "[,;\s]+" | Where-Object {$_ -ne ""}
