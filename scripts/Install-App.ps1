@@ -234,12 +234,12 @@ Function Install-App {
             Start-Sleep -s 5
         # Install
             Set-Location $path
-            $path/vcredist2005_x64.exe /q
-            $path/vcredist2008_x64.exe /qb
-            $path/vcredist2010_x64.exe /passive /norestart
-            $path/vcredist2012_x64.exe /passive /norestart
-            $path/vcredist2013_x64.exe /passive /norestart
-            $path/vcredist2015_2017_2019_2022_x64.exe /passive /norestart}
+            ./vcredist2005_x64.exe /q
+            ./vcredist2008_x64.exe /qb
+            ./vcredist2010_x64.exe /passive /norestart
+            ./vcredist2012_x64.exe /passive /norestart
+            ./vcredist2013_x64.exe /passive /norestart
+            ./vcredist2015_2017_2019_2022_x64.exe /passive /norestart}
         # Vent indtil installation er færdig
             Wait-Job -Name "Visual C++" | Out-Null
             Write-Host "$(Get-LogDate)`t- Visual C++ installation completed." -ForegroundColor Yellow} 
