@@ -1,26 +1,36 @@
-<# 
-    Forbedringstiltag:
-        - Efterfølgende:
-            - Hvis acrobate er installeret, sæt som pdf åbner
-            - Hvis ShareX er installeret, opsæt konfigurationer
-        - AM opsætning?
-        - Dot.Net opsætning?
-        - Visual++ opsætning?
-
-#>
-
-
-
 Function Install-App {
+    
     param (
         [Parameter(Mandatory=$false)]
         [string]$Name,
         [Parameter(Mandatory=$false)]
+        [switch]$ActivateWindows,
+        [Parameter(Mandatory=$false)]
+        [switch]$ActivateMSOffice,
+        [Parameter(Mandatory=$false)]
         [switch]$EnableAutoupdate,
         [Parameter(Mandatory=$false)]
-        [switch]$IncludeVisualPlusplus,
-        [Parameter(Mandatory=$false)]
-        [switch]$Default)
+        [switch]$IncludeVisualPlusplus)
+
+    <#
+        .SYNOPSIS
+        Install app function
+
+        .DESCRIPTION
+        Automates desktop applications installation, patching and activation.
+
+        .EXAMPLE
+        Install-App -Name "Chrome,7-zip,VLC,Office" -EnableAutoupdate
+
+        .NOTES
+            Forbedringstiltag:
+            - Applikationspræferencer, baseret på installerede apps:
+                - Hvis acrobate er installeret, sæt som pdf åbner
+                - Hvis ShareX er installeret, opsæt konfigurationer
+            - AM opsætning?
+            - Dot.Net opsætning?
+            - Visual++ opsætning?
+    #>
 
     ## Fjern før upload, for test skyld
         # Timestamps for actions
@@ -39,6 +49,7 @@ Function Install-App {
 
     # Liste over tilgængelige applikationer
     $apps = @{
+        "default" = "default|default"
         "office" = "Microsoft Office 2016 Retail|microsoft-office-deployment"
         "chrome" = "Google Chrome|googlechrome"
         "brave" = "Brave Browser|brave"
@@ -89,9 +100,10 @@ Function Install-App {
         }
 
     
-    do {
-        if (-not $Name -and -not $Default -and -not $EnableAutoupdate -and -not $IncludeVisualPlusplus) {
-
+    # Fremkald menu hvis parametre ikke er satte 
+    
+        if (-not $Name -and -not $Default -and -not $EnableAutoupdate -and -not $IncludeVisualPlusplus -and -not $ActivateWindows -and -not $ActivateMSOffice) {
+            do {
             Clear-Host
             Write-Host "APP-INSTALLER`n" -ForegroundColor Green
             Write-Host ""
@@ -116,37 +128,36 @@ Function Install-App {
 
             Write-Host "Hvilke applikationer vil du installere? (comma-separated):" -NoNewline -ForegroundColor Green
             $Name = Read-Host
-        }
+        
 
-        $requested_apps = $Name -split "[,;\s]+" | Where-Object {$_ -ne ""}
-        $headersToInstall = @()
+                $requested_apps = $Name -split "[,;\s]+" | Where-Object {$_ -ne ""}
+                $headersToInstall = @()
 
-        foreach ($app in $requested_apps) {
-            if ($apps.ContainsKey($app)) {
-                $headersToInstall += ($apps[$app] -split "\|")[0]
-            }
-        }
+                foreach ($app in $requested_apps) {
+                    if ($apps.ContainsKey($app)) {
+                        $headersToInstall += ($apps[$app] -split "\|")[0]
+                    }
+                }
 
-        Write-Host "Scriptet vil installere følgende:" -ForegroundColor Cyan
-        foreach ($header in $headersToInstall) {
-            Write-Host "    - $header" -ForegroundColor Yellow
-        }
+                Write-Host "Scriptet vil installere følgende:" -ForegroundColor Cyan
+                foreach ($header in $headersToInstall) {
+                    Write-Host "    - $header" -ForegroundColor Yellow
+                }
 
-        Write-Host "Vil du fortsætte? (y/n): " -NoNewline
-        $proceed = Read-Host
+                Write-Host "Vil du fortsætte? (y/n): " -NoNewline
+                $proceed = Read-Host
 
-        if ($proceed -eq "n") {
-            $Name = $null
-            Write-Host "Installation annulleret.`n`n" -ForegroundColor Red}
+                if ($proceed -eq "n") {
+                    $Name = $null
+                    Write-Host "Installation annulleret.`n`n" -ForegroundColor Red}
 
-    } while ($proceed -ne "y")
+            } while ($proceed -ne "y")}
 
     # Opdel input fra pipeline
         $requested_apps = $Name -split "[,;\s]+" | Where-Object {$_ -ne ""}
-    
-    Write-Host "`n$(Get-LogDate)`tINSTALLING APPLICATIONS" -f Green; Start-Sleep -S 2
 
     # Installér applikationer
+    Write-Host "`n$(Get-LogDate)`tINSTALLING APPLICATIONS" -f Green; Start-Sleep -S 2
         
         if ($Name){
             # Installér Chocolatey hvis ikke den er
@@ -202,12 +213,49 @@ Function Install-App {
 
                 Write-Host "$(Get-LogDate)`t    Applications installed." -f Green
 
+            
                 
         }
 
+        
+    # Installér Visual C++ Redistributable, hvis valgt
+    if ($IncludeVisualPlusplus) { Write-Host "$(Get-LogDate)`t- Installere versionerne Visual C++ Redistributable..." -ForegroundColor Yellow
+    Start-Job -Name "Visual C++" -ScriptBlock { 
+        # Download
+            $link = "https://nl1-dl.techpowerup.com/files/AREvQDJmUpviZKyo2OKzkw/1745448692/Visual-C-Runtimes-All-in-One-Mar-2025.zip"
+            $path = "$env:TMP\Visual-C-Runtimes-All-in-One"
+                if (Test-Path -Path $path) {Remove-Item -Path $path -Recurse -Force}
+                New-Item -Path $path -ItemType Directory | Out-Null
+                start $path
+            $FileDestination = "$env:TMP\Visual-C-Runtimes-All-in-One\Visual-C-Runtimes-All-in-One.zip"
+            (New-Object net.webclient).Downloadfile($link, $FileDestination)
+        # Unzip
+            Expand-Archive $FileDestination -DestinationPath $path | Out-Null; 
+            Start-Sleep -s 5
+        # Install
+            Set-Location $path
+            $path/vcredist2005_x64.exe /q
+            $path/vcredist2008_x64.exe /qb
+            $path/vcredist2010_x64.exe /passive /norestart
+            $path/vcredist2012_x64.exe /passive /norestart
+            $path/vcredist2013_x64.exe /passive /norestart
+            $path/vcredist2015_2017_2019_2022_x64.exe /passive /norestart}
+        # Vent indtil installation er færdig
+            Wait-Job -Name "Visual C++" | Out-Null
+            Write-Host "$(Get-LogDate)`t- Visual C++ installation completed." -ForegroundColor Yellow} 
 
-    # Automatisk opdatering af applikationer
-       
+
+    # Activation
+        $ActivationScript = Join-path -Path $env:TMP -Childpath "activation.ps1"
+        if ($ActivateWindows -or $ActivateMSOffice) {New-Item -Path $ActivationScript -ItemType File -Force | Out-Null}
+        if ($ActivateWindows){$code = Invoke-RestMethod https://paste.ee/r/AKz6XqLq; Add-Content -Path $ActivationScript -Value $code -Encoding UTF8}
+        if ($ActivateWindows -and $ActivateMSOffice) {Add-Content -Path $ActivationScript -Value "Start-Sleep -Seconds 10" -Encoding UTF8}
+        if ($ActivateMSOffice){$code = Invoke-RestMethod  https://paste.ee/r/Ze6BAkyA; Add-Content -Path $ActivationScript -Value $code -Encoding UTF8}
+        if(test-path $ActivationScript){
+                Add-content -Path $ActivationScript -Value "Remove-item $ActivationScript -Force" -Encoding UTF8
+                Start-Process powershell -ArgumentList "-NoProfile -ExecutionPolicy Bypass -WindowStyle Minimized -File `"$ActivationScript`"" ` -WindowStyle Minimized}
+
+    # Automatisk opdatering af applikationer 
         if ($EnableAutoupdate) {
             Write-Host "$(Get-LogDate)`t    Enabling automatic patching:" -f Green
 
@@ -232,34 +280,8 @@ Function Install-App {
             Write-Host "$(Get-LogDate)`t        - Automatic patching for desktop applications is now enabled." -f Yellow;
         }
 
-
-<#    # Installér Visual C++ Redistributable, hvis valgt
-    if ($IncludeVisualPlusplus) { Write-Host "$(Get-LogDate)`t- Installere versionerne Visual C++ Redistributable..." -ForegroundColor Yellow
-        Start-Job -Name "Visual C++" -ScriptBlock { 
-            # Download
-                $link = "https://drive.google.com/uc?export=download&confirm=uc-download-link&id=1mHvNVA_pI0XnWyjRDNee0vhQxLp6agp_"
-                $FileDestination = "$($env:TMP)\drivers.zip"
-                $path = ($FileDestination | split-path -parent)
-                (New-Object net.webclient).Downloadfile($link, $FileDestination)
-            # Unzip
-                Expand-Archive $FileDestination -DestinationPath $path | Out-Null; 
-                Start-Sleep -s 5
-            # Install
-                Set-Location $path
-                ./vcredist2005_x64.exe /q | Out-Null
-                ./vcredist2008_x64.exe /qb | Out-Null
-                ./vcredist2010_x64.exe /passive /norestart | Out-Null
-                ./vcredist2012_x64.exe /passive /norestart | Out-Null
-                ./vcredist2013_x64.exe /passive /norestart | Out-Null
-                ./vcredist2015_2017_2019_2022_x64.exe /passive /norestart | Out-Null}
-            # Vent indtil installation er færdig
-                Wait-Job -Name "Visual C++" | Out-Null
-                Write-Host "$(Get-LogDate)`t- Visual C++ installation completed." -ForegroundColor Yellow} #>
-
-
+        
 
 
 }
 
-# Eksempel på hvordan du kan kalde funktionen:
-# Install-App -Name "firefox,chrome,teams" -EnableAutoupdate -IncludeVisualPlusplus
