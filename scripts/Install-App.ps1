@@ -212,14 +212,12 @@ Function Install-App {
                 }
 
                 Write-Host "$(Get-LogDate)`t    Applications installed." -f Green
-
-            
                 
         }
 
         
     # Installér Visual C++ Redistributable, hvis valgt
-    if ($IncludeVisualPlusplus) { Write-Host "$(Get-LogDate)`t- Installere versionerne Visual C++ Redistributable..." -ForegroundColor Yellow
+    if ($IncludeVisualPlusplus) { Write-Host "$(Get-LogDate)`t    Installere samtlige versioner af Visual C++ Redistributable:" -ForegroundColor Green
     Start-Job -Name "Visual C++" -ScriptBlock { 
         # Download
             $link = "https://nl1-dl.techpowerup.com/files/AREvQDJmUpviZKyo2OKzkw/1745448692/Visual-C-Runtimes-All-in-One-Mar-2025.zip"
@@ -242,7 +240,7 @@ Function Install-App {
             ./vcredist2015_2017_2019_2022_x64.exe /passive /norestart}
         # Vent indtil installation er færdig
             Wait-Job -Name "Visual C++" | Out-Null
-            Write-Host "$(Get-LogDate)`t- Visual C++ installation completed." -ForegroundColor Yellow} 
+            Write-Host "$(Get-LogDate)`t        - Visual C++ installation fuldført." -ForegroundColor Yellow} 
 
 
     # Activation
