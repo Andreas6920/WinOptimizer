@@ -83,8 +83,7 @@
 
             Start-Sleep -s 3
             $FileUrl = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/res/start2.bin"
-            $CurrentUser = $env:USERNAME
-            $DestinationPath = "C:\Users\$CurrentUser\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState\start2.bin"
+            $DestinationPath = "C:\Users\$env:USERNAME\AppData\Local\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState\start2.bin"
 
             # Download og gem filen
                 try {   Write-Host "$(Get-LogDate)`t        - Downloading new start menu template." -f Yellow
