@@ -21,22 +21,30 @@
 
     # Clean Taskbar
         Write-Host "$(Get-LogDate)`t    Cleaning Taskbar:" -f Green
-        Start-Sleep -s 5
-        
+        Start-Sleep -s 3
         Write-Host "$(Get-LogDate)`t        - Setting registrykeys:" -f Yellow
-        Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesChanges" -Type "Dword" -Value "3"
-        Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesRemovedChanges" -Type "Dword" -Value "32"
-        Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesVersion" -Type "Dword"-Value "3" 
-        Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name Favorites -Value ([byte[]](0xFF)) -Force | Out-Null
-        Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Type "DWord" -Value "0"
-        Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Type "DWord" -Value "0"
-        Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type "Dword" -Value "0" 
-        Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type "DWord" -Value "0" 
-        $PinnedPath = Join-path -Path ([Environment]::GetFolderPath("ApplicationData")) -Childpath "\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*"
-        If (test-path $PinnedPath){Remove-Item -Path $PinnedPath -Recurse -Force }
+    
+        # Taskbar features
+            # Remove Searchbar    
+            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type "Dword" -Value "0"
+            # Remove Taskview
+            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type "DWord" -Value "0"
+            # Remove Cortana
+            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Type "DWord" -Value "0" # Windows 10 specific
+            # Remove Widgets
+            Add-Reg -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Name "EnableFeeds" -Type "DWord" -Value "0" # Windows 10 specific
+            Add-Reg -Path "HKLM:\SOFTWARE\Policies\Microsoft\Dsh" -Name "AllowNewsAndInterests" -Type "Dword" -Value "0"
+            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Type "DWord" -Value "0" 
+        # Taskbar application shortcuts
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "Favorites" -Value ([byte[]](0xFF)) -Force | Out-Null    
+            $PinnedPath = Join-path -Path ([Environment]::GetFolderPath("ApplicationData")) -Childpath "\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*"
+            If (test-path $PinnedPath){Remove-Item -Path $PinnedPath -Recurse -Force }
+            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesChanges" -Type "Dword" -Value "3"
+            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesRemovedChanges" -Type "Dword" -Value "32"
+            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesVersion" -Type "Dword"-Value "3"
+
         Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;
 
-    
     # Clean start menu
         Write-Host "$(Get-LogDate)`t    Cleaning Start Menu:" -f Green    
             if($ThisIsWindows10){
@@ -186,47 +194,48 @@
         Write-Host "$(Get-LogDate)`t    Cleaning Scheduled tasks:" -f Green
         Start-Sleep -s 3
         $Bloatschedules = @(
-            "AitAgent" 
-            "AnalyzeSystem" 
-            "Automatic App Update" 
-            "BthSQM" 
+            "WebExperience"
+            "AitAgent"
+            "AnalyzeSystem"
+            "Automatic App Update"
+            "BthSQM"
             "Consolidator"
-            "Consolidator" 
-            "CreateObjectTask" 
-            "Diagnostics" 
+            "Consolidator"
+            "CreateObjectTask"
+            "Diagnostics"
             "DmClient"
             "DmClientOnScenarioDownload"
-            "DsSvcCleanup" 
-            "EnableLicenseAcquisition" 
-            "FamilySafetyMonitor" 
-            "FamilySafetyMonitorToastTask" 
-            "FamilySafetyRefresh" 
-            "FamilySafetyRefreshTask" 
-            "FamilySafetyUpload" 
-            "File History (maintenance mode)" 
-            "GatherNetworkInfo" 
-            "KernelCeipTask" 
-            "License Validation" 
-            "LicenseAcquisition" 
-            "LoginCheck" 
-            "Microsoft Compatibility Appraiser" 
-            "Microsoft-Windows-DiskDiagnosticDataCollector" 
-            "ProgramDataUpdater" 
-            "Proxy" 
-            "QueueReporting" 
-            "RecommendedTroubleshootingScanner" 
-            "Registration" 
-            "Scheduled" 
-            "SmartScreenSpecific" 
-            "Sqm-Tasks" 
-            "StartupAppTask" 
-            "TempSignedLicenseExchange" 
-            "Uploader" 
+            "DsSvcCleanup"
+            "EnableLicenseAcquisition"
+            "FamilySafetyMonitor"
+            "FamilySafetyMonitorToastTask"
+            "FamilySafetyRefresh"
+            "FamilySafetyRefreshTask"
+            "FamilySafetyUpload"
+            "File History (maintenance mode)"
+            "GatherNetworkInfo"
+            "KernelCeipTask"
+            "License Validation"
+            "LicenseAcquisition"
+            "LoginCheck"
+            "Microsoft Compatibility Appraiser"
+            "Microsoft-Windows-DiskDiagnosticDataCollector"
+            "ProgramDataUpdater"
+            "Proxy"
+            "QueueReporting"
+            "RecommendedTroubleshootingScanner"
+            "Registration"
+            "Scheduled"
+            "SmartScreenSpecific"
+            "Sqm-Tasks"
+            "StartupAppTask"
+            "TempSignedLicenseExchange"
+            "Uploader"
             "UsbCeip"
-            "UsbCeip" 
-            "WinSAT" 
+            "WinSAT"
             "XblGameSaveTask"
-            "PcaPatchDbTask")
+            "PcaPatchDbTask"
+            )
 
         foreach ($TaskName in $BloatSchedules) {
             $task = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
