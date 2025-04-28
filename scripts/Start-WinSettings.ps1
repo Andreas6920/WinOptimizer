@@ -58,6 +58,11 @@ Write-Host "$(Get-LogDate)`t    Configure Windows:" -f Green
         get-printer | Where-Object shared -eq True | ForEach-Object {Set-Printer -Name $_.Name -Shared $False -ErrorAction SilentlyContinue | Out-Null}
         netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=No -ErrorAction SilentlyContinue | Out-Null
 
+    # Setting Power plan
+        Write-Host "$(Get-LogDate)`t        - Setting power plan." -f Yellow
+        powercfg -change -monitor-timeout-ac 180 # Tilsluttet Strøm
+        powercfg -change -monitor-timeout-dc 45 # Til Opladning
+
 
     if($ThisIsWindows10){
         # Taskbar: Hide task view button
