@@ -95,7 +95,7 @@
                 catch { Write-Host "Failed to download file: $_" -ForegroundColor Red}}
 
    # Clean Apps and features
-        Write-Host "$(Get-LogDate)`t    Cleaning Bloatware:" -ForegroundColor Green
+        Write-Host "$(Get-LogDate)`t    Cleaning atware:" -ForegroundColor Green
         Start-Sleep -Seconds 3
 
         # Liste over kendte bloatware apps

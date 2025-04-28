@@ -23,7 +23,7 @@
         Write-Host "$(Get-LogDate)`t    Blocking Microsoft's Tracking domains:" -f Green
         Write-Host "$(Get-LogDate)`t        - Will start in the background" -f Yellow
         $link = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/block-domains.ps1"
-        $file = "$dir\"+(Split-Path $link -Leaf)
+        $file = "$env:TMP\"+(Split-Path $link -Leaf)
         (New-Object net.webclient).Downloadfile("$link", "$file"); 
         Start-Sleep -s 2;
         Start-Process Powershell -argument "-ep bypass -windowstyle Minimized -file `"$file`""
@@ -33,7 +33,7 @@
         Write-Host "$(Get-LogDate)`t    Blocking Microsoft's tracking IP's:" -f Green
         Write-Host "$(Get-LogDate)`t        - Will start in the background" -f Yellow
         $link = "https://github.com/Andreas6920/WinOptimizer/blob/main/scripts/block-ips.ps1"
-        $file = "$dir\"+(Split-Path $link -Leaf)
+        $file = "$env:TMP\"+(Split-Path $link -Leaf)
         (New-Object net.webclient).Downloadfile("$link", "$file"); 
         Start-Sleep -s 2;
         Start-Process Powershell -argument "-ep bypass -windowstyle Minimized -file `"$file`""
