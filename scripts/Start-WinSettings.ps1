@@ -21,30 +21,25 @@ Function Start-WinSettings {
 # Start
 Write-Host "`n$(Get-LogDate)`tENHANCE WINDOWS SETTINGS, $($SystemVersion)" -f Green
 Write-Host "$(Get-LogDate)`t    Configure Windows:" -f Green
-
-    # Disable LockScreen ScreenSaver? To prevent missing first character
-        Write-Host "$(Get-LogDate)`t        - Disabling screensaver sleep to prevent missing keystrokes" -f Yellow
-        Add-Reg -Path "HKLM:\Software\Policies\Microsoft\Windows\Personalization" -Name "Personalization" -Type "DWORD" -Value "1"
-        Start-Sleep -S 2
-
+        
     # Show file extensions
-        Write-Host "$(Get-LogDate)`t        - Show file extensions" -f Yellow
+        Write-Host "$(Get-LogDate)`t        - Show file extensions." -f Yellow
         Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type "DWORD" -Value "0"
         Start-Sleep -S 2
             
     # Show hidden files
-        Write-Host "$(Get-LogDate)`t        - Show hidden files" -f Yellow
+        Write-Host "$(Get-LogDate)`t        - Show hidden files." -f Yellow
         Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type "DWORD" -Value "1"
         Start-Sleep -S 2
         
     # Change Explorer to "This PC"
-        Write-Host "$(Get-LogDate)`t        - Change explorer to 'This PC' instead of 'Documents'" -f Yellow
+        Write-Host "$(Get-LogDate)`t        - Change explorer to 'This PC' instead of 'Documents.'" -f Yellow
         Add-Reg -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type "DWORD" -Value "1"
         Start-Sleep -S 2
-        
-    # Start Menu: Disable Bing Search Results
-        Write-Host "$(Get-LogDate)`t        - Disabling bing search results in windows search menu" -f Yellow
-        Add-Reg -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -Type "DWORD" -Value "0"
+
+    # Seconds in System Tray Clock 
+        Write-Host "$(Get-LogDate)`t        - Show Seconds in System Tray Clock." -f Yellow
+        Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSecondsInSystemClock" -Type "DWord" -Value "1"
         Start-Sleep -S 2
     
     # Disable automatic setup of network connected devices
@@ -60,8 +55,10 @@ Write-Host "$(Get-LogDate)`t    Configure Windows:" -f Green
 
     # Setting Power plan
         Write-Host "$(Get-LogDate)`t        - Setting power plan." -f Yellow
-        powercfg -change -monitor-timeout-ac 180 # Tilsluttet Strøm
-        powercfg -change -monitor-timeout-dc 45 # Til Opladning
+        powercfg -change -monitor-timeout-ac 180
+        powercfg -change -standby-timeout-ac 180
+        powercfg -change -monitor-timeout-dc 45
+        powercfg -change -standby-timeout-dc 60
 
 
     if($ThisIsWindows10){

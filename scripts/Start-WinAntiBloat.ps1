@@ -22,28 +22,67 @@
     # Clean Taskbar
         Write-Host "$(Get-LogDate)`t    Cleaning Taskbar:" -f Green
         Start-Sleep -s 3
-        Write-Host "$(Get-LogDate)`t        - Setting registrykeys:" -f Yellow
     
         # Taskbar features
-            # Remove Searchbar    
-            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type "Dword" -Value "0"
+            # Start Menu: Disable Bing Search Results
+                Write-Host "$(Get-LogDate)`t        - Disabling bing search results in windows search menu." -f Yellow
+                Add-Reg -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -Type "DWORD" -Value "0"
+                Start-Sleep -S 2
+            # Remove Searchbar
+                Write-Host "$(Get-LogDate)`t        - Hide Searchbox." -f Yellow
+                Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type "Dword" -Value "0"
+                Start-Sleep -S 2
             # Remove Taskview
-            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type "DWord" -Value "0"
+                Write-Host "$(Get-LogDate)`t        - Hide Task View." -f Yellow
+                Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type "DWord" -Value "0"
+                Start-Sleep -S 2
             # Remove Cortana
-            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Type "DWord" -Value "0" # Windows 10 specific
+                Write-Host "$(Get-LogDate)`t        - Hide Cortana." -f Yellow
+                Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Type "DWord" -Value "0" # Windows 10 specific
+                Start-Sleep -S 2
+            # Taskbar pinned applications
+                Write-Host "$(Get-LogDate)`t        - Removing pinned apps from taskbar" -f Yellow
+                Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "Favorites" -Value ([byte[]](0xFF)) -Force | Out-Null    
+                $PinnedPath = Join-path -Path ([Environment]::GetFolderPath("ApplicationData")) -Childpath "\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*"
+                If (test-path $PinnedPath){Remove-Item -Path $PinnedPath -Recurse -Force }
+                Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesChanges" -Type "Dword" -Value "3"
+                Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesRemovedChanges" -Type "Dword" -Value "32"
+                Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesVersion" -Type "Dword"-Value "3"
             # Remove Widgets
-            Add-Reg -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Name "EnableFeeds" -Type "DWord" -Value "0" # Windows 10 specific
-            Add-Reg -Path "HKLM:\SOFTWARE\Policies\Microsoft\Dsh" -Name "AllowNewsAndInterests" -Type "Dword" -Value "0"
-            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Type "DWord" -Value "0" 
-        # Taskbar application shortcuts
-            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "Favorites" -Value ([byte[]](0xFF)) -Force | Out-Null    
-            $PinnedPath = Join-path -Path ([Environment]::GetFolderPath("ApplicationData")) -Childpath "\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*"
-            If (test-path $PinnedPath){Remove-Item -Path $PinnedPath -Recurse -Force }
-            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesChanges" -Type "Dword" -Value "3"
-            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesRemovedChanges" -Type "Dword" -Value "32"
-            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesVersion" -Type "Dword"-Value "3"
+                Write-Host "$(Get-LogDate)`t        - Turn off Widgets, Stocks and news feeds." -f Yellow
+                Add-Reg -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Name "EnableFeeds" -Type "DWord" -Value "0" # Windows 10 specific
+                Add-Reg -Path "HKLM:\SOFTWARE\Policies\Microsoft\Dsh" -Name "AllowNewsAndInterests" -Type "Dword" -Value "0"
+                Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Type "DWord" -Value "0"
+                Start-Sleep -S 2
+            # Remove 'Meet Now' function
+                Write-Host "$(Get-LogDate)`t        - Hide 'Meet Now' in System Tray." -f Yellow
+                Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "HideSCAMeetNow" -Type DWord -Value 1
+                Start-Sleep -S 2
+            
+        # Taskbar settings complete
+            Restart-Explorer
+            Start-Sleep -S 7
+            Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;
+    
+    # Clean Lock Screen 
+        Write-Host "$(Get-LogDate)`t    Cleaning Lock Screen:" -f Green
+        Start-Sleep -s 3
+        Write-Host "$(Get-LogDate)`t        - Setting registrykeys:" -f Yellow
 
-        Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;
+            # Disable LockScreen ScreenSaver to prevent missing first character
+            Write-Host "$(Get-LogDate)`t        - Disabling screensaver sleep to prevent missing keystrokes" -f Yellow
+            Add-Reg -Path "HKLM:\Software\Policies\Microsoft\Windows\Personalization" -Name "Personalization" -Type "DWORD" -Value "1"
+            Start-Sleep -S 2
+
+            # Fun facts, tips, tricks, and more on lock screen
+            Write-Host "$(Get-LogDate)`t        - Turn off fun facts, tips, tricks, and more on lock screen" -f Yellow
+            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "RotatingLockScreenOverlayEnabled" -Type "DWord" -Value "0"
+            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338387Enabled" -Type "DWord" -Value "0"
+            Start-Sleep -S 2
+
+            # Lock screen settings Complete
+            Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow
+            
 
     # Clean start menu
         Write-Host "$(Get-LogDate)`t    Cleaning Start Menu:" -f Green    
@@ -95,7 +134,7 @@
                 catch { Write-Host "Failed to download file: $_" -ForegroundColor Red}}
 
    # Clean Apps and features
-        Write-Host "$(Get-LogDate)`t    Cleaning atware:" -ForegroundColor Green
+        Write-Host "$(Get-LogDate)`t    Cleaning bloatware:" -ForegroundColor Green
         Start-Sleep -Seconds 3
 
         # Liste over kendte bloatware apps
