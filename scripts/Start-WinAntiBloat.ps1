@@ -74,7 +74,7 @@
             Start-Sleep -S 2
 
             # Fun facts, tips, tricks, and more on lock screen
-            Write-Host "$(Get-LogDate)`t        - Turn off fun facts, tips, tricks, and more on lock screen" -f Yellow
+            Write-Host "$(Get-LogDate)`t        - Turning off fun facts, tips, tricks, and more on lock screen" -f Yellow
             Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "RotatingLockScreenOverlayEnabled" -Type "DWord" -Value "0"
             Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338387Enabled" -Type "DWord" -Value "0"
             Start-Sleep -S 2
@@ -144,13 +144,13 @@
             "Microsoft.MicrosoftOfficeHub", "Microsoft.Office.OneNote", "Microsoft.MicrosoftSolitaireCollection",
             "Microsoft.MicrosoftStickyNotes", "Microsoft.MixedReality.Portal", "Microsoft.Music.Preview",
             "Microsoft.People", "Microsoft.PeopleExperienceHost", "Microsoft.WindowsFeedbackHub",
-            "Microsoft.WindowsMaps", "Microsoft.ZuneMusic", "Microsoft.ZuneVideo",
-            "Microsoft.windowscommunicationsapps", "Microsoft.Wallet", "Microsoft.GetHelp", "CBSPreview",
+            "Microsoft.WindowsMaps", "Microsoft.ZuneMusic", "Microsoft.ZuneVideo", "Microsoft.549981C3F5F10",
+            "Microsoft.windowscommunicationsapps", "Microsoft.Wallet", "CBSPreview",
 
             # Xbox bloat
             "Microsoft.Xbox.TCUI", "Microsoft.XboxApp", "Microsoft.XboxGameCallableUI",
             "Microsoft.XboxGameOverlay", "Microsoft.XboxGamingOverlay", "Microsoft.XboxIdentityProvider",
-            "Microsoft.XboxSpeechToTextOverlay",
+            "Microsoft.XboxSpeechToTextOverlay", "Microsoft.GamingApp"
 
             # Bing bloat
             "*Bing*", "Microsoft.BingFinance", "Microsoft.BingFoodAndDrink",
@@ -161,7 +161,7 @@
             "*Bubblewitch*", "*Candycrush*", "*Disney*", "*Empires*", "*Minecraft*", "*Royal revolt*",
 
             # Other
-            "*ActiproSoftwareLLC*", "*AdobePhotoshopExpress*", "*Duolingo*", "*EclipseManager*",
+            "Clipchamp.Clipchamp", "*ActiproSoftwareLLC*", "*AdobePhotoshopExpress*", "*Duolingo*", "*EclipseManager*",
             "*Facebook*", "*Flipboard*", "*PandoraMediaInc*", "*Skype*", "*Spotify*", "*Twitter*", "*Wunderlist*")
 
         $ProgressPreference = "SilentlyContinue"

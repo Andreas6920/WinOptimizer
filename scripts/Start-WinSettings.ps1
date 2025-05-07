@@ -47,18 +47,24 @@ Write-Host "$(Get-LogDate)`t    Configure Windows:" -f Green
         Add-Reg -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type "DWORD" -Value "0"
         Start-Sleep -s 2
 
-    # Disable sharing of PC and printers
+    # Duplicate drive entry from navigation panel
+        Write-Host "$(Get-LogDate)`t        - Removing duplicate drive entry from navigation panel."
+        Remove-Item "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Desktop\NameSpace\{F5FB2C77-0E2F-4A16-A381-3E560C68BC83}" -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
+        Remove-Item "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Explorer\Desktop\NameSpace\DelegateFolders\{F5FB2C77-0E2F-4A16-A381-3E560C68BC83}" -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
+
+    # Disable sharing of PC and printers    
         Write-Host "$(Get-LogDate)`t        - Turn off sharing of PC and Printers." -f Yellow
         Get-NetConnectionProfile | ForEach-Object {Set-NetConnectionProfile -Name $_.Name -NetworkCategory Public -ErrorAction SilentlyContinue | Out-Null}    
         get-printer | Where-Object shared -eq True | ForEach-Object {Set-Printer -Name $_.Name -Shared $False -ErrorAction SilentlyContinue | Out-Null}
         netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=No -ErrorAction SilentlyContinue | Out-Null
 
-    # Setting Power plan
+    # Setting Power plan    
         Write-Host "$(Get-LogDate)`t        - Setting power plan." -f Yellow
         powercfg -change -monitor-timeout-ac 180
         powercfg -change -standby-timeout-ac 180
         powercfg -change -monitor-timeout-dc 45
         powercfg -change -standby-timeout-dc 60
+    
 
 
     if($ThisIsWindows10){
@@ -79,6 +85,11 @@ Write-Host "$(Get-LogDate)`t    Configure Windows:" -f Green
         # Move Taskbar to the left side
         Write-Host "$(Get-LogDate)`t        - Move taskbar icons to left" -f Yellow
         Add-Reg -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Type "DWord" -Value "0"
+        Start-Sleep -S 2
+    
+        # Full context menu / old windows 11 menu
+        Write-Host "$(Get-LogDate)`t        - Setting full context Left-Click menu." -f Yellow
+        reg.exe add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" /f /ve | Out-Null
         Start-Sleep -S 2}
 
     if($EnableDarkMode){    
