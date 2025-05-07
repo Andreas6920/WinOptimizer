@@ -29,15 +29,15 @@
                 Add-Reg -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -Type "DWORD" -Value "0"
                 Start-Sleep -S 2
             # Remove Searchbar
-                Write-Host "$(Get-LogDate)`t        - Hide Searchbox." -f Yellow
+                Write-Host "$(Get-LogDate)`t        - Hiding Searchbox." -f Yellow
                 Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type "Dword" -Value "0"
                 Start-Sleep -S 2
             # Remove Taskview
-                Write-Host "$(Get-LogDate)`t        - Hide Task View." -f Yellow
+                Write-Host "$(Get-LogDate)`t        - Hiding Task View." -f Yellow
                 Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type "DWord" -Value "0"
                 Start-Sleep -S 2
             # Remove Cortana
-                Write-Host "$(Get-LogDate)`t        - Hide Cortana." -f Yellow
+                Write-Host "$(Get-LogDate)`t        - Hiding Cortana." -f Yellow
                 Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Type "DWord" -Value "0" # Windows 10 specific
                 Start-Sleep -S 2
             # Taskbar pinned applications
@@ -49,25 +49,24 @@
                 Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesRemovedChanges" -Type "Dword" -Value "32"
                 Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesVersion" -Type "Dword"-Value "3"
             # Remove Widgets
-                Write-Host "$(Get-LogDate)`t        - Turn off Widgets, Stocks and news feeds." -f Yellow
+                Write-Host "$(Get-LogDate)`t        - Turning off Widgets, Stocks and news feeds." -f Yellow
                 Add-Reg -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Name "EnableFeeds" -Type "DWord" -Value "0" # Windows 10 specific
                 Add-Reg -Path "HKLM:\SOFTWARE\Policies\Microsoft\Dsh" -Name "AllowNewsAndInterests" -Type "Dword" -Value "0"
                 Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Type "DWord" -Value "0"
                 Start-Sleep -S 2
             # Remove 'Meet Now' function
-                Write-Host "$(Get-LogDate)`t        - Hide 'Meet Now' in System Tray." -f Yellow
+                Write-Host "$(Get-LogDate)`t        - Hiding 'Meet Now' in System Tray." -f Yellow
                 Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "HideSCAMeetNow" -Type DWord -Value 1
                 Start-Sleep -S 2
             
         # Taskbar settings complete
             Restart-Explorer
             Start-Sleep -S 7
-            Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;
+            Write-Host "$(Get-LogDate)`t        - Taskbar cleaning complete." -f Yellow;  Start-Sleep -S 3;
     
     # Clean Lock Screen 
         Write-Host "$(Get-LogDate)`t    Cleaning Lock Screen:" -f Green
-        Start-Sleep -s 3
-        Write-Host "$(Get-LogDate)`t        - Setting registrykeys:" -f Yellow
+        Start-Sleep -s 2
 
             # Disable LockScreen ScreenSaver to prevent missing first character
             Write-Host "$(Get-LogDate)`t        - Disabling screensaver sleep to prevent missing keystrokes" -f Yellow
@@ -81,7 +80,7 @@
             Start-Sleep -S 2
 
             # Lock screen settings Complete
-            Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow
+            Write-Host "$(Get-LogDate)`t        - Lock Screen cleaning complete." -f Yellow
             
 
     # Clean start menu
@@ -116,7 +115,7 @@
 
                 # Clean up after script
                     Remove-Item $File
-                    Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;}
+                    Write-Host "$(Get-LogDate)`t        - Start menu cleaning complete." -f Yellow;  Start-Sleep -S 3;}
 
         If($ThisIsWindows11){
 
@@ -129,12 +128,12 @@
                         Invoke-RestMethod -Uri $FileUrl -OutFile $DestinationPath
                         Write-Host "$(Get-LogDate)`t        - Complete." -f Yellow
                         Write-Host "$(Get-LogDate)`t        - Restarting explorer." -f Yellow
-                        Start-Sleep -S 2
+                        Write-Host "$(Get-LogDate)`t        - Start menu cleaning complete." -f Yellow;  Start-Sleep -S 3;
                         Restart-Explorer} 
                 catch { Write-Host "Failed to download file: $_" -ForegroundColor Red}}
 
    # Clean Apps and features
-        Write-Host "$(Get-LogDate)`t    Cleaning bloatware:" -ForegroundColor Green
+        Write-Host "$(Get-LogDate)`t    Removing bloatware:" -ForegroundColor Green
         Start-Sleep -Seconds 3
 
         # Liste over kendte bloatware apps
@@ -176,7 +175,7 @@
                 $matches = $InstalledAppx | Where-Object Name -like $bloat
                 foreach ($match in $matches) {
                     $AppName = $match.Name -replace '^.*?\.', '' -replace '^Microsoft', ''
-                    Write-Host "$(Get-LogDate)`t        - Removing user app: $($AppName)" -ForegroundColor Yellow
+                    Write-Host "$(Get-LogDate)`t        - Removing '$($AppName)'" -ForegroundColor Yellow
                     Remove-AppxPackage -Package $match.PackageFullName -ErrorAction SilentlyContinue | Out-Null}
             
             # Fjern pre-provisioned apps (fremtidige brugere)
@@ -184,14 +183,13 @@
             foreach ($prov in $provMatches) {
                 $AppName = $prov.DisplayName -replace '^.*?\.', '' -replace '^Microsoft', ''
                 if ($prov.PackageName -and $prov.PackageName -ne "") {
-                    Write-Host "$(Get-LogDate)`t        - Removing provisioned app: $($AppName)" -ForegroundColor Yellow
                     try {Remove-AppxProvisionedPackage -Online -PackageName $prov.PackageName -ErrorAction Stop | Out-Null}
                     catch {Write-Host "$(Get-LogDate)`t        - Failed to remove provisioned: $($AppName)" -ForegroundColor Red}}}
         }
 
         $ProgressPreference = "Continue"
 
-        Write-Host "$(Get-LogDate)`t        - Cleaning complete." -ForegroundColor Yellow
+        Write-Host "$(Get-LogDate)`t        - Bloatware removal complete." -ForegroundColor Yellow
         Start-Sleep -Seconds 3
 
     # Disabling services

@@ -48,8 +48,8 @@
         
                 if ($CurrentValue -ne $Value) {
                     New-ItemProperty -Path $Path -Name $Name -PropertyType $Type -Value $Value -Force -ErrorAction Stop | Out-Null
-                    Write-Host "$(Get-LogDate)`t            - Setting '$Name' to '$Value'." -ForegroundColor Yellow} 
-                else {Write-Host "$(Get-LogDate)`t            - '$Name' is already '$Value'." -ForegroundColor Yellow}}
+                    Write-Host "$(Get-LogDate)`t            - Setting '$Name' to '$Value'." -ForegroundColor DarkYellow} 
+                else {Write-Host "$(Get-LogDate)`t            - '$Name' is already '$Value'." -ForegroundColor DarkYellow}}
 
             catch {
                 if ($_.Exception.GetType().Name -eq "UnauthorizedAccessException") {
