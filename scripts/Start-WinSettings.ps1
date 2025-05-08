@@ -48,7 +48,7 @@ Write-Host "$(Get-LogDate)`t    Configure Windows:" -f Green
         Start-Sleep -s 2
 
     # Duplicate drive entry from navigation panel
-        Write-Host "$(Get-LogDate)`t        - Removing duplicate drive entry from navigation panel."
+        Write-Host "$(Get-LogDate)`t        - Removing duplicate drive entry from navigation panel." -f Yellow
         Remove-Item "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Desktop\NameSpace\{F5FB2C77-0E2F-4A16-A381-3E560C68BC83}" -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
         Remove-Item "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Explorer\Desktop\NameSpace\DelegateFolders\{F5FB2C77-0E2F-4A16-A381-3E560C68BC83}" -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
 
@@ -101,5 +101,5 @@ Write-Host "$(Get-LogDate)`t    Configure Windows:" -f Green
     
 
     #End of function
-    Write-Host "`n$(Get-LogDate)`tWINDOWS SETTINGS ENHANCEMENT COMPLETE" -f Green
+    Write-Host "$(Get-LogDate)`tWINDOWS SETTINGS ENHANCEMENT COMPLETE" -f Green
     Start-Sleep -S 5}
