@@ -204,6 +204,7 @@
         "MapsBroker"                               # Downloaded Maps Manager
         "ndu"                                      # Windows Network Data Usage Monitor
         "NetTcpPortSharing"                        # Net.Tcp Port Sharing Service
+        "SSDPSRV"                                  # SSDP Discovers networked devices and services using the SSDP discovery protocol (e.g., UPnP devices)
         "RemoteAccess"                             # Routing and Remote Access
         "RemoteRegistry"                           # Remote Registry
         "SharedAccess"                             # Internet Connection Sharing (ICS)
@@ -213,6 +214,7 @@
         "XblAuthManager"                           # Xbox Live Auth Manager
         "XblGameSave"                              # Xbox Live Game Save Service
         "XboxNetApiSvc"                            # Xbox Live Networking Service
+        "XboxGipSvc"                               # Xbox Accessory Management Service
     )
 
     foreach ($serviceName in $Services) {
