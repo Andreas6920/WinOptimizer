@@ -42,20 +42,6 @@
     #Configuring Windows privacy settings
         Write-Host "$(Get-LogDate)`t    Setting Privacy Settings:" -f Green     
         
-        # Disable Advertising ID
-            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Type "DWord" -Value "0"
-            Start-Sleep -s 2
-        
-        # Disable let websites provide locally relevant content by accessing language list           
-            Add-Reg -Path "HKCU:\Control Panel\International\User Profile" -Name "HttpAcceptLanguageOptOut" -Type "DWord" -Value "1"
-            Start-Sleep -s 2
-        
-        # Disable Show me suggested content in the Settings app
-            Write-Host "$(Get-LogDate)`t        - Disabling personalized content suggestions" -f Yellow
-            $keys = "SubscribedContent-338393Enabled","SubscribedContent-353694Enabled", "SubscribedContent-353696Enabled" 
-            $keys | % {Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "$_" -Type "DWord" -Value "0"}
-            Start-Sleep -s 2
-        
         # Remove Cortana
             Write-Host "$(Get-LogDate)`t        - Disabling Cortana" -f Yellow
             $ProgressPreference = "SilentlyContinue"
@@ -65,63 +51,133 @@
             Restart-Explorer
             Start-Sleep -s 5
 
-        # Disable Online Speech Recognition
+        # Privacy & Security -> General
+            Write-Host "$(Get-LogDate)`t        - Disabling General telemetry collection" -f Yellow
+            # Advertising ID -> Off
+            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Type "DWord" -Value "0"
+            # Let website access my language list -> Off    
+            Add-Reg -Path "HKCU:\Control Panel\International\User Profile" -Name "HttpAcceptLanguageOptOut" -Type "DWord" -Value "1"
+            # Let windows track app launches -> Off
+            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackProgs" -Type "DWORD" -Value "0"
+            # Show me suggested content in the Settings app -> Off
+            $keys = "SubscribedContent-338393Enabled","SubscribedContent-353694Enabled", "SubscribedContent-353696Enabled" 
+            $keys | % {Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "$_" -Type "DWord" -Value "0"}
+            # Show me notifications in the Settings app -> Off
+            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SystemSettings\AccountNotifications" -Name "EnableAccountNotifications" -Type "DWord" -Value 0
+            Start-Sleep -s 2
+
+        # Privacy & Security -> Speech
             Write-Host "$(Get-LogDate)`t        - Disabling Online Speech Recognition" -f Yellow
             Add-Reg -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "HasAccepted" -Type "DWord" -Value "0"
             Start-Sleep -s 2
         
-        # Hiding personal information from lock screen
-            Write-Host "$(Get-LogDate)`t        - Disabling sign-in screen notifications" -f Yellow
-            $keys = "DontDisplayLockedUserID","DontDisplayLastUsername";
-            $keys | % {Add-Reg -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "$_" -Type "DWORD" -Value "0"}
-            Start-Sleep -s 2
-        
-        # Disable diagnostic data collection
-            Write-Host "$(Get-LogDate)`t        - Disabling diagnostic data collection" -f Yellow
-            Add-Reg -Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Type "DWORD" -Value "0"
-            Start-Sleep -s 2
-        
-        # Disable App Launch Tracking
-            Write-Host "$(Get-LogDate)`t        - Disabling App Launch Tracking" -f Yellow
-            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackProgs" -Type "DWORD" -Value "0"
+        # Privacy & Security -> Inking and typing personalization
+            Write-Host "$(Get-LogDate)`t        - Disabling 'Custom inking and typing dictionary'" -f Yellow
+            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\CPSS\Store\InkingAndTypingPersonalization" -Name "Value" -Type "DWord" -Value 0
+            Add-Reg -Path "HKCU:\Software\Microsoft\Personalization\Settings" -Name "AcceptedPrivacyPolicy" -Type "DWord" -Value 0
+            Add-Reg -Path "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitInkCollection" -Type "DWord" -Value 1
+            Add-Reg -Path "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitTextCollection" -Type "DWord" -Value 1
+            Add-Reg -Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore" -Name "HarvestContacts" -Type "DWord" -Value 0
             Start-Sleep -s 2
 
-        # Disable "tailored expirence"
-            Write-Host "$(Get-LogDate)`t        - Disabling tailored expirience" -f Yellow
+        # Privacy & Security -> Diagnostics & feedback
+            Write-Host "$(Get-LogDate)`t        - Disabling 'Diagnostics & feedback' options" -f Yellow
+            # Diagnostics Data -> Off
+            Add-Reg -Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Type "DWORD" -Value "0"
+            # Tailored expirences -> Off
             Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Name "TailoredExperiencesWithDiagnosticDataEnabled" -Type "DWORD" -Value "0"
             Start-Sleep -s 2
-        
-        # Disable application telemetry
-            Write-Host "$(Get-LogDate)`t        - Disabling application telemetry" -f Yellow
-            Add-Reg -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppCompat" -Name "AITEnable" -Type "DWORD" -Value "0"
+
+        if($ThisIsWindows11){
+        # Privacy & Security -> Activity History
+            # Windows blocks this option from being changed via scripts or registry tweaks.
+            # Therefore, it must be toggled manually through the Settings interface
+            Write-Host "$(Get-LogDate)`t        - Disabling activity monitoring..." -ForegroundColor Yellow
+            Write-Host "$(Get-LogDate)`t        - Toggling setting manually through the interface..." -ForegroundColor Yellow
+            Stop-Input | Out-Null
             Start-Sleep -s 2
-
-        # Send Microsoft a request to delete collected data about you.
+            $app = New-Object -ComObject Shell.Application
+            $key = New-Object -com Wscript.Shell
+            $app.open("ms-settings:privacy-activityhistory")
+            $key.AppActivate("Settings") | out-null
+            Start-Sleep -s 2
+            $key.SendKeys(" ")
+            Start-Sleep -s 2
+            $key.SendKeys("{TAB}")
+            Start-Sleep -s 2
+            $key.SendKeys("{ENTER}")
+            Start-Sleep -s 1
+            $key.SendKeys("{ENTER}")
+            Start-Sleep -s 2
+            $key.SendKeys("%{F4}")
+            Start-Sleep -s 2
+            Start-Input | Out-Null
             
-            # Kontrollér om Windows-versionen er 10
-            if($ThisIsWindows10){
-                #lock keyboard and mouse to avoid disruption while navigating in GUI.
-                Write-Host "$(Get-LogDate)`t    Submitting request to Microsoft to delete data about you." -f Green
+            <# BETA test
+            Write-Host "$(Get-LogDate)`t        - Submitting request to Microsoft to delete data about you." -ForegroundColor Yellow
+            Write-Host "$(Get-LogDate)`t        - Toggling setting manually through the interface..." -ForegroundColor Yellow
+            Stop-Input | Out-Null
+            Start-Sleep -s 2
+            $app = New-Object -ComObject Shell.Application
+            $key = New-Object -com Wscript.Shell
+            $app.open("ms-settings:privacy-feedback")
+            $key.SendKeys("{TAB}")
+            $key.SendKeys("{TAB}")
+            $key.SendKeys("{TAB}")
+            $key.SendKeys("{TAB}")
+            $key.SendKeys(" ")
+            Start-Sleep -s 2
+            $key.SendKeys("{TAB}")
+            $key.SendKeys(" ")
+            $key.SendKeys("%{F4}")
+            Start-Sleep -s 2
+            Start-Input | Out-Null
+            #>
+            }
 
-                #start navigating
-                Stop-Input | Out-Null
-                Start-Sleep -s 2
-                $app = New-Object -ComObject Shell.Application
-                $key = New-Object -com Wscript.Shell
-                $app.open("ms-settings:privacy-feedback")
-                $key.AppActivate("Settings") | out-null
-                Start-Sleep -s 2
-                $key.SendKeys("{TAB}")
-                $key.SendKeys("{TAB}")
-                $key.SendKeys("{TAB}")
-                $key.SendKeys("{TAB}")
-                $key.SendKeys("{TAB}")
-                Start-Sleep -s 2
-                $key.SendKeys("{ENTER}")
-                Start-Sleep -s 3
-                $key.SendKeys("%{F4}")
-                Start-Sleep -s 2
-                Start-Input | Out-Null}
+        if($ThisIsWindows10){
+        # Send Microsoft a request to delete collected data about you.    
+        # This must be toggled manually through the Settings interface    
+        Write-Host "$(Get-LogDate)`t    Submitting request to Microsoft to delete data about you." -f Green
+        Stop-Input | Out-Null
+        Start-Sleep -s 2
+        $app = New-Object -ComObject Shell.Application
+        $key = New-Object -com Wscript.Shell
+        $app.open("ms-settings:privacy-feedback")
+        $key.AppActivate("Settings") | out-null
+        Start-Sleep -s 2
+        $key.SendKeys("{TAB}")
+        $key.SendKeys("{TAB}")
+        $key.SendKeys("{TAB}")
+        $key.SendKeys("{TAB}")
+        $key.SendKeys("{TAB}")
+        Start-Sleep -s 2
+        $key.SendKeys("{ENTER}")
+        Start-Sleep -s 3
+        $key.SendKeys("%{F4}")
+        Start-Sleep -s 2
+        Start-Input | Out-Null}
+        
+    # Privacy & Security -> Search Permissions
+        Write-Host "$(Get-LogDate)`t        - Disabling Windows Search permission" -f Yellow
+        #SafeSearch -> Off
+        Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings" -Name "SafeSearchMode" -Type "DWord" -Value 0
+        # Cloud content search: Microsoft account -> Off
+        Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings" -Name "IsMSACloudSearchEnabled" -Type "DWord" -Value 0
+        # Cloud content search: Work or School account -> Off
+        Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings" -Name "IsAADCloudSearchEnabled" -Type "DWord" -Value 0
+        Start-Sleep -s 2
+    
+    # Hiding personal information from lock screen
+        Write-Host "$(Get-LogDate)`t        - Disabling sign-in screen notifications" -f Yellow
+        $keys = "DontDisplayLockedUserID","DontDisplayLastUsername";
+        $keys | % {Add-Reg -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "$_" -Type "DWORD" -Value "0"}
+        Start-Sleep -s 2
+    
+    # Disable application telemetry
+        Write-Host "$(Get-LogDate)`t        - Disabling application telemetry" -f Yellow
+        Add-Reg -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppCompat" -Name "AITEnable" -Type "DWORD" -Value "0"
+        Start-Sleep -s 2
 
     # More security-focused options
         
@@ -192,20 +248,11 @@
             Write-Host "$(Get-LogDate)`t        - Enabling LSA protection." -f Yellow
             Add-Reg -Path "HKLM:\SYSTEM\CurrentControlSet\Control\LSA" -Name "RunAsPPL" -Type "DWORD" -Value "1"
 
-        # Change File association on typical malicious files to preventing accidental launching
-            # https://www.reddit.com/r/sysadmin/comments/uvxzge/security_cadence_use_default_apps_to_help_prevent/
-            Write-Host "$(Get-LogDate)`t        - Setting file association for prevent accidental launching:" -f Yellow
-            $link = "https://raw.githubusercontent.com/DanysysTeam/PS-SFTA/master/SFTA.ps1"
-            $path = join-path -Path $env:TMP -ChildPath ($link | split-path -Leaf)
-            (New-Object net.webclient).Downloadfile("$link", "$path");
-            Import-Module $path            
-
         # Disable OneNote embedded file attacks
-            # test om extensions definition virker
+            Write-Host "$(Get-LogDate)`t        - Disabling embedded file OneNote phishing attacks." -f Yellow
             # https://www.bleepingcomputer.com/news/security/how-to-prevent-microsoft-onenote-files-from-infecting-windows-with-malware/
-            # Write-Host "$(Get-LogDate)`t        - Disabling embedded file OneNote phishing attacks." -f Yellow
-            # Add-Reg -Path "HKCU:\software\policies\microsoft\office\16.0\onenote\options" -Name "disableembeddedfiles" -Type "DWORD" -Value "0"
-            # Add-Reg -Path "HKCU:\software\policies\microsoft\office\16.0\onenote\options\embeddedfileopenoptions" -Name "blockedextensions" -Type "DWORD" -Value "".js;.exe;.bat;.vbs;.com;.scr;.cmd;.ps1""
+            Add-Reg -Path "HKCU:\software\policies\microsoft\office\16.0\onenote\options" -Name "disableembeddedfiles" -Type "DWORD" -Value "0"
+            Add-Reg -Path "HKCU:\software\policies\microsoft\office\16.0\onenote\options\embeddedfileopenoptions" -Name "blockedextensions" -Type "DWORD" -Value "".js;.exe;.bat;.vbs;.com;.scr;.cmd;.ps1""
 
         # End of function
             if($smb1beingdisabled){Wait-job -Name "Disable SMB1" | Out-Null;}
