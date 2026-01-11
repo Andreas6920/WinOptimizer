@@ -293,7 +293,7 @@
             Add-Reg -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type DWord -Value 0
             
             Write-Host "$(Get-LogDate)`t        - Cleaning spooler" -f Yellow
-            Stop-Service "Spooler" | out-null; sleep -s 3
+            Stop-Service "Spooler" | out-null; Start-Sleep -s 3
             Remove-Item "$env:SystemRoot\System32\spool\PRINTERS\*.*" -Force | Out-Null
             Start-Service "Spooler"
 

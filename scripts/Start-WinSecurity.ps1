@@ -248,12 +248,6 @@
             Write-Host "$(Get-LogDate)`t        - Enabling LSA protection." -f Yellow
             Add-Reg -Path "HKLM:\SYSTEM\CurrentControlSet\Control\LSA" -Name "RunAsPPL" -Type "DWORD" -Value "1"
 
-        # Disable OneNote embedded file attacks
-            Write-Host "$(Get-LogDate)`t        - Disabling embedded file OneNote phishing attacks." -f Yellow
-            # https://www.bleepingcomputer.com/news/security/how-to-prevent-microsoft-onenote-files-from-infecting-windows-with-malware/
-            Add-Reg -Path "HKCU:\software\policies\microsoft\office\16.0\onenote\options" -Name "disableembeddedfiles" -Type "DWORD" -Value "0"
-            Add-Reg -Path "HKCU:\software\policies\microsoft\office\16.0\onenote\options\embeddedfileopenoptions" -Name "blockedextensions" -Type "DWORD" -Value "".js;.exe;.bat;.vbs;.com;.scr;.cmd;.ps1""
-
         # End of function
             if($smb1beingdisabled){Wait-job -Name "Disable SMB1" | Out-Null;}
         Write-Host "$(Get-LogDate)`t    PRIVACY AND SECURITY ENHANCEMENT COMPLETE." -f Green
