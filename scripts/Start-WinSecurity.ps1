@@ -89,7 +89,7 @@
             Start-Sleep -s 2
 
         if($ThisIsWindows11){
-        # Privacy & Security -> Activity History
+        <# Privacy & Security -> Activity History
             # Windows blocks this option from being changed via scripts or registry tweaks.
             # Therefore, it must be toggled manually through the Settings interface
             Write-Host "$(Get-LogDate)`t        - Disabling activity monitoring..." -ForegroundColor Yellow
@@ -113,7 +113,7 @@
             Start-Sleep -s 2
             Start-Input | Out-Null
             
-            <# BETA test
+            BETA test
             Write-Host "$(Get-LogDate)`t        - Submitting request to Microsoft to delete data about you." -ForegroundColor Yellow
             Write-Host "$(Get-LogDate)`t        - Toggling setting manually through the interface..." -ForegroundColor Yellow
             Stop-Input | Out-Null

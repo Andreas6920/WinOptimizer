@@ -90,7 +90,28 @@ Write-Host "$(Get-LogDate)`t    Configure Windows:" -f Green
         # Full context menu / old windows 11 menu
         Write-Host "$(Get-LogDate)`t        - Setting full context Left-Click menu." -f Yellow
         reg.exe add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" /f /ve | Out-Null
-        Start-Sleep -S 2}
+        Start-Sleep -S 2
+    
+        # Set Background - Windows Spotlight
+
+            # Set spotlight slideshow
+            
+            $RegPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Wallpapers"
+                Add-Reg -Path $RegPath -Name "SlideshowEnabled" -Value 1 -Type DWord
+                Add-Reg -Path $RegPath -Name "SlideshowDirectoryPath" -Value "C:\Windows\Web\Screen" -Type String
+                Add-Reg -Path $RegPath -Name "SlideshowTickInterval" -Value 1800000 -Type DWord
+
+            # Activate Windows Spotlight
+            
+            $RegPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
+                Add-Reg -Path $RegPath -Name "RotatingLockScreenOverlayEnabled" -Value 1 -Type DWord
+                Add-Reg -Path $RegPath -Name "RotatingLockScreenEnabled" -Value 1 -Type DWord
+                Add-Reg -Path $RegPath -Name "SubscribedContent-338388Enabled" -Value 1 -Type DWord
+                Add-Reg -Path $RegPath -Name "SubscribedContent-338387Enabled" -Value 1 -Type DWord
+
+            RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters
+            Restart-Explorer       
+    }
 
     if($EnableDarkMode){    
         Write-Host "$(Get-LogDate)`t        - Enabling Dark Mode" -f Yellow
