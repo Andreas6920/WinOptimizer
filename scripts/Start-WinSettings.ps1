@@ -109,8 +109,13 @@ Write-Host "$(Get-LogDate)`t    Configure Windows:" -f Green
                 Add-Reg -Path $RegPath -Name "SubscribedContent-338388Enabled" -Value 1 -Type DWord
                 Add-Reg -Path $RegPath -Name "SubscribedContent-338387Enabled" -Value 1 -Type DWord
 
-            RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters
-            Restart-Explorer       
+            # Remove desktop shortcut 'Learn about this picture'
+            $RegPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel"
+                Add-Reg -Path  $Regpath -Name "{2cc5ca98-6485-489a-920e-b3e88a6ccce3}" -Value 1 -Type DWord
+
+
+                RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters
+                Restart-Explorer       
     }
 
     if($EnableDarkMode){    
