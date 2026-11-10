@@ -1,7 +1,31 @@
 Function Start-WinSettings {
+    [CmdletBinding()]
     param (
-        [switch]$EnableDarkMode
+        [switch]$All,
+        [switch]$AllExplorerSettings,
+        [switch]$ShowFileExtension,
+        [switch]$ShowHiddenFiles,
+        [switch]$ChangeExplorerToThisPC,
+        [switch]$ShowSecondsInSystemTrayClock,
+        [switch]$EnableDarkMode,
+        [switch]$SetWallpaperWindowsSpotlight,
+        [switch]$SetWallpaperDisableWindowsSpotlight
     )
+
+    $AnySettingSelected = $AllExplorerSettings -or
+        $ShowFileExtension -or
+        $ShowHiddenFiles -or
+        $ChangeExplorerToThisPC -or
+        $ShowSecondsInSystemTrayClock -or
+        $EnableDarkMode -or
+        $SetWallpaperWindowsSpotlight -or
+        $SetWallpaperDisableWindowsSpotlight
+
+    if (-not ($All -or $AnySettingSelected)) {
+        $All = $true
+    }
+
+    $RunAllExplorerSettings = $All -or $AllExplorerSettings
     
 # System Preparation
 
@@ -20,28 +44,39 @@ Function Start-WinSettings {
 
 # Start
 Write-Host "`n$(Get-LogDate)`tENHANCE WINDOWS SETTINGS, $($SystemVersion)" -f Green
-Write-Host "$(Get-LogDate)`t    Configure Windows:" -f Green
+if ($RunAllExplorerSettings -or $ShowFileExtension -or $ShowHiddenFiles -or $ChangeExplorerToThisPC -or $ShowSecondsInSystemTrayClock) {
+    Write-Host "$(Get-LogDate)`t    Configure Windows:" -f Green
+}
         
     # Show file extensions
+    if ($RunAllExplorerSettings -or $ShowFileExtension) {
         Write-Host "$(Get-LogDate)`t        - Show file extensions." -f Yellow
         Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type "DWORD" -Value "0"
         Start-Sleep -S 2
+    }
             
     # Show hidden files
+    if ($RunAllExplorerSettings -or $ShowHiddenFiles) {
         Write-Host "$(Get-LogDate)`t        - Show hidden files." -f Yellow
         Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type "DWORD" -Value "1"
         Start-Sleep -S 2
+    }
         
     # Change Explorer to "This PC"
+    if ($RunAllExplorerSettings -or $ChangeExplorerToThisPC) {
         Write-Host "$(Get-LogDate)`t        - Change explorer to 'This PC' instead of 'Documents.'" -f Yellow
         Add-Reg -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type "DWORD" -Value "1"
         Start-Sleep -S 2
+    }
 
     # Seconds in System Tray Clock 
+    if ($RunAllExplorerSettings -or $ShowSecondsInSystemTrayClock) {
         Write-Host "$(Get-LogDate)`t        - Show Seconds in System Tray Clock." -f Yellow
         Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSecondsInSystemClock" -Type "DWord" -Value "1"
         Start-Sleep -S 2
+    }
     
+    if ($RunAllExplorerSettings) {
     # Disable automatic setup of network connected devices
         Write-Host "$(Get-LogDate)`t        - Turn off automatic setup of network connected devices." -f Yellow
         Add-Reg -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type "DWORD" -Value "0"
@@ -64,10 +99,11 @@ Write-Host "$(Get-LogDate)`t    Configure Windows:" -f Green
         powercfg -change -standby-timeout-ac 180
         powercfg -change -monitor-timeout-dc 45
         powercfg -change -standby-timeout-dc 60
+    }
     
 
 
-    if($ThisIsWindows10){
+    if($RunAllExplorerSettings -and $ThisIsWindows10){
         # Taskbar: Hide task view button
             Write-Host "$(Get-LogDate)`t        - Taskbar: Hide task view" -f Yellow
             Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\MultiTaskingView" -Name "ShowTaskViewButton" -Type "DWORD" -Value "0"
@@ -81,7 +117,7 @@ Write-Host "$(Get-LogDate)`t    Configure Windows:" -f Green
             If((test-path $3Dlocation64bit )){remove-item $3Dlocation64bit}
             Start-Sleep -S 2}
 
-    if($ThisIsWindows11){
+    if($RunAllExplorerSettings -and $ThisIsWindows11){
         # Move Taskbar to the left side
         Write-Host "$(Get-LogDate)`t        - Move taskbar icons to left" -f Yellow
         Add-Reg -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Type "DWord" -Value "0"
@@ -92,33 +128,42 @@ Write-Host "$(Get-LogDate)`t    Configure Windows:" -f Green
         reg.exe add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" /f /ve | Out-Null
         Start-Sleep -S 2
     
-        # Set Background - Windows Spotlight
-
-            # Set spotlight slideshow
-            
-            $RegPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Wallpapers"
-                Add-Reg -Path $RegPath -Name "SlideshowEnabled" -Value 1 -Type DWord
-                Add-Reg -Path $RegPath -Name "SlideshowDirectoryPath" -Value "C:\Windows\Web\Screen" -Type String
-                Add-Reg -Path $RegPath -Name "SlideshowTickInterval" -Value 1800000 -Type DWord
-
-            # Activate Windows Spotlight
-            
-            $RegPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
-                Add-Reg -Path $RegPath -Name "RotatingLockScreenOverlayEnabled" -Value 1 -Type DWord
-                Add-Reg -Path $RegPath -Name "RotatingLockScreenEnabled" -Value 1 -Type DWord
-                Add-Reg -Path $RegPath -Name "SubscribedContent-338388Enabled" -Value 1 -Type DWord
-                Add-Reg -Path $RegPath -Name "SubscribedContent-338387Enabled" -Value 1 -Type DWord
-
-            # Remove desktop shortcut 'Learn about this picture'
-            $RegPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel"
-                Add-Reg -Path  $Regpath -Name "{2cc5ca98-6485-489a-920e-b3e88a6ccce3}" -Value 1 -Type DWord
-
-
-                RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters
-                Restart-Explorer       
+        Restart-Explorer
     }
 
-    if($EnableDarkMode){    
+    if ($ThisIsWindows11 -and ($All -or $SetWallpaperWindowsSpotlight) -and -not $SetWallpaperDisableWindowsSpotlight) {
+        # Set Background - Windows Spotlight
+        $RegPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Wallpapers"
+        Add-Reg -Path $RegPath -Name "SlideshowEnabled" -Value 1 -Type DWord
+        Add-Reg -Path $RegPath -Name "SlideshowDirectoryPath" -Value "C:\Windows\Web\Screen" -Type String
+        Add-Reg -Path $RegPath -Name "SlideshowTickInterval" -Value 1800000 -Type DWord
+
+        $RegPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
+        Add-Reg -Path $RegPath -Name "RotatingLockScreenOverlayEnabled" -Value 1 -Type DWord
+        Add-Reg -Path $RegPath -Name "RotatingLockScreenEnabled" -Value 1 -Type DWord
+        Add-Reg -Path $RegPath -Name "SubscribedContent-338388Enabled" -Value 1 -Type DWord
+        Add-Reg -Path $RegPath -Name "SubscribedContent-338387Enabled" -Value 1 -Type DWord
+
+        $RegPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel"
+        Add-Reg -Path $RegPath -Name "{2cc5ca98-6485-489a-920e-b3e88a6ccce3}" -Value 1 -Type DWord
+
+        RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters
+        Restart-Explorer
+    }
+
+    if ($SetWallpaperDisableWindowsSpotlight) {
+        $SpotlightSettingsPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\DesktopSpotlight\Settings"
+        if (-not (Test-Path $SpotlightSettingsPath)) {
+            New-Item -Path $SpotlightSettingsPath -Force | Out-Null
+        }
+        New-ItemProperty -Path $SpotlightSettingsPath -Name "EnabledState" -PropertyType DWord -Value 0 -Force | Out-Null
+        Copy-Item -Path "C:\Windows\Web\Wallpaper\Windows\img0.jpg" -Destination "$env:APPDATA\Microsoft\Windows\Themes\TranscodedWallpaper" -Force
+        reg.exe add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{2cc5ca98-6485-489a-920e-b3e88a6ccce3}" /t REG_DWORD /d 1 /f | Out-Null
+        RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters
+        Restart-Explorer
+    }
+
+    if ($All -or $EnableDarkMode) {
         Write-Host "$(Get-LogDate)`t        - Enabling Dark Mode" -f Yellow
         Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Type "DWORD" -Value "0"
         Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Type "DWORD" -Value "0"
