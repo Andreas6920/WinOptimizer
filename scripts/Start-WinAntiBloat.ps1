@@ -1,4 +1,24 @@
 ﻿Function Start-WinAntiBloat {
+    [CmdletBinding()]
+    param(
+        [switch]$CleanTaskbar,
+        [switch]$CleanLockScreen,
+        [switch]$CleanStartMenu,
+        [switch]$CleanBloatApps,
+        [switch]$CleanServices,
+        [switch]$CleanScheduledTasks,
+        [switch]$CleanPrinters
+    )
+
+    $RunAllSections = -not (
+        $CleanTaskbar -or
+        $CleanLockScreen -or
+        $CleanStartMenu -or
+        $CleanBloatApps -or
+        $CleanServices -or
+        $CleanScheduledTasks -or
+        $CleanPrinters
+    )
 
     # Ensure admin rights
 	If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){
@@ -19,6 +39,7 @@
         Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
     
 
+    if ($RunAllSections -or $CleanTaskbar) {
     # Clean Taskbar
         Write-Host "$(Get-LogDate)`t    Cleaning Taskbar:" -f Green
         Start-Sleep -s 3
@@ -63,7 +84,9 @@
             Restart-Explorer
             Start-Sleep -S 7
             Write-Host "$(Get-LogDate)`t        - Taskbar cleaning complete." -f Yellow;  Start-Sleep -S 3;
-    
+    }
+
+    if ($RunAllSections -or $CleanLockScreen) {
     # Clean Lock Screen 
         Write-Host "$(Get-LogDate)`t    Cleaning Lock Screen:" -f Green
         Start-Sleep -s 2
@@ -81,8 +104,9 @@
 
             # Lock screen settings Complete
             Write-Host "$(Get-LogDate)`t        - Lock Screen cleaning complete." -f Yellow
-            
+    }
 
+    if ($RunAllSections -or $CleanStartMenu) {
     # Clean start menu
         Write-Host "$(Get-LogDate)`t    Cleaning Start Menu:" -f Green    
             if($ThisIsWindows10){
@@ -131,7 +155,9 @@
                         Write-Host "$(Get-LogDate)`t        - Start menu cleaning complete." -f Yellow;  Start-Sleep -S 3;
                         Restart-Explorer} 
                 catch { Write-Host "Failed to download file: $_" -ForegroundColor Red}}
+    }
 
+    if ($RunAllSections -or $CleanBloatApps) {
    # Clean Apps and features
         Write-Host "$(Get-LogDate)`t    Removing bloatware:" -ForegroundColor Green
         Start-Sleep -Seconds 3
@@ -191,7 +217,9 @@
 
         Write-Host "$(Get-LogDate)`t        - Bloatware removal complete." -ForegroundColor Yellow
         Start-Sleep -Seconds 3
+    }
 
+    if ($RunAllSections -or $CleanServices) {
     # Disabling services
     Write-Host "$(Get-LogDate)`t    Cleaning Startup services:" -f Green
     Start-Sleep -s 3
@@ -227,7 +255,9 @@
     
     Write-Host "$(Get-LogDate)`t        - Cleaning complete." -ForegroundColor Yellow
     Start-Sleep -Seconds 2
+    }
 
+    if ($RunAllSections -or $CleanScheduledTasks) {
     # Clean Task Scheduler
         Write-Host "$(Get-LogDate)`t    Cleaning Scheduled tasks:" -f Green
         Start-Sleep -s 3
@@ -284,7 +314,9 @@
         
         Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow
         Start-Sleep -Seconds 3   
+    }
 
+    if ($RunAllSections -or $CleanPrinters) {
     # Cleaning printers
         Write-Host "$(Get-LogDate)`t    Cleaning Printers:" -f Green
         Start-Sleep -s 5    
@@ -301,6 +333,7 @@
             $Bloatprinters = "Fax","OneNote for Windows 10","Microsoft XPS Document Writer", "Microsoft Print to PDF" 
             $Bloatprinters | % {if(Get-Printer | Where-Object Name -cMatch $_){Write-Host "$(Get-LogDate)`t            - Uninstalling: $_" -f Yellow; Remove-Printer $_; Start-Sleep -s 2}}
             Write-Host "$(Get-LogDate)`t        - Cleaning complete." -f Yellow;  Start-Sleep -S 3;
+    }
 
         
     #End of function
