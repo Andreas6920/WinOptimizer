@@ -99,24 +99,23 @@ function Get-WinOptimizerMenuSelection {
     $Banner = if ($Title -eq 'Main Menu') {
         Get-Content -LiteralPath $BannerPath -Encoding UTF8 -ErrorAction Stop
     }
+    $MenuSeparator = '=' * 90
 
     while ($true) {
         Clear-Host
         if ($Title -eq 'Main Menu') {
+            Write-Host ''
             foreach ($Line in $Banner) {
                 Write-Host $Line -ForegroundColor Cyan
             }
             Write-Host ''
             Write-Host 'Developer: Andreas Mouritsen | Github: https://github.com/andreas6920'
-            Write-Host 'TIP: Use Up/Down Arrow keys to navigate, Enter to select.' -ForegroundColor Cyan
-            Write-Host ''
-            Write-Host '=============================================================================' -ForegroundColor Cyan
             Write-Host ''
         } else {
-            Write-Host 'WinOptimizer' -ForegroundColor Yellow
+            Write-Host 'WinOptimizer' -ForegroundColor Cyan
         }
-        Write-Host $Title -ForegroundColor Cyan
-        Write-Host ''
+        Write-Host "MENU: $($Title.ToUpperInvariant())" -ForegroundColor Cyan
+        Write-Host $MenuSeparator -ForegroundColor Cyan
 
         for ($Index = 0; $Index -lt $Items.Count; $Index++) {
             if ([string]::IsNullOrWhiteSpace($Items[$Index])) {
@@ -138,11 +137,13 @@ function Get-WinOptimizerMenuSelection {
         }
 
         Write-Host ''
+        Write-Host $MenuSeparator -ForegroundColor Cyan
         if ($Title -eq 'Main Menu') {
-            Write-Host 'Press Esc to exit.'
+            Write-Host '[!] Use the Up/Down arrow keys and Enter. Press Esc to exit.' -ForegroundColor Cyan
         } else {
-            Write-Host 'Use the Up/Down arrow keys and Enter. Press Esc to go back or exit.'
+            Write-Host '[!] Use the Up/Down arrow keys and Enter. Press Esc to go back or exit.' -ForegroundColor Cyan
         }
+        Write-Host $MenuSeparator -ForegroundColor Cyan
         $Key = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
         switch ($Key.VirtualKeyCode) {
             38 {$SelectedIndex = Get-WinOptimizerNextMenuSelection -Items $Items -SelectedIndex $SelectedIndex -Direction Previous}
@@ -187,6 +188,13 @@ function Get-WinOptimizerCompletedSelections {
     return ,$script:WinOptimizerCompletedMenuSelections[$MenuTitle]
 }
 
+function Restore-WinOptimizerMenuFocus {
+    Add-Type -AssemblyName Microsoft.VisualBasic
+    if (-not [Microsoft.VisualBasic.Interaction]::AppActivate($PID)) {
+        Write-Warning 'Could not automatically restore focus to the PowerShell window.'
+    }
+}
+
 function Invoke-WinOptimizerMenuAction {
     param(
         [Parameter(Mandatory)]
@@ -203,6 +211,8 @@ function Invoke-WinOptimizerMenuAction {
         [void]$CompletedSelections.Add($Selection)
     } catch {
         Write-Error "WinOptimizer action failed: $($_.Exception.Message)"
+    } finally {
+        Restore-WinOptimizerMenuFocus
     }
 }
 
@@ -255,8 +265,9 @@ function Start-WinOptimizerSettingsMenu {
         '      ShowFileExtension',
         '      ShowHiddenFiles',
         '      ChangeExplorerToThisPC',
-        '      Align Taskbar: Left',
-        '    Start Menu: Center in taskbar',
+        '      Taskbar Alignment: Left',
+        '      Full Context Menu: Right-click',
+        '    Taskbar Alignment: Center',
         '    Fix Clock',
         '    Disable Auto Setup of network devices',
         '    Disable share of printers',
@@ -270,7 +281,7 @@ function Start-WinOptimizerSettingsMenu {
 
     while ($true) {
         $Selection = Get-WinOptimizerMenuSelection -Title 'Windows Setting' -Items $Items -CompletedSelections $CompletedSelections
-        if ($Selection -lt 0 -or $Selection -eq 16) {return}
+        if ($Selection -lt 0 -or $Selection -eq 17) {return}
 
         switch ($Selection) {
             0 {
@@ -285,14 +296,15 @@ function Start-WinOptimizerSettingsMenu {
             4 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -ShowHiddenFiles}}
             5 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -ChangeExplorerToThisPC}}
             6 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -AlignTaskbarLeft}}
-            7 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -CenterStartMenuInTaskbar}}
-            8 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -FixClock}}
-            9 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -DisableAutoSetupNetworkDevices}}
-            10 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -DisablePrinterSharing}}
-            11 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -SetPowerPlan}}
-            12 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -EnableDarkMode}}
-            13 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -SetWallpaperWindowsSpotlight}}
-            14 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -SetWallpaperDisableWindowsSpotlight}}
+            7 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -SetFullContextMenu}}
+            8 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -CenterStartMenuInTaskbar}}
+            9 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -FixClock}}
+            10 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -DisableAutoSetupNetworkDevices}}
+            11 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -DisablePrinterSharing}}
+            12 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -SetPowerPlan}}
+            13 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -EnableDarkMode}}
+            14 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -SetWallpaperWindowsSpotlight}}
+            15 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -SetWallpaperDisableWindowsSpotlight}}
         }
     }
 }

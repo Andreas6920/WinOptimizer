@@ -7,6 +7,7 @@ Function Start-WinSettings {
         [switch]$ShowHiddenFiles,
         [switch]$ChangeExplorerToThisPC,
         [switch]$AlignTaskbarLeft,
+        [switch]$SetFullContextMenu,
         [switch]$CenterStartMenuInTaskbar,
         [Alias('ShowSecondsInSystemTrayClock')]
         [switch]$FixClock,
@@ -23,6 +24,7 @@ Function Start-WinSettings {
         $ShowHiddenFiles -or
         $ChangeExplorerToThisPC -or
         $AlignTaskbarLeft -or
+        $SetFullContextMenu -or
         $CenterStartMenuInTaskbar -or
         $FixClock -or
         $DisableAutoSetupNetworkDevices -or
@@ -51,7 +53,7 @@ Function Start-WinSettings {
 
 # Start
 Write-Host "`n$(Get-LogDate)`tENHANCE WINDOWS SETTINGS, $($SystemVersion)" -f Green
-if ($RunAllExplorerSettings -or $ShowFileExtension -or $ShowHiddenFiles -or $ChangeExplorerToThisPC -or $AlignTaskbarLeft -or $CenterStartMenuInTaskbar -or $FixClock -or $DisableAutoSetupNetworkDevices -or $DisablePrinterSharing -or $SetPowerPlan) {
+if ($RunAllExplorerSettings -or $ShowFileExtension -or $ShowHiddenFiles -or $ChangeExplorerToThisPC -or $AlignTaskbarLeft -or $SetFullContextMenu -or $CenterStartMenuInTaskbar -or $FixClock -or $DisableAutoSetupNetworkDevices -or $DisablePrinterSharing -or $SetPowerPlan) {
     Write-Host "$(Get-LogDate)`t    Configure Windows:" -f Green
 }
         
@@ -147,12 +149,10 @@ if ($RunAllExplorerSettings -or $ShowFileExtension -or $ShowHiddenFiles -or $Cha
         }
     }
 
-    if ($RunAllExplorerSettings -and $ThisIsWindows11) {
-        # Full context menu / old windows 11 menu
+    if ($ThisIsWindows11 -and ($RunAllExplorerSettings -or $SetFullContextMenu)) {
         Write-Host "$(Get-LogDate)`t        - Setting full context Left-Click menu." -f Yellow
         reg.exe add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" /f /ve | Out-Null
         Start-Sleep -S 2
-    
         Restart-Explorer
     }
 
