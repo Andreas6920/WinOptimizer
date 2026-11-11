@@ -62,6 +62,60 @@ Enable Darkmode
 irm https://git.io/JzrB5 | iex; Start-WinSettings -EnableDarkMode
 ```
 
+Apply both Privacy and Security settings (the default)
+
+```powershell
+irm https://git.io/JzrB5 | iex; Start-WinSecurity
+```
+
+Apply only Privacy settings
+
+```powershell
+irm https://git.io/JzrB5 | iex; Start-WinSecurity -SetPrivacySettings
+```
+
+Apply only Security settings
+
+```powershell
+irm https://git.io/JzrB5 | iex; Start-WinSecurity -SetSecuritySettings
+```
+
+Block tracking domains in the hosts file
+
+```powershell
+irm https://git.io/JzrB5 | iex; Start-WinSecurity -BlockDomainHostFile
+```
+
+Block tracking IPs in the firewall
+
+```powershell
+irm https://git.io/JzrB5 | iex; Start-WinSecurity -BlockDomainFirewall
+```
+
+Send Microsoft a data removal request (Windows 10)
+
+```powershell
+irm https://git.io/JzrB5 | iex; Start-WinSecurity -SendRemovalRequest
+```
+
+Disable automatic setup of network devices
+
+```powershell
+irm https://git.io/JzrB5 | iex; Start-WinSettings -DisableAutoSetupNetworkDevices
+```
+
+Disable printer sharing
+
+```powershell
+irm https://git.io/JzrB5 | iex; Start-WinSettings -DisablePrinterSharing
+```
+
+Set the Power plan
+
+```powershell
+irm https://git.io/JzrB5 | iex; Start-WinSettings -SetPowerPlan
+```
+
 Install Microsoft Office 2016 Retail (Word, Excel, Powerpoint, Outlook, OneNote)
 
 ```powershell

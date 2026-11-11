@@ -67,6 +67,22 @@ function Restart-Explorer {
     [Microsoft.VisualBasic.Interaction]::AppActivate($WindowName)
 }
 
+function Start-Input {
+    if (-not ('WinOptimizer.UserInput' -as [type])) {
+        Add-Type -Namespace WinOptimizer -Name UserInput -MemberDefinition '[DllImport("user32.dll")] public static extern bool BlockInput(bool fBlockIt);'
+    }
+
+    [WinOptimizer.UserInput]::BlockInput($false) | Out-Null
+}
+
+function Stop-Input {
+    if (-not ('WinOptimizer.UserInput' -as [type])) {
+        Add-Type -Namespace WinOptimizer -Name UserInput -MemberDefinition '[DllImport("user32.dll")] public static extern bool BlockInput(bool fBlockIt);'
+    }
+
+    [WinOptimizer.UserInput]::BlockInput($true) | Out-Null
+}
+
 function Get-WinOptimizerMenuSelection {
     param(
         [Parameter(Mandatory)]
@@ -182,51 +198,81 @@ function Start-WinOptimizerAntiBloatMenu {
 
 function Start-WinOptimizerSettingsMenu {
     $Items = @(
-        'Run all settings',
-        'Run all Explorer settings',
-        'Show file extensions',
-        'Show hidden files',
-        'Open Explorer to This PC',
-        'Fix clock (24-hour, seconds, and dd/MM/yyyy date)',
-        'Enable Dark Mode',
-        'Enable Windows Spotlight wallpaper',
-        'Disable Windows Spotlight wallpaper',
+        '  Run ALL Settings:',
+        '    Run ALL Privacy & Security Settings',
+        '    Run ALL Explorer settings:',
+        '      ShowFileExtension',
+        '      ShowHiddenFiles',
+        '      ChangeExplorerToThisPC',
+        '    Fix Clock',
+        '    Disable Auto Setup of network devices',
+        '    Disable share of printers',
+        '    Set Powerplan',
+        '    Enable DarkMode',
+        '    Set Wallpaper: WindowsSpotlight',
+        '    Set Wallpaper: Default Wallpaper',
         '',
-        'Return to Main Menu'
+        '  Return'
     )
 
     while ($true) {
-        $Selection = Get-WinOptimizerMenuSelection -Title 'Windows Settings' -Items $Items
-        if ($Selection -lt 0) {return}
+        $Selection = Get-WinOptimizerMenuSelection -Title 'Windows Setting' -Items $Items
+        if ($Selection -lt 0 -or $Selection -eq 14) {return}
 
         switch ($Selection) {
-            0 {Invoke-WinOptimizerMenuAction {Start-WinSettings -All}}
-            1 {Invoke-WinOptimizerMenuAction {Start-WinSettings -AllExplorerSettings}}
-            2 {Invoke-WinOptimizerMenuAction {Start-WinSettings -ShowFileExtension}}
-            3 {Invoke-WinOptimizerMenuAction {Start-WinSettings -ShowHiddenFiles}}
-            4 {Invoke-WinOptimizerMenuAction {Start-WinSettings -ChangeExplorerToThisPC}}
-            5 {Invoke-WinOptimizerMenuAction {Start-WinSettings -FixClock}}
-            6 {Invoke-WinOptimizerMenuAction {Start-WinSettings -EnableDarkMode}}
-            7 {Invoke-WinOptimizerMenuAction {Start-WinSettings -SetWallpaperWindowsSpotlight}}
-            8 {Invoke-WinOptimizerMenuAction {Start-WinSettings -SetWallpaperDisableWindowsSpotlight}}
-            10 {return}
+            0 {
+                Invoke-WinOptimizerMenuAction {
+                    Start-WinSecurity
+                    Start-WinSettings -All
+                }
+            }
+            1 {Invoke-WinOptimizerMenuAction {Start-WinSecurity}}
+            2 {Invoke-WinOptimizerMenuAction {Start-WinSettings -AllExplorerSettings}}
+            3 {Invoke-WinOptimizerMenuAction {Start-WinSettings -ShowFileExtension}}
+            4 {Invoke-WinOptimizerMenuAction {Start-WinSettings -ShowHiddenFiles}}
+            5 {Invoke-WinOptimizerMenuAction {Start-WinSettings -ChangeExplorerToThisPC}}
+            6 {Invoke-WinOptimizerMenuAction {Start-WinSettings -FixClock}}
+            7 {Invoke-WinOptimizerMenuAction {Start-WinSettings -DisableAutoSetupNetworkDevices}}
+            8 {Invoke-WinOptimizerMenuAction {Start-WinSettings -DisablePrinterSharing}}
+            9 {Invoke-WinOptimizerMenuAction {Start-WinSettings -SetPowerPlan}}
+            10 {Invoke-WinOptimizerMenuAction {Start-WinSettings -EnableDarkMode}}
+            11 {Invoke-WinOptimizerMenuAction {Start-WinSettings -SetWallpaperWindowsSpotlight}}
+            12 {Invoke-WinOptimizerMenuAction {Start-WinSettings -SetWallpaperDisableWindowsSpotlight}}
         }
     }
 }
 
 function Start-WinOptimizerSecurityMenu {
     $Items = @(
-        'Run all Security settings',
+        '  Run ALL Settings:',
+        '    Run ALL Privacy & Security Settings',
+        '      Set ALL Privacy Settings',
+        '      Set ALL Security Settings',
+        '    Send Data Removal Request to Microsoft',
+        '    Block ALL Domains:',
+        '      Block Domains via Host File entries',
+        '      Block Domains Via Firewall entries',
         '',
-        'Return to Main Menu'
+        '  Return'
     )
 
     while ($true) {
-        $Selection = Get-WinOptimizerMenuSelection -Title 'Security' -Items $Items
-        if ($Selection -lt 0 -or $Selection -eq 2) {return}
+        $Selection = Get-WinOptimizerMenuSelection -Title 'Security Setting' -Items $Items
+        if ($Selection -lt 0 -or $Selection -eq 9) {return}
 
         switch ($Selection) {
             0 {Invoke-WinOptimizerMenuAction {Start-WinSecurity}}
+            1 {Invoke-WinOptimizerMenuAction {Start-WinSecurity}}
+            2 {Invoke-WinOptimizerMenuAction {Start-WinSecurity -SetPrivacySettings}}
+            3 {Invoke-WinOptimizerMenuAction {Start-WinSecurity -SetSecuritySettings}}
+            4 {Invoke-WinOptimizerMenuAction {Start-WinSecurity -SendRemovalRequest}}
+            5 {
+                Invoke-WinOptimizerMenuAction {
+                    Start-WinSecurity -BlockDomainHostFile -BlockDomainFirewall
+                }
+            }
+            6 {Invoke-WinOptimizerMenuAction {Start-WinSecurity -BlockDomainHostFile}}
+            7 {Invoke-WinOptimizerMenuAction {Start-WinSecurity -BlockDomainFirewall}}
         }
     }
 }

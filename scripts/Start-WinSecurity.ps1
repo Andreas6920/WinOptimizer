@@ -1,4 +1,17 @@
 ﻿Function Start-WinSecurity {
+    [CmdletBinding()]
+    param(
+        [switch]$SetPrivacySettings,
+        [switch]$SetSecuritySettings,
+        [switch]$BlockDomainHostFile,
+        [switch]$BlockDomainFirewall,
+        [switch]$SendRemovalRequest
+    )
+
+    $AnySectionSelected = $SetPrivacySettings -or $SetSecuritySettings -or
+        $BlockDomainHostFile -or $BlockDomainFirewall -or $SendRemovalRequest
+    $RunPrivacySettings = $SetPrivacySettings -or -not $AnySectionSelected
+    $RunSecuritySettings = $SetSecuritySettings -or -not $AnySectionSelected
 
     if (-not (Assert-WinOptimizerAdministrator -Action 'Start-WinSecurity')) {return}
 
@@ -15,6 +28,7 @@
         Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
      
 
+    if ($BlockDomainHostFile) {
     # Adding entries to hosts file
         Write-Host "$(Get-LogDate)`t    Blocking Microsoft's Tracking domains:" -f Green
         Write-Host "$(Get-LogDate)`t        - Will start in the background" -f Yellow
@@ -24,7 +38,9 @@
         Start-Sleep -s 2;
         Start-Process Powershell -argument "-ep bypass -windowstyle Minimized -file `"$file`""
         Start-Sleep -s 2;
+    }
 
+    if ($BlockDomainFirewall) {
     # Blocking Microsoft Tracking IP's in the firewall
         Write-Host "$(Get-LogDate)`t    Blocking Microsoft's tracking IP's:" -f Green
         Write-Host "$(Get-LogDate)`t        - Will start in the background" -f Yellow
@@ -34,7 +50,11 @@
         Start-Sleep -s 2;
         Start-Process Powershell -argument "-ep bypass -windowstyle Minimized -file `"$file`""
         Start-Sleep -s 2;
-    
+    }
+
+    if ($SendRemovalRequest -and $ThisIsWindows11) {throw 'SendRemovalRequest is currently implemented only for Windows 10.'}
+
+    if ($RunPrivacySettings) {
     #Configuring Windows privacy settings
         Write-Host "$(Get-LogDate)`t    Setting Privacy Settings:" -f Green     
         
@@ -131,29 +151,6 @@
             #>
             }
 
-        if($ThisIsWindows10){
-        # Send Microsoft a request to delete collected data about you.    
-        # This must be toggled manually through the Settings interface    
-        Write-Host "$(Get-LogDate)`t    Submitting request to Microsoft to delete data about you." -f Green
-        Stop-Input | Out-Null
-        Start-Sleep -s 2
-        $app = New-Object -ComObject Shell.Application
-        $key = New-Object -com Wscript.Shell
-        $app.open("ms-settings:privacy-feedback")
-        $key.AppActivate("Settings") | out-null
-        Start-Sleep -s 2
-        $key.SendKeys("{TAB}")
-        $key.SendKeys("{TAB}")
-        $key.SendKeys("{TAB}")
-        $key.SendKeys("{TAB}")
-        $key.SendKeys("{TAB}")
-        Start-Sleep -s 2
-        $key.SendKeys("{ENTER}")
-        Start-Sleep -s 3
-        $key.SendKeys("%{F4}")
-        Start-Sleep -s 2
-        Start-Input | Out-Null}
-        
     # Privacy & Security -> Search Permissions
         Write-Host "$(Get-LogDate)`t        - Disabling Windows Search permission" -f Yellow
         #SafeSearch -> Off
@@ -175,6 +172,9 @@
         Add-Reg -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppCompat" -Name "AITEnable" -Type "DWORD" -Value "0"
         Start-Sleep -s 2
 
+    }
+
+    if ($RunSecuritySettings) {
     # More security-focused options
         
         # Disable automatic setup of network connected devices
@@ -246,6 +246,29 @@
 
         # End of function
             if($smb1beingdisabled){Wait-job -Name "Disable SMB1" | Out-Null;}
+    }
+
+    if ($SendRemovalRequest -and $ThisIsWindows10) {
+        Write-Host "$(Get-LogDate)`t    Submitting request to Microsoft to delete data about you." -ForegroundColor Green
+        try {
+            Stop-Input | Out-Null
+            Start-Sleep -Seconds 2
+            $app = New-Object -ComObject Shell.Application
+            $key = New-Object -ComObject Wscript.Shell
+            $app.open("ms-settings:privacy-feedback")
+            $key.AppActivate("Settings") | Out-Null
+            Start-Sleep -Seconds 2
+            1..5 | ForEach-Object { $key.SendKeys("{TAB}") }
+            Start-Sleep -Seconds 2
+            $key.SendKeys("{ENTER}")
+            Start-Sleep -Seconds 3
+            $key.SendKeys("%{F4}")
+            Start-Sleep -Seconds 2
+        } finally {
+            Start-Input | Out-Null
+        }
+    }
+
         Write-Host "$(Get-LogDate)`t    PRIVACY AND SECURITY ENHANCEMENT COMPLETE." -f Green
         Start-Sleep 5
     

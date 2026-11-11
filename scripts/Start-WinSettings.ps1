@@ -8,6 +8,9 @@ Function Start-WinSettings {
         [switch]$ChangeExplorerToThisPC,
         [Alias('ShowSecondsInSystemTrayClock')]
         [switch]$FixClock,
+        [switch]$DisableAutoSetupNetworkDevices,
+        [switch]$DisablePrinterSharing,
+        [switch]$SetPowerPlan,
         [switch]$EnableDarkMode,
         [switch]$SetWallpaperWindowsSpotlight,
         [switch]$SetWallpaperDisableWindowsSpotlight
@@ -18,6 +21,9 @@ Function Start-WinSettings {
         $ShowHiddenFiles -or
         $ChangeExplorerToThisPC -or
         $FixClock -or
+        $DisableAutoSetupNetworkDevices -or
+        $DisablePrinterSharing -or
+        $SetPowerPlan -or
         $EnableDarkMode -or
         $SetWallpaperWindowsSpotlight -or
         $SetWallpaperDisableWindowsSpotlight
@@ -41,7 +47,7 @@ Function Start-WinSettings {
 
 # Start
 Write-Host "`n$(Get-LogDate)`tENHANCE WINDOWS SETTINGS, $($SystemVersion)" -f Green
-if ($RunAllExplorerSettings -or $ShowFileExtension -or $ShowHiddenFiles -or $ChangeExplorerToThisPC -or $FixClock) {
+if ($RunAllExplorerSettings -or $ShowFileExtension -or $ShowHiddenFiles -or $ChangeExplorerToThisPC -or $FixClock -or $DisableAutoSetupNetworkDevices -or $DisablePrinterSharing -or $SetPowerPlan) {
     Write-Host "$(Get-LogDate)`t    Configure Windows:" -f Green
 }
         
@@ -67,7 +73,7 @@ if ($RunAllExplorerSettings -or $ShowFileExtension -or $ShowHiddenFiles -or $Cha
     }
 
     # Fix clock display
-    if ($RunAllExplorerSettings -or $FixClock) {
+    if ($All -or $FixClock) {
         Write-Host "$(Get-LogDate)`t        - Setting 24-hour clock, seconds, and dd/MM/yyyy date." -f Yellow
         Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSecondsInSystemClock" -Type "DWord" -Value "1"
         Add-Reg -Path "HKCU:\Control Panel\International" -Name "sTimeFormat" -Type "String" -Value "HH:mm:ss"
@@ -79,23 +85,29 @@ if ($RunAllExplorerSettings -or $ShowFileExtension -or $ShowHiddenFiles -or $Cha
         Start-Sleep -S 2
     }
     
-    if ($RunAllExplorerSettings) {
+    if ($All -or $DisableAutoSetupNetworkDevices) {
     # Disable automatic setup of network connected devices
         Write-Host "$(Get-LogDate)`t        - Turn off automatic setup of network connected devices." -f Yellow
         Add-Reg -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type "DWORD" -Value "0"
         Start-Sleep -s 2
+    }
 
+    if ($RunAllExplorerSettings) {
     # Duplicate drive entry from navigation panel
         Write-Host "$(Get-LogDate)`t        - Removing duplicate drive entry from navigation panel." -f Yellow
         Remove-Item "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Desktop\NameSpace\{F5FB2C77-0E2F-4A16-A381-3E560C68BC83}" -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
         Remove-Item "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Explorer\Desktop\NameSpace\DelegateFolders\{F5FB2C77-0E2F-4A16-A381-3E560C68BC83}" -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
+    }
 
+    if ($All -or $DisablePrinterSharing) {
     # Disable sharing of PC and printers    
         Write-Host "$(Get-LogDate)`t        - Turn off sharing of PC and Printers." -f Yellow
         Get-NetConnectionProfile | ForEach-Object {Set-NetConnectionProfile -Name $_.Name -NetworkCategory Public -ErrorAction SilentlyContinue | Out-Null}    
         get-printer | Where-Object shared -eq True | ForEach-Object {Set-Printer -Name $_.Name -Shared $False -ErrorAction SilentlyContinue | Out-Null}
         netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=No -ErrorAction SilentlyContinue | Out-Null
+    }
 
+    if ($All -or $SetPowerPlan) {
     # Setting Power plan    
         Write-Host "$(Get-LogDate)`t        - Setting power plan." -f Yellow
         powercfg -change -monitor-timeout-ac 180
