@@ -15,8 +15,6 @@ Choose the interactive menu for a guided start, or run only the commands you nee
 
 </div>
 
----
-
 ## Quick start
 
 ### Start everything in one command
