@@ -4,6 +4,7 @@
         [switch]$All,
         [switch]$AllBloatware,
         [switch]$AllPinnedItems,
+        [switch]$CleanDesktop,
         [switch]$CleanTaskbar,
         [switch]$CleanLockScreen,
         [switch]$CleanStartMenu,
@@ -15,6 +16,7 @@
 
     $AnySectionSelected = $AllBloatware -or
         $AllPinnedItems -or
+        $CleanDesktop -or
         $CleanTaskbar -or
         $CleanLockScreen -or
         $CleanStartMenu -or
@@ -23,12 +25,12 @@
         $CleanScheduledTasks -or
         $CleanPrinters
 
-    if (-not ($All -or $AnySectionSelected)) {
-        $All = $true
-    }
+    if (-not ($All -or $AnySectionSelected)) {$All = $true}
 
     # Ensure admin rights
-	If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){
+    $IsAdministrator = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    if (-not $IsAdministrator -and $CleanDesktop) {throw "CleanDesktop requires an elevated PowerShell session to remove items from the Public Desktop. No desktop cleanup was performed."}
+	If (-not $IsAdministrator) {
 		# Relaunch as an elevated process
 		$Script = $MyInvocation.MyCommand.Path
 		Start-Process powershell.exe -Verb RunAs -ArgumentList "-ExecutionPolicy RemoteSigned", "-File `"$Script`""}
@@ -45,6 +47,67 @@
         Start-Sleep -s 3
         Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
     
+    if ($CleanDesktop) {
+        Write-Host "$(Get-LogDate)`t    Cleaning Desktop:" -ForegroundColor Green
+
+        $UserDesktop = [Environment]::GetFolderPath('Desktop')
+        $PublicDesktop = Join-Path $env:PUBLIC 'Desktop'
+        if (-not (Test-Path -LiteralPath $UserDesktop -PathType Container)) {throw "User Desktop folder was not found: $UserDesktop"}
+        if (-not (Test-Path -LiteralPath $PublicDesktop -PathType Container)) {throw "Public Desktop folder was not found: $PublicDesktop"}
+        if ([string]::Equals(
+            [IO.Path]::GetFullPath($UserDesktop).TrimEnd('\'),
+            [IO.Path]::GetFullPath($PublicDesktop).TrimEnd('\'),
+            [StringComparison]::OrdinalIgnoreCase
+        )) {
+            throw "User Desktop and Public Desktop resolve to the same location. No desktop cleanup was performed."
+        }
+
+        $RobocopyPath = Join-Path $env:SystemRoot 'System32\robocopy.exe'
+        if (-not (Test-Path -LiteralPath $RobocopyPath -PathType Leaf)) {throw "Robocopy was not found: $RobocopyPath"}
+
+        $MovedFilesRoot = Join-Path $UserDesktop 'moved files'
+        $RunFolder = Join-Path $MovedFilesRoot (Get-Date -Format 'yyyyMMdd-HHmmss-fff')
+        $UserDesktopDestination = $RunFolder
+        New-Item -ItemType Directory -Path $UserDesktopDestination -Force -ErrorAction Stop | Out-Null
+
+        Write-Host "$(Get-LogDate)`t        - Moving user Desktop contents to '$UserDesktopDestination'." -ForegroundColor Yellow
+        & $RobocopyPath $UserDesktop $UserDesktopDestination /E /MOVE /COPY:DAT /DCOPY:DAT /R:2 /W:2 /XJ /XD $MovedFilesRoot
+        $RobocopyExitCode = $LASTEXITCODE
+        if ($RobocopyExitCode -ge 8) {
+            throw "Robocopy failed with exit code $RobocopyExitCode. Some user Desktop items may already have been moved; review '$UserDesktopDestination' before retrying."
+        }
+
+        $RemainingUserDesktopItems = @(Get-ChildItem -LiteralPath $UserDesktop -Force -ErrorAction Stop | Where-Object {
+            -not [string]::Equals(
+                [IO.Path]::GetFullPath($_.FullName).TrimEnd('\'),
+                [IO.Path]::GetFullPath($MovedFilesRoot).TrimEnd('\'),
+                [StringComparison]::OrdinalIgnoreCase
+            )
+        })
+        if ($RemainingUserDesktopItems.Count -gt 0) {
+            $RemainingNames = $RemainingUserDesktopItems.Name -join ', '
+            throw "Some user Desktop items were not moved: $RemainingNames. Review '$UserDesktop' and '$UserDesktopDestination'."
+        }
+
+        $DesktopShortcuts = @(Get-ChildItem -LiteralPath $UserDesktopDestination -Filter '*.lnk' -File -Force -ErrorAction Stop)
+        foreach ($Shortcut in $DesktopShortcuts) {
+            Remove-Item -LiteralPath $Shortcut.FullName -Force -ErrorAction Stop
+        }
+
+        Write-Host "$(Get-LogDate)`t        - Removing all contents from the Public Desktop." -ForegroundColor Yellow
+        $PublicDesktopItems = @(Get-ChildItem -LiteralPath $PublicDesktop -Force -ErrorAction Stop)
+        foreach ($PublicDesktopItem in $PublicDesktopItems) {
+            if ($PublicDesktopItem.Attributes -band [IO.FileAttributes]::ReparsePoint) {
+                Remove-Item -LiteralPath $PublicDesktopItem.FullName -Force -ErrorAction Stop
+            } else {
+                Remove-Item -LiteralPath $PublicDesktopItem.FullName -Recurse -Force -ErrorAction Stop
+            }
+        }
+
+        Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Name "{2cc5ca98-6485-489a-920e-b3e88a6ccce3}" -Type "DWord" -Value "1"
+        Restart-Explorer
+        Write-Host "$(Get-LogDate)`t        - Desktop cleaning complete. Removed $($DesktopShortcuts.Count) user Desktop shortcuts." -ForegroundColor Yellow
+    }
 
     if ($All -or $AllPinnedItems -or $CleanTaskbar) {
     # Clean Taskbar
