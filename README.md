@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="assets/winoptimizer_logo.png" width="720" alt="WinOptimizer — Clean, Setup, Automate" />
+<img src="assets/winoptimizer_logo.png" width="360" alt="WinOptimizer — Clean, Setup, Automate" />
 
-# 🪟 WinOptimizer
+# WinOptimizer
 
 ### Configure Windows, reduce preinstalled clutter, and install apps
 
@@ -17,7 +17,7 @@ Choose the interactive menu for a guided start, or run only the commands you nee
 
 ---
 
-## ⚡ Quick start
+## Quick start
 
 ### Start everything in one command
 
@@ -109,7 +109,7 @@ Install-App -Name "Office, Chrome, 7zip, VLC" -EnableAutoupdate
 
 `Install-App` installs the requested apps and supports optional switches such as `-EnableAutoupdate`.
 
-## 🧭 What’s included
+## What’s included
 
 - **Anti-bloat:** selected built-in apps, Start menu, taskbar, printers, services, and scheduled tasks.
 - **Privacy and security:** Windows privacy settings and controls for selected Microsoft tracking domains and IPs.
