@@ -21,13 +21,18 @@
 
 </div>
 
-### Get started in one command
+### Install in one command
 
 ```powershell
-iwr -useb https://git.io/JzrB5 -O "$env:TMP\Winoptimizer.ps1"; ipmo "$env:TMP\Winoptimizer.ps1"; Start-WinOptimizer
+iwr -useb https://git.io/JzrB5 -O "$env:TMP\Winoptimizer.ps1"; ipmo "$env:TMP\Winoptimizer.ps1"; 
+```
+### And run the interactive menu
+
+```powershell
+Start-Winoptimizer
 ```
 
-### Or pick just what you need
+### ..Or pick just what you need
 
 ```powershell
 Start-WinAntiBloat -AllBloatware       # Remove Apps, Services, Scheduled Tasks, and Printers bloat
