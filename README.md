@@ -30,34 +30,28 @@ irm https://git.io/JzrB5 | iex; Start-WinOptimizer
 <br/>
 <h3 align="center">...Or pick just what you need</h3>
 
-Remove bloatware apps, startup services, scheduled tasks, and printers
+Remove Microsoft bloatware: Apps & Features, startup services, scheduled tasks and printers
 
 ```powershell
 irm https://git.io/JzrB5 | iex; Start-WinAntiBloat -AllBloatware
 ```
 
-Unpin apps and hide taskbar features
+Clean Taskbar: Unpin apps and hide features, buttons etc.
 
 ```powershell
 irm https://git.io/JzrB5 | iex; Start-WinAntiBloat -CleanTaskbar
 ```
 
-Unpin all items from your Start menu
+Clean Start Menu: Unpin all items and apps
 
 ```powershell
 irm https://git.io/JzrB5 | iex; Start-WinAntiBloat -CleanStartMenu
 ```
 
-Show seconds and use a 24-hour clock on the taskbar
+Optimize Clock: Show seconds and use a 24-hour clock on the taskbar
 
 ```powershell
 irm https://git.io/JzrB5 | iex; Start-WinSettings -FixClock
-```
-
-Enable dark mode
-
-```powershell
-irm https://git.io/JzrB5 | iex; Start-WinSettings -EnableDarkMode
 ```
 
 Optimize privacy and security settings
@@ -66,7 +60,7 @@ Optimize privacy and security settings
 irm https://git.io/JzrB5 | iex; Start-WinSecurity
 ```
 
-Install the retail version of Microsoft Office 2016 (Word, Excel, PowerPoint, Outlook, and OneNote)
+Install Microsoft Office 2016 (Word, Excel, PowerPoint, Outlook, and OneNote)
 
 ```powershell
 irm https://git.io/JzrB5 | iex; Install-App -Name "Office"
