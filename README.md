@@ -21,13 +21,13 @@
 
 <div align="left">
 
-### Install in one PowerShell command
+<h2 align="center">Install in one PowerShell command</h2>
 
 ```powershell
 & ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5')))
 ```
 
-### ..Or pick just what you need
+<h3 align="center">..Or pick just what you need</h3>
 
 Remove Apps, Services, Scheduled Tasks, and Printers bloat
 
