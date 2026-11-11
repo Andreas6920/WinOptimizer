@@ -37,22 +37,7 @@ After importing the launcher, call a function directly instead of opening the me
 
 ### `Start-WinAntiBloat`
 
-Calling `Start-WinAntiBloat` without switches runs all regular sections. `-All` makes that selection explicit. `-CleanDesktop` is excluded unless requested directly.
-
-```powershell
-Start-WinAntiBloat -CleanTaskbar
-Start-WinAntiBloat -AllPinnedItems
-Start-WinAntiBloat -AllBloatware
-```
-
-Run individual sections or combine switches:
-
-```powershell
-Start-WinAntiBloat -CleanTaskbar -CleanPrinters
-Start-WinAntiBloat -CleanDesktop
-```
-
-`-CleanDesktop` moves the current user's desktop contents to a timestamped folder under `moved files`, deletes top-level `.lnk` shortcuts from the moved files, and permanently removes everything on the Public Desktop.
+Calling `Start-WinAntiBloat` without switches runs all regular sections.
 
 Supported switches:
 
@@ -81,14 +66,6 @@ Start-WinSecurity
 ### `Start-WinSettings`
 
 Calling `Start-WinSettings` without switches runs all settings. Use a switch to select a specific setting or group:
-
-```powershell
-Start-WinSettings -AllExplorerSettings
-Start-WinSettings -FixClock
-Start-WinSettings -SetWallpaperDisableWindowsSpotlight
-```
-
-`-AllExplorerSettings` includes the Explorer display switches below and other existing Explorer-related changes. `-All` runs all settings, including enabling Windows Spotlight on Windows 11.
 
 | Switch | Action |
 | --- | --- |
