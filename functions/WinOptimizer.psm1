@@ -150,19 +150,14 @@ function Confirm-WinOptimizerDesktopCleanup {
 
 function Start-WinOptimizerAntiBloatMenu {
     $Items = @(
-        'Run all standard AntiBloat sections',
-        'Run all bloatware sections',
-        'Run all pinned-item sections',
-        'Clean Desktop (moves user files and removes Public Desktop contents)',
-        'Clean Taskbar',
-        'Clean Lock Screen',
-        'Clean Start Menu',
-        'Remove bloat apps',
-        'Disable selected services',
-        'Disable selected scheduled tasks',
-        'Clean printers',
+        '  Remove ALL bloat:',
+        '    Remove bloat: applications',
+        '    Remove bloat: Startup Services',
+        '      Remove bloat: Desktop',
+        '    Remove bloat: Scheduled tasks',
+        '    Remove bloat: Printers',
         '',
-        'Return to Main Menu'
+        '  Return'
     )
 
     while ($true) {
@@ -170,22 +165,17 @@ function Start-WinOptimizerAntiBloatMenu {
         if ($Selection -lt 0) {return}
 
         switch ($Selection) {
-            0 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -All}}
-            1 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -AllBloatware}}
-            2 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -AllPinnedItems}}
+            0 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -AllBloatware}}
+            1 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanBloatApps}}
+            2 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanServices}}
             3 {
                 if (Confirm-WinOptimizerDesktopCleanup) {
                     Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanDesktop}
                 }
             }
-            4 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanTaskbar}}
-            5 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanLockScreen}}
-            6 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanStartMenu}}
-            7 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanBloatApps}}
-            8 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanServices}}
-            9 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanScheduledTasks}}
-            10 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanPrinters}}
-            12 {return}
+            4 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanScheduledTasks}}
+            5 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanPrinters}}
+            7 {return}
         }
     }
 }
