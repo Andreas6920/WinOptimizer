@@ -1,8 +1,6 @@
 <div align="center">
 
-<img src="assets/winoptimizer_logo.png" width="360" alt="WinOptimizer — Clean, Setup, Automate" />
-
-<br/>
+<img src="assets/winoptimizer_logo.png" width="500" alt="WinOptimizer — Clean, Setup, Automate" />
 
 # WinOptimizer
 
