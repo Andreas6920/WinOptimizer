@@ -72,6 +72,7 @@ function Get-WinOptimizerMenuSelection {
         [Parameter(Mandatory)]
         [string]$Title,
         [Parameter(Mandatory)]
+        [AllowEmptyString()]
         [string[]]$Items
     )
 
@@ -83,6 +84,11 @@ function Get-WinOptimizerMenuSelection {
         Write-Host ''
 
         for ($Index = 0; $Index -lt $Items.Count; $Index++) {
+            if ([string]::IsNullOrWhiteSpace($Items[$Index])) {
+                Write-Host ''
+                continue
+            }
+
             if ($Index -eq $SelectedIndex) {
                 Write-Host "  > $($Items[$Index])" -ForegroundColor Black -BackgroundColor Yellow
             } else {
@@ -94,12 +100,29 @@ function Get-WinOptimizerMenuSelection {
         Write-Host 'Use the Up/Down arrow keys and Enter. Press Esc to go back or exit.'
         $Key = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
         switch ($Key.VirtualKeyCode) {
-            38 {$SelectedIndex = ($SelectedIndex - 1 + $Items.Count) % $Items.Count}
-            40 {$SelectedIndex = ($SelectedIndex + 1) % $Items.Count}
+            38 {$SelectedIndex = Get-WinOptimizerNextMenuSelection -Items $Items -SelectedIndex $SelectedIndex -Direction Previous}
+            40 {$SelectedIndex = Get-WinOptimizerNextMenuSelection -Items $Items -SelectedIndex $SelectedIndex -Direction Next}
             13 {return $SelectedIndex}
             27 {return -1}
         }
     }
+}
+
+function Get-WinOptimizerNextMenuSelection {
+    param(
+        [Parameter(Mandatory)]
+        [AllowEmptyString()]
+        [string[]]$Items,
+        [Parameter(Mandatory)]
+        [int]$SelectedIndex,
+        [Parameter(Mandatory)]
+        [ValidateSet('Next', 'Previous')]
+        [string]$Direction
+    )
+
+    $Step = if ($Direction -eq 'Next') {1} else {-1}
+    do {$SelectedIndex = ($SelectedIndex + $Step + $Items.Count) % $Items.Count} while ([string]::IsNullOrWhiteSpace($Items[$SelectedIndex]))
+    return $SelectedIndex
 }
 
 function Invoke-WinOptimizerMenuAction {
@@ -137,7 +160,9 @@ function Start-WinOptimizerAntiBloatMenu {
         'Remove bloat apps',
         'Disable selected services',
         'Disable selected scheduled tasks',
-        'Clean printers'
+        'Clean printers',
+        '',
+        'Return to Main Menu'
     )
 
     while ($true) {
@@ -160,6 +185,7 @@ function Start-WinOptimizerAntiBloatMenu {
             8 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanServices}}
             9 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanScheduledTasks}}
             10 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanPrinters}}
+            12 {return}
         }
     }
 }
@@ -174,7 +200,9 @@ function Start-WinOptimizerSettingsMenu {
         'Fix clock (24-hour, seconds, and dd/MM/yyyy date)',
         'Enable Dark Mode',
         'Enable Windows Spotlight wallpaper',
-        'Disable Windows Spotlight wallpaper'
+        'Disable Windows Spotlight wallpaper',
+        '',
+        'Return to Main Menu'
     )
 
     while ($true) {
@@ -191,23 +219,42 @@ function Start-WinOptimizerSettingsMenu {
             6 {Invoke-WinOptimizerMenuAction {Start-WinSettings -EnableDarkMode}}
             7 {Invoke-WinOptimizerMenuAction {Start-WinSettings -SetWallpaperWindowsSpotlight}}
             8 {Invoke-WinOptimizerMenuAction {Start-WinSettings -SetWallpaperDisableWindowsSpotlight}}
+            10 {return}
+        }
+    }
+}
+
+function Start-WinOptimizerSecurityMenu {
+    $Items = @(
+        'Run all Security settings',
+        '',
+        'Return to Main Menu'
+    )
+
+    while ($true) {
+        $Selection = Get-WinOptimizerMenuSelection -Title 'Security' -Items $Items
+        if ($Selection -lt 0 -or $Selection -eq 2) {return}
+
+        switch ($Selection) {
+            0 {Invoke-WinOptimizerMenuAction {Start-WinSecurity}}
         }
     }
 }
 
 function Start-WinOptimizer {
     $Items = @(
-        'Run all standard sections',
+        'Run all',
         'AntiBloat',
         'Security',
         'Windows Settings',
-        'Install Apps',
+        'Install',
+        '',
         'Exit'
     )
 
     while ($true) {
         $Selection = Get-WinOptimizerMenuSelection -Title 'Main Menu' -Items $Items
-        if ($Selection -lt 0 -or $Selection -eq 5) {return}
+        if ($Selection -lt 0 -or $Selection -eq 6) {return}
 
         switch ($Selection) {
             0 {
@@ -223,7 +270,7 @@ function Start-WinOptimizer {
                 }
             }
             1 {Start-WinOptimizerAntiBloatMenu}
-            2 {Invoke-WinOptimizerMenuAction {Start-WinSecurity}}
+            2 {Start-WinOptimizerSecurityMenu}
             3 {Start-WinOptimizerSettingsMenu}
             4 {Invoke-WinOptimizerMenuAction {Install-App}}
         }
