@@ -26,45 +26,46 @@
 <br/>
 
 ```powershell
-& ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5')))
+irm https://git.io/JzrB5 | iex; Start-WinOptimizer
 ```
+
 <br/>
 <h3 align="center">..Or pick just what you need</h3>
 
 Remove Apps, Services, Scheduled Tasks, and Printers bloat
 
 ```powershell
-& ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5'))) -InstallOnly; Start-WinAntiBloat -AllBloatware
+irm https://git.io/JzrB5 | iex; Start-WinAntiBloat -AllBloatware
 ```
 
 Unpin apps and hide taskbar feature buttons
 
 ```powershell
-& ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5'))) -InstallOnly; Start-WinAntiBloat -CleanTaskbar
+irm https://git.io/JzrB5 | iex; Start-WinAntiBloat -CleanTaskbar
 ```
 
 Unpin all items from your starmenu
 
 ```powershell
-& ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5'))) -InstallOnly; Start-WinAntiBloat -CleanStartMenu
+irm https://git.io/JzrB5 | iex; Start-WinAntiBloat -CleanStartMenu
 ```
 
 Show seconds, use a 24-hour clock in the taskbar
 
 ```powershell
-& ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5'))) -InstallOnly; Start-WinSettings -FixClock
+irm https://git.io/JzrB5 | iex; Start-WinSettings -FixClock
 ```
 
 Enable Darkmode
 
 ```powershell
-& ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5'))) -InstallOnly; Start-WinSettings -EnableDarkMode
+irm https://git.io/JzrB5 | iex; Start-WinSettings -EnableDarkMode
 ```
 
 Install Microsoft Office 2016 Retail (Word, Excel, Powerpoint, Outlook, OneNote)
 
 ```powershell
-& ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5'))) -InstallOnly; Install-App -Name "Office"
+irm https://git.io/JzrB5 | iex; Install-App -Name "Office"
 ```
 
 </div>

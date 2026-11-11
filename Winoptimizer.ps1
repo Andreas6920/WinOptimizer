@@ -1,8 +1,3 @@
-[CmdletBinding()]
-param(
-    [switch]$InstallOnly
-)
-
 $RepositoryRoot = 'https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main'
 $InstallRoot = Join-Path $env:TEMP 'WinOptimizer'
 $FilesToDownload = @(
@@ -27,5 +22,3 @@ foreach ($RelativePath in $FilesToDownload) {
 $ModulePath = Join-Path $InstallRoot 'functions\WinOptimizer.psm1'
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force -ErrorAction Stop
 Import-Module -Name $ModulePath -Global -Force -ErrorAction Stop
-
-if (-not $InstallOnly) {Start-WinOptimizer}
