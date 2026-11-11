@@ -30,11 +30,7 @@ Function Start-WinSettings {
     
 # System Preparation
 
-    # Ensure admin rights
-        If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){
-            # Relaunch as an elevated process
-            $Script = $MyInvocation.MyCommand.Path
-            Start-Process powershell.exe -Verb RunAs -ArgumentList "-ExecutionPolicy RemoteSigned", "-File `"$Script`""}
+    if (-not (Assert-WinOptimizerAdministrator -Action 'Start-WinSettings')) {return}
 
     # Tjek om systemet er Windows 11 baseret eller 10
         $BuildNumber = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").CurrentBuildNumber

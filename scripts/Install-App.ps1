@@ -37,12 +37,7 @@ Function Install-App {
         Function Get-LogDate {
         return (Get-Date -f "[yyyy/MM/dd HH:mm:ss]")}
 
-    # Ensure admin rights
-	If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){
-    
-		# Relaunch as an elevated process
-		$Script = $MyInvocation.MyCommand.Path
-		Start-Process powershell.exe -Verb RunAs -ArgumentList "-ExecutionPolicy RemoteSigned", "-File `"$Script`""}
+    if (-not (Assert-WinOptimizerAdministrator -Action 'Install-App')) {return}
 	
 	# Standardliste, hvis -Default vælges
     if ($Default) {$Name = "chrome,7zip,vlc"}	
@@ -282,4 +277,3 @@ Function Install-App {
 
 
 }
-

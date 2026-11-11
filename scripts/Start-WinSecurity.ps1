@@ -1,10 +1,6 @@
 ﻿Function Start-WinSecurity {
 
-    # Ensure admin rights
-	If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){
-		# Relaunch as an elevated process
-		$Script = $MyInvocation.MyCommand.Path
-		Start-Process powershell.exe -Verb RunAs -ArgumentList "-ExecutionPolicy RemoteSigned", "-File `"$Script`""}
+    if (-not (Assert-WinOptimizerAdministrator -Action 'Start-WinSecurity')) {return}
 
     # Tjek om systemet er Windows 11 baseret eller 10
         $BuildNumber = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").CurrentBuildNumber
@@ -32,7 +28,7 @@
     # Blocking Microsoft Tracking IP's in the firewall
         Write-Host "$(Get-LogDate)`t    Blocking Microsoft's tracking IP's:" -f Green
         Write-Host "$(Get-LogDate)`t        - Will start in the background" -f Yellow
-        $link = "https://github.com/Andreas6920/WinOptimizer/blob/main/scripts/block-ips.ps1"
+        $link = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/block-ips.ps1"
         $file = "$env:TMP\"+(Split-Path $link -Leaf)
         (New-Object net.webclient).Downloadfile("$link", "$file"); 
         Start-Sleep -s 2;

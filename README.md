@@ -24,38 +24,35 @@
 ### Install in one command
 
 ```powershell
-iwr -useb https://git.io/JzrB5 -O "$env:TMP\Winoptimizer.ps1"; ipmo "$env:TMP\Winoptimizer.ps1"; 
-```
-### And run the interactive menu
-
-```powershell
-Start-Winoptimizer
+& ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5')))
 ```
 
-### ..Or pick just what you need
-
+### .. Or pick just what you need
 ```powershell
-Start-WinAntiBloat -AllBloatware       # Remove Apps, Services, Scheduled Tasks, and Printers bloat
+& ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5'))) -InstallOnly; Start-WinAntiBloat -AllBloatware       # Remove Apps, Services, Scheduled Tasks, and Printers bloat
+```
+# Unpin apps and hide taskbar feature buttons
+```powershell
+& ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5'))) -InstallOnly; Start-WinAntiBloat -CleanTaskbar
 ```
 
+# Unpin all items from your starmenu
 ```powershell
-Start-WinAntiBloat -CleanTaskbar        # Unpin apps and hide taskbar feature buttons
+& ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5'))) -InstallOnly; Start-WinAntiBloat -CleanStartMenu
+```
+# Show seconds, use a 24-hour clock in the taskbar
+```powershell
+& ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5'))) -InstallOnly; Start-WinSettings -FixClock
 ```
 
+# Enable Darkmode
 ```powershell
-Start-WinAntiBloat -CleanStartMenu      # Unpin all items from your starmenu
+& ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5'))) -InstallOnly; Start-WinSettings -EnableDarkMode
 ```
 
+# Install Microsoft Office 2016 Retail (Word, Excel, Powerpoint, Outlook, OneNote)
 ```powershell
-Start-WinSettings -FixClock    			# Show seconds, use a 24-hour clock in the taskbar
-```
-
-```powershell
-Start-WinSettings -EnableDarkMode       # Enable Darkmode
-```
-
-```powershell
-Install-App -Name "Office"              # Install Microsoft Office 2016 Retail (Word, Excel, Powerpoint, Outlook, OneNote)
+& ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5'))) -InstallOnly; Install-App -Name "Office"
 ```
 
 ---

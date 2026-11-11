@@ -1,44 +1,30 @@
-# Ensure admin rights
-If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){
-    
-    # Relaunch as an elevated process
-    $Script = $MyInvocation.MyCommand.Path
-    Start-Process powershell.exe -Verb RunAs -ArgumentList "-ExecutionPolicy RemoteSigned", "-File `"$Script`""}
+[CmdletBinding()]
+param(
+    [switch]$InstallOnly
+)
 
-# Execution policy
-    Set-ExecutionPolicy -Scope Process Unrestricted -Force
+$RepositoryRoot = 'https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main'
+$InstallRoot = Join-Path $env:TEMP 'WinOptimizer'
+$FilesToDownload = @(
+    'functions/WinOptimizer.psm1',
+    'scripts/Start-WinAntiBloat.ps1',
+    'scripts/Start-WinSecurity.ps1',
+    'scripts/Start-WinSettings.ps1',
+    'scripts/Install-App.ps1'
+)
 
-# Timestamps for actions
-    Function Get-LogDate {
-    return (Get-Date -f "[yyyy/MM/dd HH:mm:ss]")}
-    Write-Host "$(Get-LogDate)`tSYSTEM INITIALIZATION" -ForegroundColor Green
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-# TLS upgrade
-    Write-Host "$(Get-LogDate)`t    - Opgradere forbindelsen til TLS 1.2" -ForegroundColor Green
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+foreach ($RelativePath in $FilesToDownload) {
+    $DestinationPath = Join-Path $InstallRoot ($RelativePath -replace '/', '\')
+    $DestinationDirectory = Split-Path -Path $DestinationPath -Parent
+    if (-not (Test-Path -LiteralPath $DestinationDirectory -PathType Container)) {New-Item -ItemType Directory -Path $DestinationDirectory -Force -ErrorAction Stop | Out-Null}
 
-# Installér modul
-    $ModuleUrl = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/functions/WinOptimizer.psm1"
-    $ModuleName = [System.IO.Path]::GetFileNameWithoutExtension((Split-Path $ModuleUrl -Leaf))
-    $ModulePath = $env:PSModulePath.Split(";")[1]
-    $ModuleFolder = Join-Path -Path $ModulePath -ChildPath $ModuleName
-    $ModuleLocation = Join-Path -Path $Modulefolder -ChildPath (Split-Path $ModuleUrl -Leaf)
+    $FileUrl = "$RepositoryRoot/$RelativePath"
+    Invoke-WebRequest -Uri $FileUrl -OutFile $DestinationPath -UseBasicParsing -ErrorAction Stop
+}
 
-    # Opretter modulmappen, hvis den ikke eksisterer
-        if (-not (Test-Path $ModuleFolder)) { New-Item -ItemType Directory -Path $ModuleFolder -Force | Out-Null}
+$ModulePath = Join-Path $InstallRoot 'functions\WinOptimizer.psm1'
+Import-Module -Name $ModulePath -Global -Force -ErrorAction Stop
 
-    # Download modulet
-        Write-Host "$(Get-LogDate)`t    - Henter modulet til $ModulePath" -ForegroundColor Green
-        (New-Object Net.WebClient).DownloadFile($ModuleUrl, $ModuleLocation)
-    
-    # Kontroller, om filen er blevet downloadet korrekt
-        if (Test-Path $ModuleLocation) {Write-Host "$(Get-LogDate)`t    - Module downloaded successfully." -ForegroundColor Green
-
-        # Installer og importer modulet
-            try {
-                Write-Host "$(Get-LogDate)`t    - Importere modulet:" -ForegroundColor Green
-                Import-Module -Name $ModuleName -Force -ErrorAction Stop
-                Write-Host "$(Get-LogDate)`t    - Installation komplet." -ForegroundColor Green}
-            catch {
-                Write-Host "$(Get-LogDate)`t    - Importering af modulet fejlet: $_" -ForegroundColor Red}} 
-        else {  Write-Host "$(Get-LogDate)`t    - Modulet kan ikke hentes." -ForegroundColor Red }
+if (-not $InstallOnly) {Start-WinOptimizer}

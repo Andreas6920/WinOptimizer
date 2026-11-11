@@ -27,13 +27,7 @@
 
     if (-not ($All -or $AnySectionSelected)) {$All = $true}
 
-    # Ensure admin rights
-    $IsAdministrator = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-    if (-not $IsAdministrator -and $CleanDesktop) {throw "CleanDesktop requires an elevated PowerShell session to remove items from the Public Desktop. No desktop cleanup was performed."}
-	If (-not $IsAdministrator) {
-		# Relaunch as an elevated process
-		$Script = $MyInvocation.MyCommand.Path
-		Start-Process powershell.exe -Verb RunAs -ArgumentList "-ExecutionPolicy RemoteSigned", "-File `"$Script`""}
+    if (-not (Assert-WinOptimizerAdministrator -Action 'Start-WinAntiBloat')) {return}
 
     # Tjek om systemet er Windows 11 baseret eller 10
         $BuildNumber = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").CurrentBuildNumber

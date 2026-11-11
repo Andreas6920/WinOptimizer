@@ -1,175 +1,238 @@
-# Prepare
-        # Ensure admin rights
-            If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){
-                # Relaunch as an elevated process
-                $Script = $MyInvocation.MyCommand.Path
-                Start-Process powershell.exe -Verb RunAs -ArgumentList "-ExecutionPolicy RemoteSigned", "-File `"$Script`""}
+function Get-LogDate {
+    Get-Date -Format '[yyyy/MM/dd HH:mm:ss]'
+}
 
-        # Timestamps for actions
-            Function Get-LogDate {
-            return (Get-Date -f "[yyyy/MM/dd HH:mm:ss]")}
+function Test-WinOptimizerAdministrator {
+    $WindowsPrincipal = [Security.Principal.WindowsPrincipal]::new([Security.Principal.WindowsIdentity]::GetCurrent())
+    return $WindowsPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+}
 
-        # Disable Explorer first run
-            $RegistryKey = "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main"
-            If (!(Test-Path $RegistryKey)) {New-Item -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Force | Out-Null}
-            if(!(Get-Item "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main\" | ? Property -EQ "DisableFirstRunCustomize")){ Write-Host "$(Get-LogDate)`t        - Disabling explorer first run." -ForegroundColor Yellow; Set-ItemProperty -Path  "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Value 1}
-        
-        # Install Nuget
-            if(!(test-path "C:\Program Files\PackageManagement\ProviderAssemblies\nuget\2.8.5.208")){
-                Write-Host "$(Get-LogDate)`t        - Installing Nuget" -ForegroundColor Yellow
-                $ProgressPreference = "SilentlyContinue"; 
-                Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force | Out-Null;
-                Start-Sleep -S 1;}
-        
-        # Create Base Folder
-            Write-Host "$(Get-LogDate)`t        - Setting up root folder" -ForegroundColor Yellow
-                $BaseFolder = Join-path -Path ([Environment]::GetFolderPath("CommonApplicationData")) -Childpath "WinOptimizer"
-                if(!(test-path $BaseFolder)){New-Item -itemtype Directory -Path $BaseFolder -ErrorAction SilentlyContinue | Out-Null }        
+function Assert-WinOptimizerAdministrator {
+    param(
+        [Parameter(Mandatory)]
+        [string]$Action
+    )
 
-        Write-Host "$(Get-LogDate)`t        - Installing functions" -ForegroundColor Yellow -nonewline
-
-        Function Add-Reg {
-            param (
-                [Parameter(Mandatory=$true)]
-                [string]$Path,
-                [Parameter(Mandatory=$true)]
-                [string]$Name,
-                [Parameter(Mandatory=$true)]
-                [ValidateSet('String', 'ExpandString', 'Binary', 'DWord', 'MultiString', 'Qword', 'Unknown')]
-                [string]$Type,
-                [Parameter(Mandatory=$true)]
-                [string]$Value    )
-        
-            try {
-                if (!(Test-Path $Path)) { New-Item -Path $Path -Force | Out-Null }
-        
-                $CurrentValue = $null
-                if (Get-ItemProperty -Path $Path -Name $Name -ErrorAction SilentlyContinue) {$CurrentValue = (Get-ItemPropertyValue -Path $Path -Name $Name -ErrorAction SilentlyContinue)}
-        
-                if ($CurrentValue -ne $Value) {
-                    New-ItemProperty -Path $Path -Name $Name -PropertyType $Type -Value $Value -Force -ErrorAction Stop | Out-Null
-                    Write-Host "$(Get-LogDate)`t            - Setting '$Name' to '$Value'." -ForegroundColor DarkYellow} 
-                else {Write-Host "$(Get-LogDate)`t            - '$Name' is already '$Value'." -ForegroundColor DarkYellow}}
-
-            catch {
-                if ($_.Exception.GetType().Name -eq "UnauthorizedAccessException") {
-                    # Undertrykker denne type fejl
-                    Write-Host "$(Get-LogDate)`t            - Access denied to modify '$Name'." -ForegroundColor Red}
-                else {Write-Host "`t            - ERROR - cannot modify '$Name': $_" -ForegroundColor Red}}
-        }
-        
-
-Function Restart-Explorer {
-            <# When explorer restarts with the regular stop-process function, the active PowerShell loses focus,
-            which means you'll have to click on the window in order to enter your input. here's the hotfix. #>
-            if(Get-Process -Name "Explorer" -ErrorAction SilentlyContinue){
-            Stop-Process -Name "Explorer" -Force -ErrorAction SilentlyContinue | Out-Null
-            Start-Sleep -Seconds 2
-            if(!(Get-Process -Name Explorer)){Start-Process Explorer -ErrorAction SilentlyContinue}}
-            $windowname = $Host.UI.RawUI.WindowTitle
-            Add-Type -AssemblyName Microsoft.VisualBasic
-            [Microsoft.VisualBasic.Interaction]::AppActivate($windowname)}
-            Write-Host "." -ForegroundColor Yellow -nonewline
-
-Function Start-Input{
-    $code = @"
-[DllImport("user32.dll")]
-public static extern bool BlockInput(bool fBlockIt);
-"@
-    $userInput = Add-Type -MemberDefinition $code -Name UserInput -Namespace UserInput -PassThru
-    $userInput::BlockInput($false)
+    if (-not (Test-WinOptimizerAdministrator)) {
+        Write-Warning "$Action requires an elevated PowerShell session. Close this window, reopen PowerShell as Administrator, reload WinOptimizer, and try again. No changes were made."
+        return $false
     }
-Write-Host "." -ForegroundColor Yellow -nonewline
 
-Function Stop-Input{
-    $WWcode = @"
-[DllImport("user32.dll")]
-public static extern bool BlockInput(bool fBlockIt);
-"@
-    $userInput = Add-Type -MemberDefinition $code -Name UserInput -Namespace UserInput -PassThru
-    $userInput::BlockInput($true)
-    }
-Write-Host "." -ForegroundColor Yellow -nonewline
-
-
-## Other bigger modules
-
-$ModulePath = $env:PSModulePath.Split(";")[1]
-$ScriptFolder = Join-Path -Path $ModulePath -ChildPath "WinOptimizer\Scripts"
-
-# Opret mappe
-if (-not (Test-Path $ScriptFolder)) { New-Item -ItemType Directory -Path $ScriptFolder -Force | Out-Null }
-
-$ScriptURLs = @(
-    "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Start-WinAntiBloat.ps1",
-    "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Start-WinSecurity.ps1",
-    "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Start-WinSettings.ps1",
-    "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/scripts/Install-App.ps1"
-)
-
-Foreach ($ScriptURL in $ScriptURLs) {
-    # Download and save script files
-    $ScriptName = Split-Path $ScriptURL -Leaf
-    $ScriptLocation = Join-Path -Path $ScriptFolder -ChildPath $ScriptName
-
-    try {   (New-Object Net.WebClient).DownloadFile($ScriptURL, $ScriptLocation)
-        
-            # Kør scriptet (dot-sourcing for at importere funktioner hvis der er nogen)
-            . $ScriptLocation
-            Write-Host "." -ForegroundColor Yellow -NoNewline}
-    
-    catch { Write-Host "Failed to download or import $ScriptName - $_" -ForegroundColor Red }
+    return $true
 }
 
+function Add-Reg {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path,
+        [Parameter(Mandatory = $true)]
+        [string]$Name,
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('String', 'ExpandString', 'Binary', 'DWord', 'MultiString', 'Qword', 'Unknown')]
+        [string]$Type,
+        [Parameter(Mandatory = $true)]
+        [string]$Value
+    )
 
+    try {
+        if (-not (Test-Path $Path)) {New-Item -Path $Path -Force | Out-Null}
 
-Write-Host "." -ForegroundColor Yellow
-        
-Function Start-WinOptimizer {        
-$intro = 
-"
- _       ___       ____        __  _           _                
-| |     / (_)___  / __ \____  / /_(_)___ ___  (_)___  ___  _____
-| | /| / / / __ \/ / / / __ \/ __/ / __ `__  \/ /_  / / _ \/ ___/
-| |/ |/ / / / / / /_/ / /_/ / /_/ / / / / / / / / /_/  __/ /    
-|__/|__/_/_/ /_/\____/ .___/\__/_/_/ /_/ /_/_/ /___/\___/_/     
-                    /_/                                         
-Version 5.0
-Creator: Andreas6920 | https://github.com/Andreas6920/
-                                                                                                                                                    
- "
+        $CurrentValue = $null
+        if (Get-ItemProperty -Path $Path -Name $Name -ErrorAction SilentlyContinue) {$CurrentValue = Get-ItemPropertyValue -Path $Path -Name $Name -ErrorAction SilentlyContinue}
 
-
-# Start Menu
-
-do {
-    Clear-Host
-    Write-Host $intro -f Yellow 
-    Write-Host "`t[1]`tAll"
-    Write-Host "`t[2]`tStart-AntiBloat"
-    Write-Host "`t[3]`tStart-WinSecurity"
-    Write-Host "`t[4]`tStart-WinSettings"
-    Write-Host "`t[5]`tInstall-App"
-    Write-Host ""
-    Write-Host "`t[0] - Quit"
-    Write-Host ""
-    Write-Host "`nOption: " -f Yellow -nonewline; ;
-
-        $option = Read-Host
-        Switch ($option) { 
-            0 { exit }
-            1 { Start-WinAntiBloat; Start-WinOptimizer; Start-WinSecurity; Start-WinSettings }
-            2 { Start-WinAntiBloat }
-            3 { Start-WinSecurity }
-            4 { Start-WinSettings }
-            5 { Install-App }
-            Default {  Write-Host "INVALID OPTION. TRY AGAIN.." -f red; Start-Sleep -s 2; Start-WinOptimizer } 
+        if ($CurrentValue -ne $Value) {
+            New-ItemProperty -Path $Path -Name $Name -PropertyType $Type -Value $Value -Force -ErrorAction Stop | Out-Null
+            Write-Host "$(Get-LogDate)`t            - Setting '$Name' to '$Value'." -ForegroundColor DarkYellow
+        } else {
+            Write-Host "$(Get-LogDate)`t            - '$Name' is already '$Value'." -ForegroundColor DarkYellow
         }
+    } catch {
+        if ($_.Exception.GetType().Name -eq 'UnauthorizedAccessException') {
+            Write-Host "$(Get-LogDate)`t            - Access denied to modify '$Name'." -ForegroundColor Red
+        } else {
+            Write-Host "`t            - ERROR - cannot modify '$Name': $_" -ForegroundColor Red
+        }
+    }
 }
 
-while ($option -ne 5 )
+function Restart-Explorer {
+    if (Get-Process -Name 'Explorer' -ErrorAction SilentlyContinue) {
+        Stop-Process -Name 'Explorer' -Force -ErrorAction SilentlyContinue | Out-Null
+        Start-Sleep -Seconds 2
+        if (-not (Get-Process -Name Explorer -ErrorAction SilentlyContinue)) {Start-Process Explorer -ErrorAction SilentlyContinue}
+    }
+
+    $WindowName = $Host.UI.RawUI.WindowTitle
+    Add-Type -AssemblyName Microsoft.VisualBasic
+    [Microsoft.VisualBasic.Interaction]::AppActivate($WindowName)
 }
 
+function Get-WinOptimizerMenuSelection {
+    param(
+        [Parameter(Mandatory)]
+        [string]$Title,
+        [Parameter(Mandatory)]
+        [string[]]$Items
+    )
 
+    $SelectedIndex = 0
+    while ($true) {
+        Clear-Host
+        Write-Host 'WinOptimizer' -ForegroundColor Yellow
+        Write-Host $Title -ForegroundColor Cyan
+        Write-Host ''
 
+        for ($Index = 0; $Index -lt $Items.Count; $Index++) {
+            if ($Index -eq $SelectedIndex) {
+                Write-Host "  > $($Items[$Index])" -ForegroundColor Black -BackgroundColor Yellow
+            } else {
+                Write-Host "    $($Items[$Index])"
+            }
+        }
 
+        Write-Host ''
+        Write-Host 'Use the Up/Down arrow keys and Enter. Press Esc to go back or exit.'
+        $Key = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+        switch ($Key.VirtualKeyCode) {
+            38 {$SelectedIndex = ($SelectedIndex - 1 + $Items.Count) % $Items.Count}
+            40 {$SelectedIndex = ($SelectedIndex + 1) % $Items.Count}
+            13 {return $SelectedIndex}
+            27 {return -1}
+        }
+    }
+}
+
+function Invoke-WinOptimizerMenuAction {
+    param(
+        [Parameter(Mandatory)]
+        [scriptblock]$Action
+    )
+
+    try {
+        & $Action
+    } catch {
+        Write-Error "WinOptimizer action failed: $($_.Exception.Message)"
+    }
+
+    Write-Host ''
+    Write-Host 'Press any key to return to the menu.'
+    $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+}
+
+function Confirm-WinOptimizerDesktopCleanup {
+    Write-Warning 'Clean Desktop moves the current user desktop contents and permanently removes all Public Desktop contents.'
+    $Confirmation = Read-Host "Type YES to continue"
+    return $Confirmation -ceq 'YES'
+}
+
+function Start-WinOptimizerAntiBloatMenu {
+    $Items = @(
+        'Run all standard AntiBloat sections',
+        'Run all bloatware sections',
+        'Run all pinned-item sections',
+        'Clean Desktop (moves user files and removes Public Desktop contents)',
+        'Clean Taskbar',
+        'Clean Lock Screen',
+        'Clean Start Menu',
+        'Remove bloat apps',
+        'Disable selected services',
+        'Disable selected scheduled tasks',
+        'Clean printers'
+    )
+
+    while ($true) {
+        $Selection = Get-WinOptimizerMenuSelection -Title 'AntiBloat' -Items $Items
+        if ($Selection -lt 0) {return}
+
+        switch ($Selection) {
+            0 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -All}}
+            1 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -AllBloatware}}
+            2 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -AllPinnedItems}}
+            3 {
+                if (Confirm-WinOptimizerDesktopCleanup) {
+                    Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanDesktop}
+                }
+            }
+            4 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanTaskbar}}
+            5 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanLockScreen}}
+            6 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanStartMenu}}
+            7 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanBloatApps}}
+            8 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanServices}}
+            9 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanScheduledTasks}}
+            10 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanPrinters}}
+        }
+    }
+}
+
+function Start-WinOptimizerSettingsMenu {
+    $Items = @(
+        'Run all settings',
+        'Run all Explorer settings',
+        'Show file extensions',
+        'Show hidden files',
+        'Open Explorer to This PC',
+        'Fix clock (24-hour, seconds, and dd/MM/yyyy date)',
+        'Enable Dark Mode',
+        'Enable Windows Spotlight wallpaper',
+        'Disable Windows Spotlight wallpaper'
+    )
+
+    while ($true) {
+        $Selection = Get-WinOptimizerMenuSelection -Title 'Windows Settings' -Items $Items
+        if ($Selection -lt 0) {return}
+
+        switch ($Selection) {
+            0 {Invoke-WinOptimizerMenuAction {Start-WinSettings -All}}
+            1 {Invoke-WinOptimizerMenuAction {Start-WinSettings -AllExplorerSettings}}
+            2 {Invoke-WinOptimizerMenuAction {Start-WinSettings -ShowFileExtension}}
+            3 {Invoke-WinOptimizerMenuAction {Start-WinSettings -ShowHiddenFiles}}
+            4 {Invoke-WinOptimizerMenuAction {Start-WinSettings -ChangeExplorerToThisPC}}
+            5 {Invoke-WinOptimizerMenuAction {Start-WinSettings -FixClock}}
+            6 {Invoke-WinOptimizerMenuAction {Start-WinSettings -EnableDarkMode}}
+            7 {Invoke-WinOptimizerMenuAction {Start-WinSettings -SetWallpaperWindowsSpotlight}}
+            8 {Invoke-WinOptimizerMenuAction {Start-WinSettings -SetWallpaperDisableWindowsSpotlight}}
+        }
+    }
+}
+
+function Start-WinOptimizer {
+    $Items = @(
+        'Run all standard sections',
+        'AntiBloat',
+        'Security',
+        'Windows Settings',
+        'Install Apps',
+        'Exit'
+    )
+
+    while ($true) {
+        $Selection = Get-WinOptimizerMenuSelection -Title 'Main Menu' -Items $Items
+        if ($Selection -lt 0 -or $Selection -eq 5) {return}
+
+        switch ($Selection) {
+            0 {
+                if (-not (Test-WinOptimizerAdministrator)) {
+                    Write-Warning 'Running all sections requires an elevated PowerShell session. No changes were made. Reopen PowerShell as Administrator and start WinOptimizer again.'
+                    Start-Sleep -Seconds 3
+                } else {
+                    Invoke-WinOptimizerMenuAction {
+                        Start-WinAntiBloat -All
+                        Start-WinSecurity
+                        Start-WinSettings -All
+                    }
+                }
+            }
+            1 {Start-WinOptimizerAntiBloatMenu}
+            2 {Invoke-WinOptimizerMenuAction {Start-WinSecurity}}
+            3 {Start-WinOptimizerSettingsMenu}
+            4 {Invoke-WinOptimizerMenuAction {Install-App}}
+        }
+    }
+}
+
+. (Join-Path $PSScriptRoot '..\scripts\Start-WinAntiBloat.ps1')
+. (Join-Path $PSScriptRoot '..\scripts\Start-WinSecurity.ps1')
+. (Join-Path $PSScriptRoot '..\scripts\Start-WinSettings.ps1')
+. (Join-Path $PSScriptRoot '..\scripts\Install-App.ps1')
+
+Export-ModuleMember -Function Start-WinOptimizer, Start-WinAntiBloat, Start-WinSecurity, Start-WinSettings, Install-App
