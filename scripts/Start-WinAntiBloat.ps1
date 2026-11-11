@@ -43,6 +43,7 @@
     
     if ($CleanDesktop) {
         Write-Host "$(Get-LogDate)`t    Cleaning Desktop:" -ForegroundColor Green
+        Write-Host "$(Get-LogDate)`t        - User Desktop files will be moved into a 'moved files' folder; shortcuts and Public Desktop contents will be removed." -ForegroundColor Yellow
 
         $UserDesktop = [Environment]::GetFolderPath('Desktop')
         $PublicDesktop = Join-Path $env:PUBLIC 'Desktop'
@@ -65,7 +66,7 @@
         New-Item -ItemType Directory -Path $UserDesktopDestination -Force -ErrorAction Stop | Out-Null
 
         Write-Host "$(Get-LogDate)`t        - Moving user Desktop contents to '$UserDesktopDestination'." -ForegroundColor Yellow
-        & $RobocopyPath $UserDesktop $UserDesktopDestination /E /MOVE /COPY:DAT /DCOPY:DAT /R:2 /W:2 /XJ /XD $MovedFilesRoot
+        & $RobocopyPath $UserDesktop $UserDesktopDestination /E /MOVE /COPY:DAT /DCOPY:DAT /R:2 /W:2 /XJ /XD $MovedFilesRoot *> $null
         $RobocopyExitCode = $LASTEXITCODE
         if ($RobocopyExitCode -ge 8) {
             throw "Robocopy failed with exit code $RobocopyExitCode. Some user Desktop items may already have been moved; review '$UserDesktopDestination' before retrying."

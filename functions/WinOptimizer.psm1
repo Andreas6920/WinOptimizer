@@ -158,40 +158,39 @@ function Invoke-WinOptimizerMenuAction {
     $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
 }
 
-function Confirm-WinOptimizerDesktopCleanup {
-    Write-Warning 'Clean Desktop moves the current user desktop contents and permanently removes all Public Desktop contents.'
-    $Confirmation = Read-Host "Type YES to continue"
-    return $Confirmation -ceq 'YES'
-}
-
 function Start-WinOptimizerAntiBloatMenu {
     $Items = @(
-        '  Remove ALL bloat:',
-        '    Remove bloat: applications',
-        '    Remove bloat: Startup Services',
-        '      Remove bloat: Desktop',
-        '    Remove bloat: Scheduled tasks',
-        '    Remove bloat: Printers',
+        '  Run ALL Settings:',
+        '    Remove ALL Bloat:',
+        '      Remove bloated apps and features',
+        '      Remove bloated Startup Services',
+        '      Remove bloated Scheduled Task',
+        '      Remove bloated Printers',
+        '    Clean ALL Windows:',
+        '      Taskbar: Unpin Apps & Hide Features',
+        '      Startmenu: Unpin Apps',
+        '      LockScreen: Hide information',
+        '      Desktop: Remove shortcuts, put files in a folder',
         '',
         '  Return'
     )
 
     while ($true) {
-        $Selection = Get-WinOptimizerMenuSelection -Title 'AntiBloat' -Items $Items
-        if ($Selection -lt 0) {return}
+        $Selection = Get-WinOptimizerMenuSelection -Title 'Anti Bloat' -Items $Items
+        if ($Selection -lt 0 -or $Selection -eq 12) {return}
 
         switch ($Selection) {
-            0 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -AllBloatware}}
-            1 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanBloatApps}}
-            2 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanServices}}
-            3 {
-                if (Confirm-WinOptimizerDesktopCleanup) {
-                    Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanDesktop}
-                }
-            }
+            0 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -All -CleanDesktop}}
+            1 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -AllBloatware}}
+            2 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanBloatApps}}
+            3 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanServices}}
             4 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanScheduledTasks}}
             5 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanPrinters}}
-            7 {return}
+            6 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -AllPinnedItems -CleanDesktop}}
+            7 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanTaskbar}}
+            8 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanStartMenu}}
+            9 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanLockScreen}}
+            10 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanDesktop}}
         }
     }
 }
