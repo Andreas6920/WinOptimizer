@@ -19,13 +19,15 @@
 
 <br/>
 
-### Install in one command
+<div align="left">
+
+### Install in one PowerShell command
 
 ```powershell
 & ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5')))
 ```
 
-### Or pick just what you need
+### ..Or pick just what you need
 
 Remove Apps, Services, Scheduled Tasks, and Printers bloat
 
@@ -62,6 +64,8 @@ Install Microsoft Office 2016 Retail (Word, Excel, Powerpoint, Outlook, OneNote)
 ```powershell
 & ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5'))) -InstallOnly; Install-App -Name "Office"
 ```
+
+</div>
 
 </div>
 
