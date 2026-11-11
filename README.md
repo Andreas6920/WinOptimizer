@@ -21,7 +21,7 @@
 
 <div align="left">
 
-<h2 align="center">Install in one PowerShell command</h2>
+<h2 align="center">Open tool in one PowerShell command</h2>
 
 <br/>
 
