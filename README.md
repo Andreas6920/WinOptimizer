@@ -21,11 +21,11 @@
 
 </div>
 
-### Install in one command
+<h2 align="center">Install in one command</h2>
 
-```powershell
-& ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5')))
-```
+<p align="center">
+  <code>&amp; ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5')))</code>
+</p>
 
 ### .. Or pick just what you need
 
