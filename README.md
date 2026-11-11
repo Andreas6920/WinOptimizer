@@ -6,7 +6,7 @@
 
 # WinOptimizer
 
-### Remove windows bloat, enable privacy, and simplify your Windows Machine
+### Remove Windows bloat, improve privacy, and simplify your Windows machine
 
 <br/>
 
@@ -30,98 +30,55 @@ irm https://git.io/JzrB5 | iex; Start-WinOptimizer
 ```
 
 <br/>
-<h3 align="center">..Or pick just what you need</h3>
+<h3 align="center">...Or pick just what you need</h3>
 
-Remove Apps, Services, Scheduled Tasks, and Printers bloat
+Remove bloatware apps, startup services, scheduled tasks, and printers
 
 ```powershell
 irm https://git.io/JzrB5 | iex; Start-WinAntiBloat -AllBloatware
 ```
 
-Unpin apps and hide taskbar feature buttons
+Unpin apps and hide taskbar features
 
 ```powershell
 irm https://git.io/JzrB5 | iex; Start-WinAntiBloat -CleanTaskbar
 ```
 
-Unpin all items from your starmenu
+Unpin all items from your Start menu
 
 ```powershell
 irm https://git.io/JzrB5 | iex; Start-WinAntiBloat -CleanStartMenu
 ```
 
-Show seconds, use a 24-hour clock in the taskbar
+Show seconds and use a 24-hour clock on the taskbar
 
 ```powershell
 irm https://git.io/JzrB5 | iex; Start-WinSettings -FixClock
 ```
 
-Enable Darkmode
+Enable dark mode
 
 ```powershell
 irm https://git.io/JzrB5 | iex; Start-WinSettings -EnableDarkMode
 ```
 
-Apply both Privacy and Security settings (the default)
+Optimize privacy and security settings
 
 ```powershell
 irm https://git.io/JzrB5 | iex; Start-WinSecurity
 ```
 
-Apply only Privacy settings
-
-```powershell
-irm https://git.io/JzrB5 | iex; Start-WinSecurity -SetPrivacySettings
-```
-
-Apply only Security settings
-
-```powershell
-irm https://git.io/JzrB5 | iex; Start-WinSecurity -SetSecuritySettings
-```
-
-Block tracking domains in the hosts file
-
-```powershell
-irm https://git.io/JzrB5 | iex; Start-WinSecurity -BlockDomainHostFile
-```
-
-Block tracking IPs in the firewall
-
-```powershell
-irm https://git.io/JzrB5 | iex; Start-WinSecurity -BlockDomainFirewall
-```
-
-Send Microsoft a data removal request (Windows 10)
-
-```powershell
-irm https://git.io/JzrB5 | iex; Start-WinSecurity -SendRemovalRequest
-```
-
-Disable automatic setup of network devices
-
-```powershell
-irm https://git.io/JzrB5 | iex; Start-WinSettings -DisableAutoSetupNetworkDevices
-```
-
-Disable printer sharing
-
-```powershell
-irm https://git.io/JzrB5 | iex; Start-WinSettings -DisablePrinterSharing
-```
-
-Set the Power plan
-
-```powershell
-irm https://git.io/JzrB5 | iex; Start-WinSettings -SetPowerPlan
-```
-
-Install Microsoft Office 2016 Retail (Word, Excel, Powerpoint, Outlook, OneNote)
+Install the retail version of Microsoft Office 2016 (Word, Excel, PowerPoint, Outlook, and OneNote)
 
 ```powershell
 irm https://git.io/JzrB5 | iex; Install-App -Name "Office"
 ```
 
+Install applications and enable automatic updates
+
+```powershell
+irm https://git.io/JzrB5 | iex; Install-App -Name "Chrome, 7zip, VLC" -EnableAutoupdate
+```
 </div>
 
 </div>
