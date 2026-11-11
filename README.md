@@ -19,44 +19,50 @@
 
 <br/>
 
-</div>
+### Install in one command
 
-<h2 align="center">Install in one command</h2>
+```powershell
+& ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5')))
+```
 
-<p align="center">
-  <code>&amp; ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5')))</code>
-</p>
-
-### .. Or pick just what you need
+### Or pick just what you need
 
 Remove Apps, Services, Scheduled Tasks, and Printers bloat
+
 ```powershell
 & ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5'))) -InstallOnly; Start-WinAntiBloat -AllBloatware
 ```
 
 Unpin apps and hide taskbar feature buttons
+
 ```powershell
 & ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5'))) -InstallOnly; Start-WinAntiBloat -CleanTaskbar
 ```
 
 Unpin all items from your starmenu
+
 ```powershell
 & ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5'))) -InstallOnly; Start-WinAntiBloat -CleanStartMenu
 ```
 
 Show seconds, use a 24-hour clock in the taskbar
+
 ```powershell
 & ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5'))) -InstallOnly; Start-WinSettings -FixClock
 ```
 
 Enable Darkmode
+
 ```powershell
 & ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5'))) -InstallOnly; Start-WinSettings -EnableDarkMode
 ```
 
 Install Microsoft Office 2016 Retail (Word, Excel, Powerpoint, Outlook, OneNote)
+
 ```powershell
 & ([ScriptBlock]::Create((Invoke-RestMethod 'https://git.io/JzrB5'))) -InstallOnly; Install-App -Name "Office"
 ```
+
+</div>
 
 ---
