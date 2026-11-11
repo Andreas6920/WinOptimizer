@@ -6,7 +6,8 @@ Function Start-WinSettings {
         [switch]$ShowFileExtension,
         [switch]$ShowHiddenFiles,
         [switch]$ChangeExplorerToThisPC,
-        [switch]$ShowSecondsInSystemTrayClock,
+        [Alias('ShowSecondsInSystemTrayClock')]
+        [switch]$FixClock,
         [switch]$EnableDarkMode,
         [switch]$SetWallpaperWindowsSpotlight,
         [switch]$SetWallpaperDisableWindowsSpotlight
@@ -16,7 +17,7 @@ Function Start-WinSettings {
         $ShowFileExtension -or
         $ShowHiddenFiles -or
         $ChangeExplorerToThisPC -or
-        $ShowSecondsInSystemTrayClock -or
+        $FixClock -or
         $EnableDarkMode -or
         $SetWallpaperWindowsSpotlight -or
         $SetWallpaperDisableWindowsSpotlight
@@ -44,7 +45,7 @@ Function Start-WinSettings {
 
 # Start
 Write-Host "`n$(Get-LogDate)`tENHANCE WINDOWS SETTINGS, $($SystemVersion)" -f Green
-if ($RunAllExplorerSettings -or $ShowFileExtension -or $ShowHiddenFiles -or $ChangeExplorerToThisPC -or $ShowSecondsInSystemTrayClock) {
+if ($RunAllExplorerSettings -or $ShowFileExtension -or $ShowHiddenFiles -or $ChangeExplorerToThisPC -or $FixClock) {
     Write-Host "$(Get-LogDate)`t    Configure Windows:" -f Green
 }
         
@@ -69,10 +70,16 @@ if ($RunAllExplorerSettings -or $ShowFileExtension -or $ShowHiddenFiles -or $Cha
         Start-Sleep -S 2
     }
 
-    # Seconds in System Tray Clock 
-    if ($RunAllExplorerSettings -or $ShowSecondsInSystemTrayClock) {
-        Write-Host "$(Get-LogDate)`t        - Show Seconds in System Tray Clock." -f Yellow
+    # Fix clock display
+    if ($RunAllExplorerSettings -or $FixClock) {
+        Write-Host "$(Get-LogDate)`t        - Setting 24-hour clock, seconds, and dd/MM/yyyy date." -f Yellow
         Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSecondsInSystemClock" -Type "DWord" -Value "1"
+        Add-Reg -Path "HKCU:\Control Panel\International" -Name "sTimeFormat" -Type "String" -Value "HH:mm:ss"
+        Add-Reg -Path "HKCU:\Control Panel\International" -Name "sShortTime" -Type "String" -Value "HH:mm"
+        Add-Reg -Path "HKCU:\Control Panel\International" -Name "iTime" -Type "String" -Value "1"
+        Add-Reg -Path "HKCU:\Control Panel\International" -Name "iTLZero" -Type "String" -Value "1"
+        Add-Reg -Path "HKCU:\Control Panel\International" -Name "sShortDate" -Type "String" -Value "dd/MM/yyyy"
+        Restart-Explorer
         Start-Sleep -S 2
     }
     
