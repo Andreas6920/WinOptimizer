@@ -24,7 +24,7 @@
 ### Get started in one command
 
 ```powershell
-$launcher = Join-Path $env:TEMP 'Winoptimizer.ps1'; Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/Winoptimizer.ps1' -OutFile $launcher -UseBasicParsing -ErrorAction Stop; Import-Module -Name $launcher -Force -ErrorAction Stop; Start-WinOptimizer
+iwr -useb https://git.io/JzrB5 -O "$env:TMP\Winoptimizer.ps1"; ipmo "$env:TMP\Winoptimizer.ps1"; Start-WinOptimizer
 ```
 
 ### Or pick just what you need
