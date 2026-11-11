@@ -5,7 +5,8 @@ $FilesToDownload = @(
     'scripts/Start-WinAntiBloat.ps1',
     'scripts/Start-WinSecurity.ps1',
     'scripts/Start-WinSettings.ps1',
-    'scripts/Install-App.ps1'
+    'scripts/Install-App.ps1',
+    'assets/ascii-winoptimizer.txt'
 )
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12

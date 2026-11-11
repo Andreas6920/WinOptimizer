@@ -8,6 +8,7 @@
         [switch]$CleanTaskbar,
         [switch]$CleanLockScreen,
         [switch]$CleanStartMenu,
+        [switch]$RemoveSpotlightLearnMore,
         [switch]$CleanBloatApps,
         [switch]$CleanServices,
         [switch]$CleanScheduledTasks,
@@ -20,6 +21,7 @@
         $CleanTaskbar -or
         $CleanLockScreen -or
         $CleanStartMenu -or
+        $RemoveSpotlightLearnMore -or
         $CleanBloatApps -or
         $CleanServices -or
         $CleanScheduledTasks -or
@@ -99,9 +101,14 @@
             }
         }
 
-        Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Name "{2cc5ca98-6485-489a-920e-b3e88a6ccce3}" -Type "DWord" -Value "1"
         Restart-Explorer
         Write-Host "$(Get-LogDate)`t        - Desktop cleaning complete. Removed $($DesktopShortcuts.Count) user Desktop shortcuts." -ForegroundColor Yellow
+    }
+
+    if ($ThisIsWindows11 -and ($All -or $AllPinnedItems -or $RemoveSpotlightLearnMore)) {
+        Write-Host "$(Get-LogDate)`t    Removing Spotlight 'Learn more about this picture' from the desktop." -ForegroundColor Green
+        Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Name "{2cc5ca98-6485-489a-920e-b3e88a6ccce3}" -Type "DWord" -Value "1"
+        Restart-Explorer
     }
 
     if ($All -or $AllPinnedItems -or $CleanTaskbar) {

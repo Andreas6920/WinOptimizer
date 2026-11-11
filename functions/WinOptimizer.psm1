@@ -89,13 +89,32 @@ function Get-WinOptimizerMenuSelection {
         [string]$Title,
         [Parameter(Mandatory)]
         [AllowEmptyString()]
-        [string[]]$Items
+        [string[]]$Items,
+        [AllowEmptyCollection()]
+        [System.Collections.Generic.HashSet[int]]$CompletedSelections = [System.Collections.Generic.HashSet[int]]::new()
     )
 
     $SelectedIndex = 0
+    $BannerPath = Join-Path $PSScriptRoot '..\assets\ascii-winoptimizer.txt'
+    $Banner = if ($Title -eq 'Main Menu') {
+        Get-Content -LiteralPath $BannerPath -Encoding UTF8 -ErrorAction Stop
+    }
+
     while ($true) {
         Clear-Host
-        Write-Host 'WinOptimizer' -ForegroundColor Yellow
+        if ($Title -eq 'Main Menu') {
+            foreach ($Line in $Banner) {
+                Write-Host $Line -ForegroundColor Cyan
+            }
+            Write-Host ''
+            Write-Host 'Developer: Andreas Mouritsen | Github: https://github.com/andreas6920'
+            Write-Host 'TIP: Use Up/Down Arrow keys to navigate, Enter to select.' -ForegroundColor Cyan
+            Write-Host ''
+            Write-Host '=============================================================================' -ForegroundColor Cyan
+            Write-Host ''
+        } else {
+            Write-Host 'WinOptimizer' -ForegroundColor Yellow
+        }
         Write-Host $Title -ForegroundColor Cyan
         Write-Host ''
 
@@ -106,14 +125,24 @@ function Get-WinOptimizerMenuSelection {
             }
 
             if ($Index -eq $SelectedIndex) {
-                Write-Host "  > $($Items[$Index])" -ForegroundColor Black -BackgroundColor Yellow
+                if ($CompletedSelections.Contains($Index)) {
+                    Write-Host "  > $($Items[$Index])" -ForegroundColor White -BackgroundColor DarkGray
+                } else {
+                    Write-Host "  > $($Items[$Index])" -ForegroundColor Black -BackgroundColor Cyan
+                }
+            } elseif ($CompletedSelections.Contains($Index)) {
+                Write-Host "    $($Items[$Index])" -ForegroundColor DarkGray
             } else {
                 Write-Host "    $($Items[$Index])"
             }
         }
 
         Write-Host ''
-        Write-Host 'Use the Up/Down arrow keys and Enter. Press Esc to go back or exit.'
+        if ($Title -eq 'Main Menu') {
+            Write-Host 'Press Esc to exit.'
+        } else {
+            Write-Host 'Use the Up/Down arrow keys and Enter. Press Esc to go back or exit.'
+        }
         $Key = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
         switch ($Key.VirtualKeyCode) {
             38 {$SelectedIndex = Get-WinOptimizerNextMenuSelection -Items $Items -SelectedIndex $SelectedIndex -Direction Previous}
@@ -141,24 +170,44 @@ function Get-WinOptimizerNextMenuSelection {
     return $SelectedIndex
 }
 
+function Get-WinOptimizerCompletedSelections {
+    param(
+        [Parameter(Mandatory)]
+        [string]$MenuTitle
+    )
+
+    if (-not $script:WinOptimizerCompletedMenuSelections) {
+        $script:WinOptimizerCompletedMenuSelections = @{}
+    }
+
+    if (-not $script:WinOptimizerCompletedMenuSelections.ContainsKey($MenuTitle)) {
+        $script:WinOptimizerCompletedMenuSelections[$MenuTitle] = [System.Collections.Generic.HashSet[int]]::new()
+    }
+
+    return ,$script:WinOptimizerCompletedMenuSelections[$MenuTitle]
+}
+
 function Invoke-WinOptimizerMenuAction {
     param(
         [Parameter(Mandatory)]
-        [scriptblock]$Action
+        [scriptblock]$Action,
+        [Parameter(Mandatory)]
+        [AllowEmptyCollection()]
+        [System.Collections.Generic.HashSet[int]]$CompletedSelections,
+        [Parameter(Mandatory)]
+        [int]$Selection
     )
 
     try {
         & $Action
+        [void]$CompletedSelections.Add($Selection)
     } catch {
         Write-Error "WinOptimizer action failed: $($_.Exception.Message)"
     }
-
-    Write-Host ''
-    Write-Host 'Press any key to return to the menu.'
-    $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
 }
 
 function Start-WinOptimizerAntiBloatMenu {
+    $CompletedSelections = Get-WinOptimizerCompletedSelections -MenuTitle 'Anti Bloat'
     $Items = @(
         '  Run ALL Settings:',
         '    Remove ALL Bloat:',
@@ -171,31 +220,34 @@ function Start-WinOptimizerAntiBloatMenu {
         '      Startmenu: Unpin Apps',
         '      LockScreen: Hide information',
         '      Desktop: Remove shortcuts, put files in a folder',
+        '      Wallpaper: Remove Spotlight "Learn more about..."',
         '',
         '  Return'
     )
 
     while ($true) {
-        $Selection = Get-WinOptimizerMenuSelection -Title 'Anti Bloat' -Items $Items
-        if ($Selection -lt 0 -or $Selection -eq 12) {return}
+        $Selection = Get-WinOptimizerMenuSelection -Title 'Anti Bloat' -Items $Items -CompletedSelections $CompletedSelections
+        if ($Selection -lt 0 -or $Selection -eq 13) {return}
 
         switch ($Selection) {
-            0 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -All -CleanDesktop}}
-            1 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -AllBloatware}}
-            2 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanBloatApps}}
-            3 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanServices}}
-            4 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanScheduledTasks}}
-            5 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanPrinters}}
-            6 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -AllPinnedItems -CleanDesktop}}
-            7 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanTaskbar}}
-            8 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanStartMenu}}
-            9 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanLockScreen}}
-            10 {Invoke-WinOptimizerMenuAction {Start-WinAntiBloat -CleanDesktop}}
+            0 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinAntiBloat -All -CleanDesktop}}
+            1 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinAntiBloat -AllBloatware}}
+            2 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinAntiBloat -CleanBloatApps}}
+            3 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinAntiBloat -CleanServices}}
+            4 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinAntiBloat -CleanScheduledTasks}}
+            5 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinAntiBloat -CleanPrinters}}
+            6 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinAntiBloat -AllPinnedItems -CleanDesktop}}
+            7 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinAntiBloat -CleanTaskbar}}
+            8 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinAntiBloat -CleanStartMenu}}
+            9 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinAntiBloat -CleanLockScreen}}
+            10 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinAntiBloat -CleanDesktop}}
+            11 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinAntiBloat -RemoveSpotlightLearnMore}}
         }
     }
 }
 
 function Start-WinOptimizerSettingsMenu {
+    $CompletedSelections = Get-WinOptimizerCompletedSelections -MenuTitle 'Windows Setting'
     $Items = @(
         '  Run ALL Settings:',
         '    Run ALL Privacy & Security Settings',
@@ -203,6 +255,8 @@ function Start-WinOptimizerSettingsMenu {
         '      ShowFileExtension',
         '      ShowHiddenFiles',
         '      ChangeExplorerToThisPC',
+        '      Align Taskbar: Left',
+        '    Start Menu: Center in taskbar',
         '    Fix Clock',
         '    Disable Auto Setup of network devices',
         '    Disable share of printers',
@@ -215,33 +269,36 @@ function Start-WinOptimizerSettingsMenu {
     )
 
     while ($true) {
-        $Selection = Get-WinOptimizerMenuSelection -Title 'Windows Setting' -Items $Items
-        if ($Selection -lt 0 -or $Selection -eq 14) {return}
+        $Selection = Get-WinOptimizerMenuSelection -Title 'Windows Setting' -Items $Items -CompletedSelections $CompletedSelections
+        if ($Selection -lt 0 -or $Selection -eq 16) {return}
 
         switch ($Selection) {
             0 {
-                Invoke-WinOptimizerMenuAction {
+                Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {
                     Start-WinSecurity
                     Start-WinSettings -All
                 }
             }
-            1 {Invoke-WinOptimizerMenuAction {Start-WinSecurity}}
-            2 {Invoke-WinOptimizerMenuAction {Start-WinSettings -AllExplorerSettings}}
-            3 {Invoke-WinOptimizerMenuAction {Start-WinSettings -ShowFileExtension}}
-            4 {Invoke-WinOptimizerMenuAction {Start-WinSettings -ShowHiddenFiles}}
-            5 {Invoke-WinOptimizerMenuAction {Start-WinSettings -ChangeExplorerToThisPC}}
-            6 {Invoke-WinOptimizerMenuAction {Start-WinSettings -FixClock}}
-            7 {Invoke-WinOptimizerMenuAction {Start-WinSettings -DisableAutoSetupNetworkDevices}}
-            8 {Invoke-WinOptimizerMenuAction {Start-WinSettings -DisablePrinterSharing}}
-            9 {Invoke-WinOptimizerMenuAction {Start-WinSettings -SetPowerPlan}}
-            10 {Invoke-WinOptimizerMenuAction {Start-WinSettings -EnableDarkMode}}
-            11 {Invoke-WinOptimizerMenuAction {Start-WinSettings -SetWallpaperWindowsSpotlight}}
-            12 {Invoke-WinOptimizerMenuAction {Start-WinSettings -SetWallpaperDisableWindowsSpotlight}}
+            1 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSecurity}}
+            2 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -AllExplorerSettings}}
+            3 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -ShowFileExtension}}
+            4 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -ShowHiddenFiles}}
+            5 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -ChangeExplorerToThisPC}}
+            6 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -AlignTaskbarLeft}}
+            7 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -CenterStartMenuInTaskbar}}
+            8 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -FixClock}}
+            9 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -DisableAutoSetupNetworkDevices}}
+            10 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -DisablePrinterSharing}}
+            11 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -SetPowerPlan}}
+            12 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -EnableDarkMode}}
+            13 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -SetWallpaperWindowsSpotlight}}
+            14 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -SetWallpaperDisableWindowsSpotlight}}
         }
     }
 }
 
 function Start-WinOptimizerSecurityMenu {
+    $CompletedSelections = Get-WinOptimizerCompletedSelections -MenuTitle 'Security Setting'
     $Items = @(
         '  Run ALL Settings:',
         '    Run ALL Privacy & Security Settings',
@@ -256,27 +313,29 @@ function Start-WinOptimizerSecurityMenu {
     )
 
     while ($true) {
-        $Selection = Get-WinOptimizerMenuSelection -Title 'Security Setting' -Items $Items
+        $Selection = Get-WinOptimizerMenuSelection -Title 'Security Setting' -Items $Items -CompletedSelections $CompletedSelections
         if ($Selection -lt 0 -or $Selection -eq 9) {return}
 
         switch ($Selection) {
-            0 {Invoke-WinOptimizerMenuAction {Start-WinSecurity}}
-            1 {Invoke-WinOptimizerMenuAction {Start-WinSecurity}}
-            2 {Invoke-WinOptimizerMenuAction {Start-WinSecurity -SetPrivacySettings}}
-            3 {Invoke-WinOptimizerMenuAction {Start-WinSecurity -SetSecuritySettings}}
-            4 {Invoke-WinOptimizerMenuAction {Start-WinSecurity -SendRemovalRequest}}
+            0 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSecurity}}
+            1 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSecurity}}
+            2 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSecurity -SetPrivacySettings}}
+            3 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSecurity -SetSecuritySettings}}
+            4 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSecurity -SendRemovalRequest}}
             5 {
-                Invoke-WinOptimizerMenuAction {
+                Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {
                     Start-WinSecurity -BlockDomainHostFile -BlockDomainFirewall
                 }
             }
-            6 {Invoke-WinOptimizerMenuAction {Start-WinSecurity -BlockDomainHostFile}}
-            7 {Invoke-WinOptimizerMenuAction {Start-WinSecurity -BlockDomainFirewall}}
+            6 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSecurity -BlockDomainHostFile}}
+            7 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSecurity -BlockDomainFirewall}}
         }
     }
 }
 
 function Start-WinOptimizer {
+    $script:WinOptimizerCompletedMenuSelections = @{}
+    $CompletedSelections = Get-WinOptimizerCompletedSelections -MenuTitle 'Main Menu'
     $Items = @(
         'Run all',
         'AntiBloat',
@@ -288,7 +347,7 @@ function Start-WinOptimizer {
     )
 
     while ($true) {
-        $Selection = Get-WinOptimizerMenuSelection -Title 'Main Menu' -Items $Items
+        $Selection = Get-WinOptimizerMenuSelection -Title 'Main Menu' -Items $Items -CompletedSelections $CompletedSelections
         if ($Selection -lt 0 -or $Selection -eq 6) {return}
 
         switch ($Selection) {
@@ -297,7 +356,7 @@ function Start-WinOptimizer {
                     Write-Warning 'Running all sections requires an elevated PowerShell session. No changes were made. Reopen PowerShell as Administrator and start WinOptimizer again.'
                     Start-Sleep -Seconds 3
                 } else {
-                    Invoke-WinOptimizerMenuAction {
+                    Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {
                         Start-WinAntiBloat -All
                         Start-WinSecurity
                         Start-WinSettings -All
@@ -307,7 +366,7 @@ function Start-WinOptimizer {
             1 {Start-WinOptimizerAntiBloatMenu}
             2 {Start-WinOptimizerSecurityMenu}
             3 {Start-WinOptimizerSettingsMenu}
-            4 {Invoke-WinOptimizerMenuAction {Install-App}}
+            4 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Install-App}}
         }
     }
 }

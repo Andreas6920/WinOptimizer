@@ -6,6 +6,8 @@ Function Start-WinSettings {
         [switch]$ShowFileExtension,
         [switch]$ShowHiddenFiles,
         [switch]$ChangeExplorerToThisPC,
+        [switch]$AlignTaskbarLeft,
+        [switch]$CenterStartMenuInTaskbar,
         [Alias('ShowSecondsInSystemTrayClock')]
         [switch]$FixClock,
         [switch]$DisableAutoSetupNetworkDevices,
@@ -20,6 +22,8 @@ Function Start-WinSettings {
         $ShowFileExtension -or
         $ShowHiddenFiles -or
         $ChangeExplorerToThisPC -or
+        $AlignTaskbarLeft -or
+        $CenterStartMenuInTaskbar -or
         $FixClock -or
         $DisableAutoSetupNetworkDevices -or
         $DisablePrinterSharing -or
@@ -47,7 +51,7 @@ Function Start-WinSettings {
 
 # Start
 Write-Host "`n$(Get-LogDate)`tENHANCE WINDOWS SETTINGS, $($SystemVersion)" -f Green
-if ($RunAllExplorerSettings -or $ShowFileExtension -or $ShowHiddenFiles -or $ChangeExplorerToThisPC -or $FixClock -or $DisableAutoSetupNetworkDevices -or $DisablePrinterSharing -or $SetPowerPlan) {
+if ($RunAllExplorerSettings -or $ShowFileExtension -or $ShowHiddenFiles -or $ChangeExplorerToThisPC -or $AlignTaskbarLeft -or $CenterStartMenuInTaskbar -or $FixClock -or $DisableAutoSetupNetworkDevices -or $DisablePrinterSharing -or $SetPowerPlan) {
     Write-Host "$(Get-LogDate)`t    Configure Windows:" -f Green
 }
         
@@ -132,12 +136,18 @@ if ($RunAllExplorerSettings -or $ShowFileExtension -or $ShowHiddenFiles -or $Cha
             If((test-path $3Dlocation64bit )){remove-item $3Dlocation64bit}
             Start-Sleep -S 2}
 
-    if($RunAllExplorerSettings -and $ThisIsWindows11){
-        # Move Taskbar to the left side
-        Write-Host "$(Get-LogDate)`t        - Move taskbar icons to left" -f Yellow
-        Add-Reg -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Type "DWord" -Value "0"
+    if ($ThisIsWindows11 -and ($RunAllExplorerSettings -or $AlignTaskbarLeft -or $CenterStartMenuInTaskbar)) {
+        $TaskbarAlignment = if ($CenterStartMenuInTaskbar) {1} else {0}
+        $AlignmentDescription = if ($CenterStartMenuInTaskbar) {'center'} else {'left'}
+        Write-Host "$(Get-LogDate)`t        - Align taskbar icons to the $AlignmentDescription." -ForegroundColor Yellow
+        Add-Reg -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Type "DWord" -Value "$TaskbarAlignment"
         Start-Sleep -S 2
-    
+        if (-not $RunAllExplorerSettings) {
+            Restart-Explorer
+        }
+    }
+
+    if ($RunAllExplorerSettings -and $ThisIsWindows11) {
         # Full context menu / old windows 11 menu
         Write-Host "$(Get-LogDate)`t        - Setting full context Left-Click menu." -f Yellow
         reg.exe add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" /f /ve | Out-Null
