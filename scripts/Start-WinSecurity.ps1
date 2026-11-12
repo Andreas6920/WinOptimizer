@@ -169,6 +169,11 @@
         Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings" -Name "IsMSACloudSearchEnabled" -Type "DWord" -Value 0
         # Cloud content search: Work or School account -> Off
         Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings" -Name "IsAADCloudSearchEnabled" -Type "DWord" -Value 0
+        # Show search highlights -> Off (Windows 11)
+        if ($ThisIsWindows11) {
+            Write-Host "$(Get-LogDate)`t        - Disabling search highlights." -f Yellow
+            Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings" -Name "IsDynamicSearchBoxEnabled" -Type "DWord" -Value 0
+        }
         Start-Sleep -s 2
     
     # Hiding personal information from lock screen
