@@ -4,7 +4,9 @@ Function Install-App {
         [Parameter(Mandatory=$false)]
         [string]$Name,
         [Parameter(Mandatory=$false)]
-        [switch]$Default,
+        [switch]$DefaultAppPack,
+        [Parameter(Mandatory=$false)]
+        [switch]$DefaultAppPackWithOffice2016,
         [Parameter(Mandatory=$false)]
         [switch]$ActivateWindows,
         [Parameter(Mandatory=$false)]
@@ -42,7 +44,8 @@ Function Install-App {
     if (-not (Assert-WinOptimizerAdministrator -Action 'Install-App')) {return}
 	
     # Default application list.
-    if ($Default) {$Name = "chrome,7zip,vlc"}	
+    if ($DefaultAppPack) {$Name = "chrome,7zip,vlc"}
+    if ($DefaultAppPackWithOffice2016) {$Name = "chrome,office,7zip,vlc"}
 
     # Available applications.
     $apps = @{
@@ -99,7 +102,7 @@ Function Install-App {
     
     # Show the menu when no parameters are specified.
     
-        if (-not $Name -and -not $Default -and -not $EnableAutoupdate -and -not $IncludeVisualPlusplus -and -not $ActivateWindows -and -not $ActivateMSOffice) {
+        if (-not $Name -and -not $DefaultAppPack -and -not $DefaultAppPackWithOffice2016 -and -not $EnableAutoupdate -and -not $IncludeVisualPlusplus -and -not $ActivateWindows -and -not $ActivateMSOffice) {
             do {
             Clear-Host
             Write-Host "APP-INSTALLER`n" -ForegroundColor Cyan
