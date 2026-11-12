@@ -27,7 +27,7 @@
 irm https://git.io/JzrB5 | iex; Start-WinOptimizer
 ```
 
-Run the default actions in AntiBloat, Security, and Windows Settings without installing applications:
+Run the default actions in AntiBloat, Windows Settings, and Security, in that order, without installing applications:
 
 ```powershell
 irm https://git.io/JzrB5 | iex; Start-WinOptimizer -RunAll

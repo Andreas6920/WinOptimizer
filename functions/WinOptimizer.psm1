@@ -347,8 +347,8 @@ function Start-WinOptimizerSecurityMenu {
 
 function Invoke-WinOptimizerRunAll {
     Start-WinAntiBloat
-    Start-WinSecurity
     Start-WinSettings
+    Start-WinSecurity
 }
 
 function Start-WinOptimizer {
