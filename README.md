@@ -19,7 +19,7 @@
 
 <div align="left">
 
-<h2 align="center">Open tool in one PowerShell command</h2>
+<h2 align="center">Open the tool in one PowerShell command</h2>
 
 <br/>
 
@@ -27,11 +27,6 @@
 irm https://git.io/JzrB5 | iex; Start-WinOptimizer
 ```
 
-Run the default actions in AntiBloat, Windows Settings, and Security, in that order, without installing applications:
-
-```powershell
-irm https://git.io/JzrB5 | iex; Start-WinOptimizer -RunAll
-```
 
 <br/>
 <h3 align="center">...Or pick just what you need</h3>
