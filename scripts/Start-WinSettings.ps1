@@ -79,7 +79,7 @@ if ($RunAllExplorerSettings -or $ShowFileExtension -or $ShowHiddenFiles -or $Cha
     }
 
     # Fix clock display
-    if ($All -or $FixClock) {
+    if ($RunAllExplorerSettings -or $FixClock) {
         Write-Host "$(Get-LogDate)`t        - Setting 24-hour clock, seconds, and dd/MM/yyyy date." -f Yellow
         Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSecondsInSystemClock" -Type "DWord" -Value "1"
         Add-Reg -Path "HKCU:\Control Panel\International" -Name "sTimeFormat" -Type "String" -Value "HH:mm:ss"
@@ -91,7 +91,7 @@ if ($RunAllExplorerSettings -or $ShowFileExtension -or $ShowHiddenFiles -or $Cha
         Start-Sleep -S 2
     }
     
-    if ($All -or $DisableAutoSetupNetworkDevices) {
+    if ($RunAllExplorerSettings -or $DisableAutoSetupNetworkDevices) {
     # Disable automatic setup of network connected devices
         Write-Host "$(Get-LogDate)`t        - Turn off automatic setup of network connected devices." -f Yellow
         Add-Reg -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type "DWORD" -Value "0"
@@ -105,7 +105,7 @@ if ($RunAllExplorerSettings -or $ShowFileExtension -or $ShowHiddenFiles -or $Cha
         Remove-Item "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Explorer\Desktop\NameSpace\DelegateFolders\{F5FB2C77-0E2F-4A16-A381-3E560C68BC83}" -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
     }
 
-    if ($All -or $DisablePrinterSharing) {
+    if ($RunAllExplorerSettings -or $DisablePrinterSharing) {
     # Disable sharing of PC and printers    
         Write-Host "$(Get-LogDate)`t        - Turn off sharing of PC and Printers." -f Yellow
         Get-NetConnectionProfile | ForEach-Object {Set-NetConnectionProfile -Name $_.Name -NetworkCategory Public -ErrorAction SilentlyContinue | Out-Null}    
@@ -113,7 +113,7 @@ if ($RunAllExplorerSettings -or $ShowFileExtension -or $ShowHiddenFiles -or $Cha
         netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=No -ErrorAction SilentlyContinue | Out-Null
     }
 
-    if ($All -or $SetPowerPlan) {
+    if ($RunAllExplorerSettings -or $SetPowerPlan) {
     # Setting Power plan    
         Write-Host "$(Get-LogDate)`t        - Setting power plan." -f Yellow
         powercfg -change -monitor-timeout-ac 180

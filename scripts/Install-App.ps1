@@ -4,6 +4,8 @@ Function Install-App {
         [Parameter(Mandatory=$false)]
         [string]$Name,
         [Parameter(Mandatory=$false)]
+        [switch]$Default,
+        [Parameter(Mandatory=$false)]
         [switch]$ActivateWindows,
         [Parameter(Mandatory=$false)]
         [switch]$ActivateMSOffice,
@@ -23,26 +25,26 @@ Function Install-App {
         Install-App -Name "Chrome,7-zip,VLC,Office" -EnableAutoupdate
 
         .NOTES
-            Forbedringstiltag:
-            - Applikationspræferencer, baseret på installerede apps:
-                - Hvis acrobate er installeret, sæt som pdf åbner
-                - Hvis ShareX er installeret, opsæt konfigurationer
-            - AM opsætning?
-            - Dot.Net opsætning?
-            - Visual++ opsætning?
+            Potential improvements:
+            - Configure application preferences based on installed apps:
+                - Set Acrobat as the default PDF viewer when installed.
+                - Configure ShareX when installed.
+            - AM setup?
+            - .NET setup?
+            - Visual C++ setup?
     #>
 
-    ## Fjern før upload, for test skyld
+    ## Remove before upload; added for testing.
         # Timestamps for actions
         Function Get-LogDate {
         return (Get-Date -f "[yyyy/MM/dd HH:mm:ss]")}
 
     if (-not (Assert-WinOptimizerAdministrator -Action 'Install-App')) {return}
 	
-	# Standardliste, hvis -Default vælges
+    # Default application list.
     if ($Default) {$Name = "chrome,7zip,vlc"}	
 
-    # Liste over tilgængelige applikationer
+    # Available applications.
     $apps = @{
         "default" = "default|default"
         "office" = "Microsoft Office 2016 Retail|microsoft-office-deployment"
@@ -95,33 +97,33 @@ Function Install-App {
         }
 
     
-    # Fremkald menu hvis parametre ikke er satte 
+    # Show the menu when no parameters are specified.
     
         if (-not $Name -and -not $Default -and -not $EnableAutoupdate -and -not $IncludeVisualPlusplus -and -not $ActivateWindows -and -not $ActivateMSOffice) {
             do {
             Clear-Host
-            Write-Host "APP-INSTALLER`n" -ForegroundColor Green
+            Write-Host "APP-INSTALLER`n" -ForegroundColor Cyan
             Write-Host ""
-            Write-Host "`tBrowser                                            " -BackgroundColor Green -ForegroundColor Black
-            Write-Host "`tGoogle Chrome`t    Firefox`t    Brave" -ForegroundColor Green
-            Write-Host "`tVivaldi`t`t    Opera`t    LibreWolf" -ForegroundColor Green
-            Write-Host "`tTools for office/school                            " -BackgroundColor Green -ForegroundColor Black
-            Write-Host "`tMicrosoft Office    7-Zip`t    VLC" -ForegroundColor Green
-            Write-Host "`tTeams`t`t    Zoom`t    Webex" -ForegroundColor Green
-            Write-Host "`tAdobe Reader`t    Greenshot`t    ShareX" -ForegroundColor Green
-            Write-Host "`tSecurity                                            " -BackgroundColor Green -ForegroundColor Black
-            Write-Host "`tAVG Free`t    Avast Free`t    Malwarebytes" -ForegroundColor Green
-            Write-Host "`tTools for tech's                                    " -BackgroundColor Green -ForegroundColor Black
-            Write-Host "`tvscode`t`t    notepad++`t    mRemoteNG" -ForegroundColor Green
-            Write-Host "`tPuTTY`t`t    Tera Term`t    SuperPutty" -ForegroundColor Green
-            Write-Host "`tPowerShell Core`t    WinSCP`t    FileZilla" -ForegroundColor Green
-            Write-Host "`tEntertainment                                       " -BackgroundColor Green -ForegroundColor Black
-            Write-Host "`tSteam`t`t    UbiSoft`t    Twitch" -ForegroundColor Green
-            Write-Host "`tSpotify`t`t    Winamp`t    MPC-HC" -ForegroundColor Green
-            Write-Host "`tqBittorent" -ForegroundColor Green
+            Write-Host "`tBrowser                                            " -BackgroundColor Cyan -ForegroundColor Black
+            Write-Host "`tGoogle Chrome`t    Firefox`t    Brave" -ForegroundColor Cyan
+            Write-Host "`tVivaldi`t`t    Opera`t    LibreWolf" -ForegroundColor Cyan
+            Write-Host "`tTools for office/school                            " -BackgroundColor Cyan -ForegroundColor Black
+            Write-Host "`tMicrosoft Office    7-Zip`t    VLC" -ForegroundColor Cyan
+            Write-Host "`tTeams`t`t    Zoom`t    Webex" -ForegroundColor Cyan
+            Write-Host "`tAdobe Reader`t    Greenshot`t    ShareX" -ForegroundColor Cyan
+            Write-Host "`tSecurity                                            " -BackgroundColor Cyan -ForegroundColor Black
+            Write-Host "`tAVG Free`t    Avast Free`t    Malwarebytes" -ForegroundColor Cyan
+            Write-Host "`tTools for tech's                                    " -BackgroundColor Cyan -ForegroundColor Black
+            Write-Host "`tvscode`t`t    notepad++`t    mRemoteNG" -ForegroundColor Cyan
+            Write-Host "`tPuTTY`t`t    Tera Term`t    SuperPutty" -ForegroundColor Cyan
+            Write-Host "`tPowerShell Core`t    WinSCP`t    FileZilla" -ForegroundColor Cyan
+            Write-Host "`tEntertainment                                       " -BackgroundColor Cyan -ForegroundColor Black
+            Write-Host "`tSteam`t`t    UbiSoft`t    Twitch" -ForegroundColor Cyan
+            Write-Host "`tSpotify`t`t    Winamp`t    MPC-HC" -ForegroundColor Cyan
+            Write-Host "`tqBittorent" -ForegroundColor Cyan
             Write-Host ""
 
-            Write-Host "Hvilke applikationer vil du installere? (comma-separated):" -NoNewline -ForegroundColor Green
+            Write-Host "Which applications would you like to install? (comma-separated):" -NoNewline -ForegroundColor Cyan
             $Name = Read-Host
         
 
@@ -134,30 +136,30 @@ Function Install-App {
                     }
                 }
 
-                Write-Host "Scriptet vil installere følgende:" -ForegroundColor Cyan
+                Write-Host "The following applications will be installed:" -ForegroundColor Cyan
                 foreach ($header in $headersToInstall) {
                     Write-Host "    - $header" -ForegroundColor Yellow
                 }
 
-                Write-Host "Vil du fortsætte? (y/n): " -NoNewline
+                Write-Host "Would you like to continue? (y/n): " -NoNewline
                 $proceed = Read-Host
 
                 if ($proceed -eq "n") {
                     $Name = $null
-                    Write-Host "Installation annulleret.`n`n" -ForegroundColor Red}
+                    Write-Host "Installation cancelled.`n`n" -ForegroundColor Red}
 
             } while ($proceed -ne "y")}
 
-    # Opdel input fra pipeline
+    # Split piped input.
         $requested_apps = $Name -split "[,;\s]+" | Where-Object {$_ -ne ""}
 
-    # Installér applikationer
-    Write-Host "`n$(Get-LogDate)`tINSTALLING APPLICATIONS" -f Green; Start-Sleep -S 2
+    # Install applications.
+    Write-Host "`n$(Get-LogDate)`tINSTALLING APPLICATIONS" -ForegroundColor Cyan; Start-Sleep -S 2
         
         if ($Name){
-            # Installér Chocolatey hvis ikke den er
+            # Install Chocolatey if it is not already installed.
             if (!(Test-Path "$env:ProgramData\Chocolatey")) {
-                Write-Host "$(Get-LogDate)`t    System preparation:" -f Green
+                Write-Host "$(Get-LogDate)`t    System preparation:" -ForegroundColor Cyan
                 Write-Host "$(Get-LogDate)`t        - Installing Chocolatey." -f Yellow;
                 
                 # Start job
@@ -166,18 +168,18 @@ Function Install-App {
                     [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
                     Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))})
 
-                # Vent på at jobbet er færdigt, men uden output
+                # Wait for the job to finish without displaying its output.
                 Wait-Job -Name "Chocolatey Installation" | Out-Null
 
-                # Import Chocolatey uden output
+                # Import Chocolatey without displaying output.
                 Import-Module "$env:ProgramData\chocolatey\helpers\chocolateyInstaller.psm1" -ErrorAction SilentlyContinue
                 Update-SessionEnvironment | Out-Null}
 
-                Write-Host "$(Get-LogDate)`t    Installing application:" -ForegroundColor Green 
+                Write-Host "$(Get-LogDate)`t    Installing application:" -ForegroundColor Cyan
         
                 foreach ($requested_app in $requested_apps) {
 
-                # Korriger inputs
+                # Normalize the input.
                 $app_info = $apps[$requested_app] -split "\|"
                 $header = $app_info[0]
                 $package = $app_info[1]
@@ -186,12 +188,12 @@ Function Install-App {
                     $content = irm $url
                     $modifiedContent = $content -replace "REPLACE-ME-APP", $package
 
-                # Start et job, som kører det modificerede indhold direkte
+                # Start a job that runs the modified content directly.
                 Write-Host "$(Get-LogDate)`t        - $header." -f Yellow;
                 $job = Start-Job -Name $header -ScriptBlock {param ($scriptContent)
                     Invoke-Expression $scriptContent} -ArgumentList $modifiedContent
 
-                # Vent til jobbet er færdigt
+                # Wait for the job to finish.
                 Wait-Job -Name $header | Out-Null
                 
                 Add-Type -AssemblyName System.Windows.Forms
@@ -199,20 +201,20 @@ Function Install-App {
                 $path = (Get-Process -id $pid).Path
                 $balmsg.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
                 $balmsg.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
-                $balmsg.BalloonTipText = "$($header) er nu installeret."
-                $balmsg.BalloonTipTitle = "Installation fuldendt"
+                $balmsg.BalloonTipText = "$($header) has been installed."
+                $balmsg.BalloonTipTitle = "Installation complete"
                 $balmsg.Visible = $true
                 $balmsg.ShowBalloonTip(20000)
 
                 }
 
-                Write-Host "$(Get-LogDate)`t    Applications installed." -f Green
+                Write-Host "$(Get-LogDate)`t    Applications installed." -ForegroundColor Cyan
                 
         }
 
         
-    # Installér Visual C++ Redistributable, hvis valgt
-    if ($IncludeVisualPlusplus) { Write-Host "$(Get-LogDate)`t    Installere samtlige versioner af Visual C++ Redistributable:" -ForegroundColor Green
+    # Install the Visual C++ Redistributables if requested.
+    if ($IncludeVisualPlusplus) { Write-Host "$(Get-LogDate)`t    Installing all versions of the Visual C++ Redistributables:" -ForegroundColor Cyan
     Start-Job -Name "Visual C++" -ScriptBlock { 
         # Download
             $link = "https://nl1-dl.techpowerup.com/files/AREvQDJmUpviZKyo2OKzkw/1745448692/Visual-C-Runtimes-All-in-One-Mar-2025.zip"
@@ -233,9 +235,9 @@ Function Install-App {
             ./vcredist2012_x64.exe /passive /norestart
             ./vcredist2013_x64.exe /passive /norestart
             ./vcredist2015_2017_2019_2022_x64.exe /passive /norestart}
-        # Vent indtil installation er færdig
+        # Wait for the installation to finish.
             Wait-Job -Name "Visual C++" | Out-Null
-            Write-Host "$(Get-LogDate)`t        - Visual C++ installation fuldført." -ForegroundColor Yellow} 
+            Write-Host "$(Get-LogDate)`t        - Visual C++ installation complete." -ForegroundColor Yellow}
 
 
     # Activation
@@ -248,9 +250,9 @@ Function Install-App {
                 Add-content -Path $ActivationScript -Value "Remove-item $ActivationScript -Force" -Encoding UTF8
                 Start-Process powershell -ArgumentList "-NoProfile -ExecutionPolicy Bypass -WindowStyle Minimized -File `"$ActivationScript`"" ` -WindowStyle Minimized}
 
-    # Automatisk opdatering af applikationer 
+    # Automatically update applications.
         if ($EnableAutoupdate) {
-            Write-Host "$(Get-LogDate)`t    Enabling automatic patching:" -f Green
+            Write-Host "$(Get-LogDate)`t    Enabling automatic patching:" -ForegroundColor Cyan
 
             # Download Script
             $appupdaterlink = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/scripts/app-updater.ps1"
@@ -268,7 +270,7 @@ Function Install-App {
             Write-Host "$(Get-LogDate)`t        - Scheduling task." -f Yellow;
             Register-ScheduledTask -TaskName $Taskname -Action $Taskaction -Settings $Tasksettings -Trigger $Tasktrigger -User $User -RunLevel Highest -Force | Out-Null
 
-            Write-Host "$(Get-LogDate)`t            - Opgavenavn: $Taskname" -f Yellow;
+            Write-Host "$(Get-LogDate)`t            - Task name: $Taskname" -f Yellow;
             Write-Host "$(Get-LogDate)`t            - Complete." -f Yellow;
             Write-Host "$(Get-LogDate)`t        - Automatic patching for desktop applications is now enabled." -f Yellow;
         }

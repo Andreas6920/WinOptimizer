@@ -267,11 +267,11 @@ function Start-WinOptimizerSettingsMenu {
         '      ChangeExplorerToThisPC',
         '      Taskbar Alignment: Left',
         '      Full Context Menu: Right-click',
+        '      Fix Clock',
+        '      Disable Auto Setup of network devices',
+        '      Disable share of printers',
+        '      Set Powerplan',
         '    Taskbar Alignment: Center',
-        '    Fix Clock',
-        '    Disable Auto Setup of network devices',
-        '    Disable share of printers',
-        '    Set Powerplan',
         '    Enable DarkMode',
         '    Set Wallpaper: WindowsSpotlight',
         '    Set Wallpaper: Default Wallpaper',
@@ -297,11 +297,11 @@ function Start-WinOptimizerSettingsMenu {
             5 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -ChangeExplorerToThisPC}}
             6 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -AlignTaskbarLeft}}
             7 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -SetFullContextMenu}}
-            8 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -CenterStartMenuInTaskbar}}
-            9 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -FixClock}}
-            10 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -DisableAutoSetupNetworkDevices}}
-            11 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -DisablePrinterSharing}}
-            12 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -SetPowerPlan}}
+            8 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -FixClock}}
+            9 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -DisableAutoSetupNetworkDevices}}
+            10 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -DisablePrinterSharing}}
+            11 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -SetPowerPlan}}
+            12 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -CenterStartMenuInTaskbar}}
             13 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -EnableDarkMode}}
             14 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -SetWallpaperWindowsSpotlight}}
             15 {Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {Start-WinSettings -SetWallpaperDisableWindowsSpotlight}}
