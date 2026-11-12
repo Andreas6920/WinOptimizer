@@ -345,7 +345,28 @@ function Start-WinOptimizerSecurityMenu {
     }
 }
 
+function Invoke-WinOptimizerRunAll {
+    Start-WinAntiBloat
+    Start-WinSecurity
+    Start-WinSettings
+}
+
 function Start-WinOptimizer {
+    [CmdletBinding()]
+    param(
+        [switch]$RunAll
+    )
+
+    if ($RunAll) {
+        if (-not (Test-WinOptimizerAdministrator)) {
+            Write-Warning 'Running all sections requires an elevated PowerShell session. No changes were made. Reopen PowerShell as Administrator and start WinOptimizer again.'
+            return
+        }
+
+        Invoke-WinOptimizerRunAll
+        return
+    }
+
     $script:WinOptimizerCompletedMenuSelections = @{}
     $CompletedSelections = Get-WinOptimizerCompletedSelections -MenuTitle 'Main Menu'
     $Items = @(
@@ -369,9 +390,7 @@ function Start-WinOptimizer {
                     Start-Sleep -Seconds 3
                 } else {
                     Invoke-WinOptimizerMenuAction -CompletedSelections $CompletedSelections -Selection $Selection -Action {
-                        Start-WinAntiBloat -All
-                        Start-WinSecurity
-                        Start-WinSettings -All
+                        Invoke-WinOptimizerRunAll
                     }
                 }
             }
