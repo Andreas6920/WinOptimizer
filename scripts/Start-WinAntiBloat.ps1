@@ -27,6 +27,7 @@
         $CleanScheduledTasks -or
         $CleanPrinters
 
+    # No selection runs the default set; desktop cleanup still requires -CleanDesktop.
     if (-not ($All -or $AnySectionSelected)) {$All = $true}
 
     if (-not (Assert-WinOptimizerAdministrator -Action 'Start-WinAntiBloat')) {return}
@@ -62,6 +63,7 @@
         $RobocopyPath = Join-Path $env:SystemRoot 'System32\robocopy.exe'
         if (-not (Test-Path -LiteralPath $RobocopyPath -PathType Leaf)) {throw "Robocopy was not found: $RobocopyPath"}
 
+        # Keep prior cleanup runs separate and exclude the destination from the move.
         $MovedFilesRoot = Join-Path $UserDesktop 'moved files'
         $RunFolder = Join-Path $MovedFilesRoot (Get-Date -Format 'yyyyMMdd-HHmmss-fff')
         $UserDesktopDestination = $RunFolder
@@ -69,6 +71,7 @@
 
         Write-Host "$(Get-LogDate)`t        - Moving user Desktop contents to '$UserDesktopDestination'." -ForegroundColor Yellow
         & $RobocopyPath $UserDesktop $UserDesktopDestination /E /MOVE /COPY:DAT /DCOPY:DAT /R:2 /W:2 /XJ /XD $MovedFilesRoot *> $null
+        # Robocopy exit codes below 8 can still indicate a successful copy or move.
         $RobocopyExitCode = $LASTEXITCODE
         if ($RobocopyExitCode -ge 8) {
             throw "Robocopy failed with exit code $RobocopyExitCode. Some user Desktop items may already have been moved; review '$UserDesktopDestination' before retrying."
@@ -86,6 +89,7 @@
             throw "Some user Desktop items were not moved: $RemainingNames. Review '$UserDesktop' and '$UserDesktopDestination'."
         }
 
+        # Remove top-level user shortcuts after the remaining items have been moved.
         $DesktopShortcuts = @(Get-ChildItem -LiteralPath $UserDesktopDestination -Filter '*.lnk' -File -Force -ErrorAction Stop)
         foreach ($Shortcut in $DesktopShortcuts) {
             Remove-Item -LiteralPath $Shortcut.FullName -Force -ErrorAction Stop
@@ -93,6 +97,7 @@
 
         Write-Host "$(Get-LogDate)`t        - Removing all contents from the Public Desktop." -ForegroundColor Yellow
         $PublicDesktopItems = @(Get-ChildItem -LiteralPath $PublicDesktop -Force -ErrorAction Stop)
+        # Remove reparse points without recursively following their targets.
         foreach ($PublicDesktopItem in $PublicDesktopItems) {
             if ($PublicDesktopItem.Attributes -band [IO.FileAttributes]::ReparsePoint) {
                 Remove-Item -LiteralPath $PublicDesktopItem.FullName -Force -ErrorAction Stop
@@ -133,6 +138,12 @@
                 Write-Host "$(Get-LogDate)`t        - Hiding Cortana." -f Yellow
                 Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Type "DWord" -Value "0" # Windows 10 specific
                 Start-Sleep -S 2
+            # Hide the Windows 10 People button
+                if ($ThisIsWindows10) {
+                    Write-Host "$(Get-LogDate)`t        - Hiding People on the taskbar." -f Yellow
+                    Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -Name "PeopleBand" -Type "DWord" -Value "0"
+                    Start-Sleep -S 2
+                }
             # Taskbar pinned applications
                 Write-Host "$(Get-LogDate)`t        - Removing pinned apps from taskbar" -f Yellow
                 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "Favorites" -Value ([byte[]](0xFF)) -Force | Out-Null    

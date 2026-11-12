@@ -34,6 +34,7 @@ Function Start-WinSettings {
         $SetWallpaperWindowsSpotlight -or
         $SetWallpaperDisableWindowsSpotlight
 
+    # With no selected setting, use the same defaults as -All.
     if (-not ($All -or $AnySettingSelected)) {
         $All = $true
     }
@@ -139,6 +140,7 @@ if ($RunAllExplorerSettings -or $ShowFileExtension -or $ShowHiddenFiles -or $Cha
             Start-Sleep -S 2}
 
     if ($ThisIsWindows11 -and ($RunAllExplorerSettings -or $AlignTaskbarLeft -or $CenterStartMenuInTaskbar)) {
+        # Center wins when explicitly requested; the default alignment is left.
         $TaskbarAlignment = if ($CenterStartMenuInTaskbar) {1} else {0}
         $AlignmentDescription = if ($CenterStartMenuInTaskbar) {'center'} else {'left'}
         Write-Host "$(Get-LogDate)`t        - Align taskbar icons to the $AlignmentDescription." -ForegroundColor Yellow

@@ -1,5 +1,6 @@
 $RepositoryRoot = 'https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main'
 $InstallRoot = Join-Path $env:TEMP 'WinOptimizer'
+# Keep the repository's relative layout so the module can load its scripts and banner.
 $FilesToDownload = @(
     'functions/WinOptimizer.psm1',
     'scripts/Start-WinAntiBloat.ps1',

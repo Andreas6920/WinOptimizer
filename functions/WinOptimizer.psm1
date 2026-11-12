@@ -96,6 +96,7 @@ function Get-WinOptimizerMenuSelection {
 
     $SelectedIndex = 0
     $BannerPath = Join-Path $PSScriptRoot '..\assets\ascii-winoptimizer.txt'
+    # Submenus use a compact header; only the main menu needs the banner file.
     $Banner = if ($Title -eq 'Main Menu') {
         Get-Content -LiteralPath $BannerPath -Encoding UTF8 -ErrorAction Stop
     }
@@ -145,6 +146,7 @@ function Get-WinOptimizerMenuSelection {
         }
         Write-Host $MenuSeparator -ForegroundColor Cyan
         $Key = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+        # Virtual key codes: up, down, Enter, and Escape.
         switch ($Key.VirtualKeyCode) {
             38 {$SelectedIndex = Get-WinOptimizerNextMenuSelection -Items $Items -SelectedIndex $SelectedIndex -Direction Previous}
             40 {$SelectedIndex = Get-WinOptimizerNextMenuSelection -Items $Items -SelectedIndex $SelectedIndex -Direction Next}
@@ -167,6 +169,7 @@ function Get-WinOptimizerNextMenuSelection {
     )
 
     $Step = if ($Direction -eq 'Next') {1} else {-1}
+    # Wrap around the menu and skip blank separator rows.
     do {$SelectedIndex = ($SelectedIndex + $Step + $Items.Count) % $Items.Count} while ([string]::IsNullOrWhiteSpace($Items[$SelectedIndex]))
     return $SelectedIndex
 }
@@ -185,6 +188,7 @@ function Get-WinOptimizerCompletedSelections {
         $script:WinOptimizerCompletedMenuSelections[$MenuTitle] = [System.Collections.Generic.HashSet[int]]::new()
     }
 
+    # Preserve the HashSet itself instead of enumerating its selected indices.
     return ,$script:WinOptimizerCompletedMenuSelections[$MenuTitle]
 }
 
@@ -206,6 +210,7 @@ function Invoke-WinOptimizerMenuAction {
         [int]$Selection
     )
 
+    # Only mark a selection complete if its action does not throw.
     try {
         & $Action
         [void]$CompletedSelections.Add($Selection)
@@ -218,6 +223,7 @@ function Invoke-WinOptimizerMenuAction {
 
 function Start-WinOptimizerAntiBloatMenu {
     $CompletedSelections = Get-WinOptimizerCompletedSelections -MenuTitle 'Anti Bloat'
+    # Menu item positions correspond to the switch cases below, including blank rows.
     $Items = @(
         '  Run ALL Settings:',
         '    Remove ALL Bloat:',
@@ -346,6 +352,7 @@ function Start-WinOptimizerSecurityMenu {
 }
 
 function Invoke-WinOptimizerRunAll {
+    # Use each section's defaults; application installation remains a separate choice.
     Start-WinAntiBloat
     Start-WinSettings
     Start-WinSecurity

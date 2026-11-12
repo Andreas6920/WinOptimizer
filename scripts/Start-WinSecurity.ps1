@@ -8,6 +8,7 @@
         [switch]$SendRemovalRequest
     )
 
+    # No switches select privacy and security; optional blocking and removal stay opt-in.
     $AnySectionSelected = $SetPrivacySettings -or $SetSecuritySettings -or
         $BlockDomainHostFile -or $BlockDomainFirewall -or $SendRemovalRequest
     $RunPrivacySettings = $SetPrivacySettings -or -not $AnySectionSelected
@@ -103,6 +104,15 @@
             # Tailored expirences -> Off
             Add-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Name "TailoredExperiencesWithDiagnosticDataEnabled" -Type "DWORD" -Value "0"
             Start-Sleep -s 2
+
+        # Privacy & Security -> Activity History (Windows 10)
+        if ($ThisIsWindows10) {
+            Write-Host "$(Get-LogDate)`t        - Blocking publication and upload of activity history." -f Yellow
+            # Apply device-wide policies without deleting previously collected history.
+            Add-Reg -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "PublishUserActivities" -Type "DWord" -Value "0"
+            Add-Reg -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "UploadUserActivities" -Type "DWord" -Value "0"
+            Start-Sleep -s 2
+        }
 
         if($ThisIsWindows11){
         <# Privacy & Security -> Activity History
@@ -265,6 +275,7 @@
             $key.SendKeys("%{F4}")
             Start-Sleep -Seconds 2
         } finally {
+            # Restore user input even if the Settings automation fails.
             Start-Input | Out-Null
         }
     }

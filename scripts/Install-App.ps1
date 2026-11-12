@@ -47,7 +47,7 @@ Function Install-App {
     if ($DefaultAppPack) {$Name = "chrome,7zip,vlc"}
     if ($DefaultAppPackWithOffice2016) {$Name = "chrome,office,7zip,vlc"}
 
-    # Available applications.
+    # Map each input name to the display name and Chocolatey package used by the templates.
     $apps = @{
         "default" = "default|default"
         "office" = "Microsoft Office 2016 Retail|microsoft-office-deployment"
@@ -188,6 +188,7 @@ Function Install-App {
                 $package = $app_info[1]
                 $url = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/res/Template-AppInstall"
                     if ($header -eq "Microsoft Office 2016 Retail"){$url = "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/refs/heads/main/res/Template-OfficeInstall"}
+                    # The downloaded template contains a package placeholder replaced for this app.
                     $content = irm $url
                     $modifiedContent = $content -replace "REPLACE-ME-APP", $package
 

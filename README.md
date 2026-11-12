@@ -66,6 +66,8 @@ Optimize privacy and security settings
 irm https://git.io/JzrB5 | iex; Start-WinSecurity
 ```
 
+On Windows 10, the default privacy settings apply device-wide policies that block publishing and uploading activity history. Existing history is not deleted, and the settings may appear as managed by your organization.
+
 Install Microsoft Office 2016 (Word, Excel, PowerPoint, Outlook, and OneNote)
 
 ```powershell
