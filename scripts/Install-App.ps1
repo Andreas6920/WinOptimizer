@@ -246,9 +246,9 @@ Function Install-App {
     # Activation
         $ActivationScript = Join-path -Path $env:TMP -Childpath "activation.ps1"
         if ($ActivateWindows -or $ActivateMSOffice) {New-Item -Path $ActivationScript -ItemType File -Force | Out-Null}
-        if ($ActivateWindows){$code = Invoke-RestMethod https://paste.ee/r/AKz6XqLq; Add-Content -Path $ActivationScript -Value $code -Encoding UTF8}
+        if ($ActivateWindows){$code = Invoke-RestMethod "https://raw.githubusercontent.com/Andreas6920/Other/refs/heads/main/scripts/Get-ActivatedWindows.ps1"; Add-Content -Path $ActivationScript -Value $code -Encoding UTF8}
         if ($ActivateWindows -and $ActivateMSOffice) {Add-Content -Path $ActivationScript -Value "Start-Sleep -Seconds 10" -Encoding UTF8}
-        if ($ActivateMSOffice){$code = Invoke-RestMethod  https://paste.ee/r/Ze6BAkyA; Add-Content -Path $ActivationScript -Value $code -Encoding UTF8}
+        if ($ActivateMSOffice){$code = Invoke-RestMethod  "https://raw.githubusercontent.com/Andreas6920/Other/refs/heads/main/scripts/Get-ActivatedOffice.ps1"; Add-Content -Path $ActivationScript -Value $code -Encoding UTF8}
         if(test-path $ActivationScript){
                 Add-content -Path $ActivationScript -Value "Remove-item $ActivationScript -Force" -Encoding UTF8
                 Start-Process powershell -ArgumentList "-NoProfile -ExecutionPolicy Bypass -WindowStyle Minimized -File `"$ActivationScript`"" ` -WindowStyle Minimized}
